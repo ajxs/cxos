@@ -1,0 +1,9 @@
+build
+obj
+gnatprove
+*.ali
+*.o
+*.a
+*.elf
+*.bin
+*.img

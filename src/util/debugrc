@@ -1,0 +1,2 @@
+target remote localhost:1234
+file src/kernel/build/cxos.elf -readnow

@@ -1,0 +1,328 @@
+#!/usr/bin/env bash
+
+source "_shared.sh" || exit 1
+
+# Recipe for building and installing a GNAT capable GCC cross-compiler from `x86-64-linux-elf` 
+# to `i686-elf` from source.
+# This script assumes a Debian-like system. Ubuntu etc. But can easily be adapted to another
+# system. If you want help with this, feel free to contact me directly.
+# Requires a compatible version of GNAT on the host machine for bootstrapping the 
+# installation process. This is the source of much trouble and confusion. I have only been
+# able to build with certain combinations. Usually a matching system version of FSF GNAT
+# is required. e.g System FSF GNAT 8.3.0 will need to be installed to build GCC/GNAT 8.3.0.
+#
+# Note: Assumes that the source files for GCC, newlib, binutils, and optionally GMP, MPC, MPFR
+# are stored under the directory pointed at by the `source_dir` variable below.
+# The 'build' directory used for building these is configurable below.
+# Optionally the script checks for GMP, MPC and MPFR being installed on the system and links
+# against them staticly during the build process.
+#
+# Once the installation is finished, you will need to add the directory specified in the 
+# `${BUILD_PREFIX}` variable to your PATH to use the built compiler.
+
+
+# The target triplet for the build.
+export BUILD_TARGET="i686-elf"
+# The install prefix.
+export BUILD_PREFIX="${HOME}/opt/cross/${BUILD_TARGET}"
+# The host target triplet.
+export HOST="x86_64-pc-linux-gnu"
+
+# Update the PATH variable for this script so it includes the build directory.
+export PATH="${BUILD_PREFIX}/bin:${PATH}"
+
+# Whether we want to link statically against the local installation of GMP, MPC, MPFR.
+# Disabling this has not been extensively tested.
+use_local_deps=1
+# The search dir when looking for these local dependency libraries.
+local_lib_dir="/usr/local"
+
+
+# The concurrency to use during the build process.
+concurrency=8
+
+# The directory where the source dirs are located.
+source_dir="${HOME}/src"
+# The directory to use as storage for the intermediate build dirs.
+build_dir="${HOME}/src/build"
+
+# The versions to build. These vars correspond to the source dirs.
+binutils_version="2.32"
+gcc_version="8.3.0"
+newlib_version="3.1.0"
+gmp_version="6.1.2"
+mpc_version="1.1.0"
+mpfr_version="4.0.2"
+
+
+# Builds and installs binutils.
+function build_binutils {
+	binutils_dir="binutils-${binutils_version}"
+
+	cd "${build_dir}" || exit 1
+
+	echo "Building cross binutils for arch: '${BUILD_TARGET}'"
+	echo "Target: ${BUILD_TARGET}"
+	echo "Prefix: ${BUILD_PREFIX}"
+	echo "Source dir: ${source_dir}/${binutils_dir}"
+	prompt_to_confirm
+
+	if [[ ! -d "${build_dir}/${binutils_dir}" ]]; then
+		mkdir "${build_dir}/${binutils_dir}" || die_with_message "Error creating build dir! Exiting"
+	fi
+
+	cd "${build_dir}/${binutils_dir}" || exit 1
+
+	${source_dir}/${binutils_dir}/configure    \
+		--target=${BUILD_TARGET}                 \
+		--prefix="${BUILD_PREFIX}"               \
+		--host="${HOST}"                         \
+		--with-gcc                               \
+		--with-sysroot                           \
+		--disable-nls                            \
+		--enable-multilib                        \
+		--enable-interwork                       \
+		--disable-shared                         \
+		--disable-threads                        \
+		--disable-werror || exit 1
+
+	make -j${concurrency} || die_with_message "Error building binutils"
+	make -j${concurrency}  install || die_with_message "Error installing binutils"
+}
+
+
+# Builds and installs the initial minimal version of GCC.
+# This minimal build has only C support. It is required for building the full GCC
+# which includes GNAT.
+function build_bootstrap_gcc {
+	gcc_dir="gcc-${gcc_version}"
+
+	cd "${build_dir}" || exit 1
+
+	echo "Building cross GCC bootstrap for arch: '${BUILD_TARGET}'"
+	echo "Target: ${BUILD_TARGET}"
+	echo "Prefix: ${BUILD_PREFIX}"
+	echo "Source dir: ${source_dir}/${gcc_dir}"
+	prompt_to_confirm
+
+	if [[ ! -d "${build_dir}/${gcc_dir}" ]]; then
+		mkdir "${build_dir}/${gcc_dir}" || die_with_message "Error creating build dir! Exiting"
+	fi
+
+	cd "${build_dir}/${gcc_dir}" || exit 1
+
+	${source_dir}/${gcc_dir}/configure    \
+		--target=${BUILD_TARGET}            \
+		--prefix="${BUILD_PREFIX}"          \
+		--enable-languages="c"              \
+		--with-newlib                       \
+		--with-gmp=${local_lib_dir}         \
+		--with-mpc=${local_lib_dir}         \
+		--with-mpfr=${local_lib_dir}        \
+		--without-headers                   \
+		--enable-multilib                   \
+		--disable-shared                    \
+		--with-system-zlib                  \
+		--disable-nls || exit 1
+
+	make -j${concurrency} all-gcc || die_with_message "Error building initial GCC"
+	make -j${concurrency} install-gcc || die_with_message "Error installing initial GCC"
+}
+
+
+# Builds and installs the final version of GCC.
+function build_gcc {
+	gcc_dir="gcc-${gcc_version}"
+
+	cd "${build_dir}" || exit 1
+
+	echo "Building GCC for arch: '${BUILD_TARGET}'"
+	echo "Target: ${BUILD_TARGET}"
+	echo "Prefix: ${BUILD_PREFIX}"
+	echo "Source dir: ${source_dir}/${gcc_dir}"
+	prompt_to_confirm
+
+	if [[ ! -d "${build_dir}/${gcc_dir}" ]]; then
+		mkdir "${build_dir}/${gcc_dir}" || die_with_message "Error creating build dir! Exiting"
+	fi
+
+	cd "${build_dir}/${gcc_dir}" || exit 1
+
+	${source_dir}/${gcc_dir}/configure    \
+		--target=${BUILD_TARGET}            \
+		--prefix="${BUILD_PREFIX}"          \
+		--enable-languages="c,c++,ada"      \
+		--with-newlib                       \
+		--with-gmp=${local_lib_dir}         \
+		--with-mpc=${local_lib_dir}         \
+		--with-mpfr=${local_lib_dir}        \
+		--disable-libada                    \
+		--without-headers                   \
+		--disable-threads                   \
+		--enable-multilib                   \
+		--enable-interwork                  \
+		--disable-shared                    \
+		--with-system-zlib                  \
+		--without-libiconv-prefix           \
+		--disable-libmudflap                \
+		--disable-libstdcxx-pch             \
+		--enable-lto                        \
+		--with-system-zlib                  \
+		--disable-nls || exit 1
+
+	make -j${concurrency} all-gcc || die_with_message "Error building GCC"
+	make -j${concurrency} all-target-libgcc || die_with_message "Error building GCC"
+	make -j${concurrency} -C gcc cross-gnattools ada.all.cross || die_with_message "Error building GCC"
+	make -j${concurrency} install-strip-gcc install-target-libgcc || die_with_message "Error installing GCC"
+}
+
+
+# Builds and installs libgmp.
+function build_gmp {
+	gmp_dir="gmp-${gmp_version}"
+
+	cd "${build_dir}" || exit 1
+
+	echo "Building gmp for arch: '${BUILD_TARGET}'"
+	echo "Target: ${BUILD_TARGET}"
+	echo "Prefix: ${BUILD_PREFIX}"
+	echo "Source dir: ${source_dir}/${gmp_dir}"
+	prompt_to_confirm
+
+	if [[ ! -d "${build_dir}/${gmp_dir}" ]]; then
+		mkdir "${build_dir}/${gmp_dir}" || die_with_message "Error creating build dir! Exiting"
+	fi
+
+	cd "${build_dir}/${gmp_dir}" || exit 1
+
+	${source_dir}/${gmp_dir}/configure    \
+		--host=${HOST}                      \
+		--build=${BUILD_TARGET}             \
+		--prefix="${BUILD_PREFIX}" || exit 1
+
+	make -j${concurrency} || die_with_message "Error building gmp"
+	make -j${concurrency}  install || die_with_message "Error installing gmp"
+}
+
+
+# Builds and installs libmpc.
+function build_mpc {
+	mpc_dir="mpc-${mpc_version}"
+
+	cd "${build_dir}" || exit 1
+
+	echo "Building mpc for arch: '${BUILD_TARGET}'"
+	echo "Target: ${BUILD_TARGET}"
+	echo "Prefix: ${BUILD_PREFIX}"
+	echo "Source dir: ${source_dir}/${mpc_dir}"
+	prompt_to_confirm
+
+	if [[ ! -d "${build_dir}/${mpc_dir}" ]]; then
+		mkdir "${build_dir}/${mpc_dir}" || die_with_message "Error creating build dir! Exiting"
+	fi
+
+	cd "${build_dir}/${mpc_dir}" || exit 1
+
+	${source_dir}/${mpc_dir}/configure    \
+		--target=${BUILD_TARGET}            \
+		--prefix="${BUILD_PREFIX}" || exit 1
+
+	make -j${concurrency} || die_with_message "Error building mpc"
+	make -j${concurrency}  install || die_with_message "Error installing mpc"
+}
+
+
+# Builds and installs libmpfr.
+function build_mpfr {
+	mpfr_dir="mpfr-${mpfr_version}"
+
+	cd "${build_dir}" || exit 1
+
+	echo "Building mpfr for arch: '${BUILD_TARGET}'"
+	echo "Target: ${BUILD_TARGET}"
+	echo "Prefix: ${BUILD_PREFIX}"
+	echo "Source dir: ${source_dir}/${mpfr_dir}"
+	prompt_to_confirm
+
+	if [[ ! -d "${build_dir}/${mpfr_dir}" ]]; then
+		mkdir "${build_dir}/${mpfr_dir}" || die_with_message "Error creating build dir! Exiting"
+	fi
+
+	cd "${build_dir}/${mpfr_dir}" || exit 1
+
+	${source_dir}/${mpfr_dir}/configure    \
+		--target=${BUILD_TARGET}             \
+		--prefix="${BUILD_PREFIX}" || exit 1
+
+	make -j${concurrency} || die_with_message "Error building mpfr"
+	make -j${concurrency}  install || die_with_message "Error installing mpfr"
+}
+
+
+# Builds and installs newlib.
+function build_newlib {
+	newlib_dir="newlib-${newlib_version}"
+
+	cd "${build_dir}" || exit 1
+
+	echo "Building cross newlib for arch: '${BUILD_TARGET}'"
+	echo "Target: ${BUILD_TARGET}"
+	echo "Prefix: ${BUILD_PREFIX}"
+	echo "Source dir: ${source_dir}/${newlib_dir}"
+	prompt_to_confirm
+
+	if [[ ! -d "${build_dir}/${newlib_dir}" ]]; then
+		mkdir "${build_dir}/${newlib_dir}" || die_with_message "Error creating build dir! Exiting"
+	fi
+
+	cd "${build_dir}/${newlib_dir}" || exit 1
+
+	${source_dir}/${newlib_dir}/configure \
+		--target=${BUILD_TARGET} \
+		--prefix="${BUILD_PREFIX}" \
+		--disable-multilib \
+		--disable-nls || exit 1
+
+	make -j${concurrency} all || die_with_message "Error building newlib"
+	make -j${concurrency} install || die_with_message "Error installing newlib"
+}
+
+
+echo ""
+echo "▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒"
+echo "▒                                                   ▒"
+echo "▒            Install GNAT cross compiler            ▒"
+echo "▒                                                   ▒"
+echo "▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒"
+echo ""
+
+echo "Checking installed pre-requisites"
+check_install_package "gnat-8" || die_with_message "GNAT installation not found! Exiting"
+check_install_package "zlib1g-dev" || die_with_message "zlib installation not found! Exiting"
+
+if [[ ! -d "${build_dir}" ]]; then
+	echo "Creating build dir"
+	mkdir -p "${build_dir}" || die_with_message "Error creating build dir! Exiting"
+fi
+
+if [[ -n "${use_local_deps}" ]]; then
+	echo "Linking statically against locally installed GMP, MPC, MPFR."
+
+	check_install_package "libgmp-dev" || die_with_message "GMP installation not found! Exiting"
+	check_install_package "libmpc-dev" || die_with_message "MPC installation not found! Exiting"
+	check_install_package "libmpfr-dev" || die_with_message "MPFR installation not found! Exiting"
+else
+	echo "Installing GMP, MPC, MPFR."
+
+	build_gmp
+	build_mpc
+	build_mpfr
+fi
+
+
+build_binutils
+build_bootstrap_gcc
+build_newlib
+build_gcc
+
+echo "Finished building cross-GNAT"

@@ -1,0 +1,13 @@
+pragma Discard_Names;
+pragma Restrictions (No_Enumeration_Maps);
+pragma Normalize_Scalars;
+pragma Restrictions (No_Exception_Propagation);
+pragma Restrictions (No_Finalization);
+pragma Restrictions (No_Tasking);
+pragma Restrictions (No_Protected_Types);
+pragma Restrictions (No_Delay);
+pragma Restrictions (No_Recursion);
+pragma Restrictions (No_Allocators);
+pragma Restrictions (No_Dispatch);
+pragma Restrictions (No_Implicit_Dynamic_Code);
+pragma Restrictions (No_Secondary_Stack);

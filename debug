@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+# Launches GDB with a prescribed set of commands to load the OS debug symbols.
+
+gdb -command=./src/util/debugrc

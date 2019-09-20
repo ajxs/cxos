@@ -23,7 +23,7 @@ project Kernel is
         "-O0",
         "-g",
         "-gnat2012",
-        "-gnatwa",
+        "-gnatwadhl",
         "-gnatVa",
         "-gnatyy",
         "-Wall"

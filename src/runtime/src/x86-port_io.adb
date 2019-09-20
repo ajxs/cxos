@@ -25,9 +25,6 @@ package body x86.Port_IO is
         Volatile => True);
 
       return Data;
-   exception
-      when Constraint_Error =>
-         return 0;
    end Inb;
 
    ----------------------------------------------------------------------------
@@ -50,8 +47,5 @@ package body x86.Port_IO is
           System.Address'Asm_Input ("Nd", Port)
         ),
         Volatile => True);
-   exception
-      when Constraint_Error =>
-         null;
    end Outb;
 end x86.Port_IO;

@@ -1,6 +1,41 @@
 with x86.Port_IO;
+with System.Storage_Elements;
 
 package body x86.Serial is
+   use System.Storage_Elements;
+
+   ----------------------------------------------------------------------------
+   --  Get_Port_Address
+   --
+   --  Purpose:
+   --    This function returns the port-mapped address of an individual serial
+   --    port. It will return the address of COM1 in the event of any error.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   function Get_Port_Address (
+     Port : in Serial_Port
+   ) return System.Address is
+      COM1_Address : constant System.Address := To_Address (16#3F8#);
+      COM2_Address : constant System.Address := To_Address (16#3F8#);
+      COM3_Address : constant System.Address := To_Address (16#3F8#);
+      COM4_Address : constant System.Address := To_Address (16#3F8#);
+   begin
+      case Port is
+         when COM1 =>
+            return COM1_Address;
+         when COM2 =>
+            return COM2_Address;
+         when COM3 =>
+            return COM3_Address;
+         when COM4 =>
+            return COM4_Address;
+      end case;
+   exception
+      when Constraint_Error =>
+         return COM1_Address;
+   end Get_Port_Address;
+
    ----------------------------------------------------------------------------
    --  Initialise
    --
@@ -20,16 +55,7 @@ package body x86.Serial is
       --  Get the address for the selected serial port.
       Get_COM_Port_Address :
          begin
-            case Port is
-               when COM1 =>
-                  Port_Address := COM1_Address;
-               when COM2 =>
-                  Port_Address := COM2_Address;
-               when COM3 =>
-                  Port_Address := COM3_Address;
-               when COM4 =>
-                  Port_Address := COM4_Address;
-            end case;
+            Port_Address := Get_Port_Address (Port);
          exception
             when Constraint_Error =>
                return;
@@ -75,16 +101,7 @@ package body x86.Serial is
       --  Get the address for the selected serial port.
       Get_COM_Port_Address :
          begin
-            case Port is
-               when COM1 =>
-                  Port_Address := COM1_Address;
-               when COM2 =>
-                  Port_Address := COM2_Address;
-               when COM3 =>
-                  Port_Address := COM3_Address;
-               when COM4 =>
-                  Port_Address := COM4_Address;
-            end case;
+            Port_Address := Get_Port_Address (Port);
          exception
             when Constraint_Error =>
                return False;
@@ -111,16 +128,7 @@ package body x86.Serial is
       --  Get the address for the selected serial port.
       Get_COM_Port_Address :
          begin
-            case Port is
-               when COM1 =>
-                  Port_Address := COM1_Address;
-               when COM2 =>
-                  Port_Address := COM2_Address;
-               when COM3 =>
-                  Port_Address := COM3_Address;
-               when COM4 =>
-                  Port_Address := COM4_Address;
-            end case;
+            Port_Address := Get_Port_Address (Port);
          exception
             when Constraint_Error =>
                return;
@@ -160,16 +168,7 @@ package body x86.Serial is
       --  Get the address for the selected serial port.
       Get_COM_Port_Address :
          begin
-            case Port is
-               when COM1 =>
-                  Port_Address := COM1_Address;
-               when COM2 =>
-                  Port_Address := COM2_Address;
-               when COM3 =>
-                  Port_Address := COM3_Address;
-               when COM4 =>
-                  Port_Address := COM4_Address;
-            end case;
+            Port_Address := Get_Port_Address (Port);
          exception
             when Constraint_Error =>
                return;
@@ -234,16 +233,7 @@ package body x86.Serial is
       --  Get the address for the selected serial port.
       Get_COM_Port_Address :
          begin
-            case Port is
-               when COM1 =>
-                  Port_Address := COM1_Address;
-               when COM2 =>
-                  Port_Address := COM2_Address;
-               when COM3 =>
-                  Port_Address := COM3_Address;
-               when COM4 =>
-                  Port_Address := COM4_Address;
-            end case;
+            Port_Address := Get_Port_Address (Port);
          exception
             when Constraint_Error =>
                return;

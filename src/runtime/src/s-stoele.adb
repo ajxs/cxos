@@ -113,19 +113,7 @@ package body System.Storage_Elements is
       Right : Storage_Offset) return Storage_Offset
    is
    begin
-      if Right > 0 then
-         return Storage_Offset
-           (To_Integer (Left) mod Integer_Address (Right));
-
-         --  The negative case makes no sense since it is a case of a mod where
-         --  the left argument is unsigned and the right argument is signed. In
-         --  accordance with the (spirit of the) permission of RM 13.7.1(16),
-         --  we raise CE, and also include the zero case here. Yes, the RM says
-         --  PE, but this really is so obviously more like a constraint error.
-
-      else
-         raise Constraint_Error;
-      end if;
+      return Storage_Offset (To_Integer (Left) mod Integer_Address (Right));
    end "mod";
 
 end System.Storage_Elements;

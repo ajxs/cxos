@@ -1,5 +1,4 @@
 with Interfaces;
-with System.Storage_Elements;
 
 -------------------------------------------------------------------------------
 --  X86.SERIAL
@@ -10,8 +9,9 @@ with System.Storage_Elements;
 --    used to interact with the system's serial ports.
 -------------------------------------------------------------------------------
 package x86.Serial is
+   pragma Preelaborate (x86.Serial);
+
    use Interfaces;
-   use System.Storage_Elements;
 
    MAXIMUM_BAUD_RATE : constant := 115200;
 
@@ -35,9 +35,15 @@ package x86.Serial is
    );
 
 private
+   function Get_Port_Address (
+     Port : in Serial_Port
+   ) return System.Address
+   with Pure_Function;
+
    function Is_Tx_Empty (
      Port : in Serial_Port
-   ) return Boolean;
+   ) return Boolean
+   with Volatile_Function;
 
    procedure Put_Char (
      Port : in Serial_Port;
@@ -54,8 +60,4 @@ private
      State : in Boolean
    );
 
-   COM1_Address : constant System.Address := To_Address (16#3F8#);
-   COM2_Address : constant System.Address := To_Address (16#3F8#);
-   COM3_Address : constant System.Address := To_Address (16#3F8#);
-   COM4_Address : constant System.Address := To_Address (16#3F8#);
 end x86.Serial;

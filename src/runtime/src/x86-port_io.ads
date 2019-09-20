@@ -11,9 +11,12 @@ with System;
 --    addresses, useful for interacting with system peripherals.
 -------------------------------------------------------------------------------
 package x86.Port_IO is
+   pragma Preelaborate (x86.Port_IO);
+
    function Inb (
      Port : System.Address
-   ) return Interfaces.Unsigned_8;
+   ) return Interfaces.Unsigned_8
+   with Volatile_Function;
 
    procedure Outb (
      Port : System.Address;

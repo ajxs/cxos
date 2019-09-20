@@ -23,6 +23,7 @@ library project Runtime is
         "-fdata-sections",
         "-gnat2012",
         "-gnatg",
+        "-gnatwadhl",
         "-gnatVa",
         "-gnatyy"
       );

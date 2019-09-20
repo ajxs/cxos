@@ -9,6 +9,8 @@ with System.Storage_Elements;
 --    used for printing text to the system VGA text-mode buffer.
 -------------------------------------------------------------------------------
 package x86.Vga is
+   pragma Preelaborate (x86.Vga);
+
    use System.Storage_Elements;
 
    type Color is (

@@ -84,8 +84,7 @@ private
          Background at 1 range 4 .. 7;
       end record;
 
-   type Vga_Buffer is array (Natural range <>) of Vga_Buffer_Char
-   with Volatile;
+   type Vga_Buffer is array (Natural range <>) of Vga_Buffer_Char;
 
    procedure Put_Char (
      X  : in Col;
@@ -98,6 +97,7 @@ private
    Vga_Output_Buffer : Vga_Buffer (0 .. (VGA_COL_COUNT * VGA_ROW_COUNT) - 1)
    with Import,
      Convention => Ada,
-     Address => To_Address (16#B8000#);
+     Address    => To_Address (16#B8000#),
+     Volatile;
 
 end x86.Vga;

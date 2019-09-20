@@ -1,2 +1,14 @@
 target remote localhost:1234
 file src/kernel/build/cxos.elf -readnow
+
+b x86.gdt.finalise
+
+c
+
+x /5xg &global_descriptor_table
+x /1dh &gdt_pointer
+x /1xw &gdt_pointer+2
+
+x /5xg &gdt
+x /1xh &gdt_ptr
+x /1xw &gdt_ptr+2

@@ -1,3 +1,4 @@
+with x86.GDT;
 with x86.Serial;
 
 package body x86 is
@@ -14,6 +15,13 @@ package body x86 is
    procedure Initialise is
    begin
       x86.Serial.Initialise (x86.Serial.COM1, 38400);
+
+      x86.Serial.Put_String (x86.Serial.COM1, "Initialising GDT" & ASCII.LF);
+      x86.GDT.Initialise;
+
+      x86.Serial.Put_String (x86.Serial.COM1, "Flushing GDT" & ASCII.LF);
+      x86.GDT.Finalise;
+
    end Initialise;
 
    ----------------------------------------------------------------------------

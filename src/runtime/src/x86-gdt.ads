@@ -13,8 +13,26 @@ package x86.GDT is
 
    use Interfaces;
 
+   ----------------------------------------------------------------------------
+   --  Finalise
+   --
+   --  Purpose:
+   --    This procedure finalises the initialisation of the GDT.
+   --    This function initiates the loading of the global descriptor table and
+   --    the final jump to protected mode.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
    procedure Finalise;
 
+   ----------------------------------------------------------------------------
+   --  Initialise
+   --
+   --  Purpose:
+   --    This procedure initialises the x86 platform's Global Descriptor Table.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
    procedure Initialise;
 private
 
@@ -47,6 +65,15 @@ private
      Ring_3 => 3
    );
 
+   ----------------------------------------------------------------------------
+   --  Install_Descriptor
+   --
+   --  Purpose:
+   --    This procedure creates an individual descriptor entry in the x86
+   --    platform's Global Descriptor Table.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
    procedure Install_Descriptor (
      Index      : in Descriptor_Entry_Range;
      Base       : in Unsigned_32 := 0;
@@ -55,7 +82,25 @@ private
      Entry_Type : in Segment_Type := None
    );
 
-   --  Page 98. Intel IA-32 SDM 3a.
+
+   ----------------------------------------------------------------------------
+   --  Flush_Gdt
+   --
+   --  Purpose:
+   --    This procedure is a link to the assembly code that loads the GDT
+   --    pointer and then performs the jump to protected mode.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   procedure Flush_Gdt
+   with Import,
+     Convention    => C,
+     External_Name => "_gdt_flush";
+
+   ----------------------------------------------------------------------------
+   --  An individual segment descriptor within the GDT.
+   --  Refer to Page 98. Intel IA-32 SDM 3a.
+   ----------------------------------------------------------------------------
    type GDT_Descriptor is
       record
          Limit_Low   : Unsigned_16;
@@ -99,12 +144,19 @@ private
 
    GDT_LENGTH : constant := 5;
 
+   ----------------------------------------------------------------------------
+   --  The actual global descriptor table entity.
+   --  The length of the entries is statically allocated.
+   ----------------------------------------------------------------------------
    Global_Descriptor_Table : GDT_Table (0 .. (GDT_LENGTH - 1))
    with Export,
      Convention    => C,
      External_Name => "global_descriptor_table",
      Volatile;
 
+   ----------------------------------------------------------------------------
+   --  The format of the  GDT pointer needed by the processor to load the GDT.
+   ----------------------------------------------------------------------------
    type GDT_Pointer is
       record
          Size   : Unsigned_16;
@@ -117,15 +169,13 @@ private
          Offset at 0 range 16 .. 47;
       end record;
 
+   ----------------------------------------------------------------------------
+   --  The pointer to the GDT needed by the processor to load the GDT.
+   ----------------------------------------------------------------------------
    GDT_Ptr : GDT_Pointer
    with Export,
      Convention    => C,
      External_Name => "gdt_pointer",
      Volatile;
-
-   procedure Flush_Gdt
-   with Import,
-     Convention    => C,
-     External_Name => "_gdt_flush";
 
 end x86.GDT;

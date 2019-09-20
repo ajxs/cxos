@@ -13,11 +13,27 @@ with System;
 package x86.Port_IO is
    pragma Preelaborate (x86.Port_IO);
 
+   ----------------------------------------------------------------------------
+   --  Inb
+   --
+   --  Purpose:
+   --    This function reads a byte from a particular IO port.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
    function Inb (
      Port : System.Address
    ) return Interfaces.Unsigned_8
    with Volatile_Function;
 
+   ----------------------------------------------------------------------------
+   --  Outb
+   --
+   --  Purpose:
+   --    This function writes a byte to a particular IO port.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
    procedure Outb (
      Port : System.Address;
      Data : Interfaces.Unsigned_8

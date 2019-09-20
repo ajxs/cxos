@@ -1,13 +1,6 @@
 package body x86.Vga is
    ----------------------------------------------------------------------------
    --  Clear
-   --
-   --  Purpose:
-   --    This procedure clears the VGA text-mode buffer.
-   --    Calling this function will clear the screen, filling it with the
-   --    supplied background colour.
-   --  Exceptions:
-   --    None.
    ----------------------------------------------------------------------------
    procedure Clear (
      Bg : in Color
@@ -25,12 +18,6 @@ package body x86.Vga is
 
    ----------------------------------------------------------------------------
    --  Put_Char
-   --
-   --  Purpose:
-   --    This procedure prints a character to an arbitrary position within
-   --    the VGA text-mode buffer.
-   --  Exceptions:
-   --    None.
    ----------------------------------------------------------------------------
    procedure Put_Char (
      X  : in Col;
@@ -48,12 +35,6 @@ package body x86.Vga is
 
    ----------------------------------------------------------------------------
    --  Put_String
-   --
-   --  Purpose:
-   --    This procedure prints a string to an arbitrary position within
-   --    the VGA text-mode buffer.
-   --  Exceptions:
-   --    None.
    ----------------------------------------------------------------------------
    procedure Put_String (
      X  : in Col;

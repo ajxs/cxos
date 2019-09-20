@@ -13,6 +13,9 @@ package x86.Vga is
 
    use System.Storage_Elements;
 
+   ----------------------------------------------------------------------------
+   --  The predefined VGA color codes.
+   ----------------------------------------------------------------------------
    type Color is (
      Black,
      Blue,
@@ -57,6 +60,15 @@ package x86.Vga is
    subtype Col is Natural range 0 .. VGA_COL_COUNT - 1;
    subtype Row is Natural range 0 .. VGA_ROW_COUNT - 1;
 
+   ----------------------------------------------------------------------------
+   --  Put_String
+   --
+   --  Purpose:
+   --    This procedure prints a string to an arbitrary position within
+   --    the VGA text-mode buffer.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
    procedure Put_String (
      X  : in Col;
      Y  : in Row;
@@ -65,11 +77,25 @@ package x86.Vga is
      S  : in String
    );
 
+   ----------------------------------------------------------------------------
+   --  Clear
+   --
+   --  Purpose:
+   --    This procedure clears the VGA text-mode buffer.
+   --    Calling this function will clear the screen, filling it with the
+   --    supplied background colour.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
    procedure Clear (
      Bg : Color
    );
 
 private
+   ----------------------------------------------------------------------------
+   --  Represents the encoding of an individual character entry in the
+   --  VGA screen buffer.
+   ----------------------------------------------------------------------------
    type Vga_Buffer_Char is
       record
          Char       : Character;
@@ -86,6 +112,15 @@ private
 
    type Vga_Buffer is array (Natural range <>) of Vga_Buffer_Char;
 
+   ----------------------------------------------------------------------------
+   --  Put_Char
+   --
+   --  Purpose:
+   --    This procedure prints a character to an arbitrary position within
+   --    the VGA text-mode buffer.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
    procedure Put_Char (
      X  : in Col;
      Y  : in Row;
@@ -94,6 +129,9 @@ private
      Ch : in Character
    );
 
+   ----------------------------------------------------------------------------
+   --  The actual VGA screen buffer memory.
+   ----------------------------------------------------------------------------
    Vga_Output_Buffer : Vga_Buffer (0 .. (VGA_COL_COUNT * VGA_ROW_COUNT) - 1)
    with Import,
      Convention => Ada,

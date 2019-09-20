@@ -3,11 +3,6 @@ with System.Machine_Code;
 package body x86.Port_IO is
    ----------------------------------------------------------------------------
    --  Inb
-   --
-   --  Purpose:
-   --    This function reads a byte from a particular IO port.
-   --  Exceptions:
-   --    None.
    ----------------------------------------------------------------------------
    function Inb (
      Port : System.Address
@@ -29,11 +24,6 @@ package body x86.Port_IO is
 
    ----------------------------------------------------------------------------
    --  Outb
-   --
-   --  Purpose:
-   --    This function writes a byte to a particular IO port.
-   --  Exceptions:
-   --    None.
    ----------------------------------------------------------------------------
    procedure Outb (
      Port : System.Address;

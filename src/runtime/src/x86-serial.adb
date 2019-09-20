@@ -7,11 +7,8 @@ package body x86.Serial is
    ----------------------------------------------------------------------------
    --  Get_Port_Address
    --
-   --  Purpose:
-   --    This function returns the port-mapped address of an individual serial
-   --    port. It will return the address of COM1 in the event of any error.
-   --  Exceptions:
-   --    None.
+   --  Implementation Notes:
+   --   - Returns a constant value stored within the function.
    ----------------------------------------------------------------------------
    function Get_Port_Address (
      Port : in Serial_Port
@@ -38,13 +35,6 @@ package body x86.Serial is
 
    ----------------------------------------------------------------------------
    --  Initialise
-   --
-   --  Purpose:
-   --    This procedure initialises a particular serial port.
-   --    This function will configure the baud rate, word length, parity
-   --    and stop bits for a particular serial port.
-   --  Exceptions:
-   --    None.
    ----------------------------------------------------------------------------
    procedure Initialise (
      Port : in Serial_Port;
@@ -84,13 +74,8 @@ package body x86.Serial is
    ----------------------------------------------------------------------------
    --  Is_Tx_Empty
    --
-   --  Purpose:
-   --    This function tests whether a particular port's transmission buffer is
-   --    ready to accept new data.
-   --    This is used during the various transmission functions to ensure that
-   --    an overflow exception is not generated.
-   --  Exceptions:
-   --    None.
+   --  Implementation Notes:
+   --   - Does not determine whether the port has been initialised.
    ----------------------------------------------------------------------------
    function Is_Tx_Empty (
      Port : in Serial_Port
@@ -113,10 +98,8 @@ package body x86.Serial is
    ----------------------------------------------------------------------------
    --  Put_Char
    --
-   --  Purpose:
-   --    This procedure prints a character to a serial port.
-   --  Exceptions:
-   --    None.
+   --  Implementation Notes:
+   --   - Does not determine whether the port has been initialised.
    ----------------------------------------------------------------------------
    procedure Put_Char (
      Port : in Serial_Port;
@@ -147,10 +130,8 @@ package body x86.Serial is
    ----------------------------------------------------------------------------
    --  Set_Baud_Rate
    --
-   --  Purpose:
-   --    This procedure sets the baud rate for a particular serial port.
-   --  Exceptions:
-   --    None.
+   --  Implementation Notes:
+   --   - Does not determine whether the port has been initialised.
    ----------------------------------------------------------------------------
    procedure Set_Baud_Rate (
      Port : in Serial_Port;
@@ -212,14 +193,8 @@ package body x86.Serial is
    ----------------------------------------------------------------------------
    --  Set_Divisor_Latch_State
    --
-   --  Purpose:
-   --    This procedure sets the divisor latch state for a particular serial
-   --    peripheral.
-   --    This will set the DLAB state for the selected serial peripheral.
-   --    For more information regarding the use of this procedure refer to the
-   --    16550 UART documentation.
-   --  Exceptions:
-   --    None.
+   --  Implementation Notes:
+   --   - Does not determine whether the port has been initialised.
    ----------------------------------------------------------------------------
    procedure Set_Divisor_Latch_State (
      Port  : in Serial_Port;
@@ -260,10 +235,8 @@ package body x86.Serial is
    ----------------------------------------------------------------------------
    --  Put_String
    --
-   --  Purpose:
-   --    This procedure prints a string to the selected serial port.
-   --  Exceptions:
-   --    None.
+   --  Implementation Notes:
+   --   - Does not determine whether the port has been initialised.
    ----------------------------------------------------------------------------
    procedure Put_String (
      Port : in Serial_Port;

@@ -5,11 +5,6 @@ with x86.Vga;
 package body Cxos is
    ----------------------------------------------------------------------------
    --  Main
-   --
-   --  Purpose:
-   --    The main kernel loop.
-   --  Exceptions:
-   --    None.
    ----------------------------------------------------------------------------
    procedure Main is
       use type x86.Vga.Color;

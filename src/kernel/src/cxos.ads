@@ -5,6 +5,14 @@
 --    This package contains the main Kernel code.
 -------------------------------------------------------------------------------
 package Cxos is
+   ----------------------------------------------------------------------------
+   --  Main
+   --
+   --  Purpose:
+   --    The main kernel loop.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
    procedure Main
    with No_Return;
 end Cxos;

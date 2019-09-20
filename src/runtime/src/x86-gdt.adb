@@ -1,13 +1,6 @@
 package body x86.GDT is
    ----------------------------------------------------------------------------
    --  Finalise
-   --
-   --  Purpose:
-   --    This procedure finalises the initialisation of the GDT.
-   --    This function initiates the loading of the global descriptor table and
-   --    the final jump to protected mode.
-   --  Exceptions:
-   --    None.
    ----------------------------------------------------------------------------
    procedure Finalise is
    begin
@@ -17,11 +10,6 @@ package body x86.GDT is
 
    ----------------------------------------------------------------------------
    --  Initialise
-   --
-   --  Purpose:
-   --    This procedure initialises the x86 platform's Global Descriptor Table.
-   --  Exceptions:
-   --    None.
    ----------------------------------------------------------------------------
    procedure Initialise is
    begin
@@ -40,13 +28,7 @@ package body x86.GDT is
    end Initialise;
 
    ----------------------------------------------------------------------------
-   --  Initialise
-   --
-   --  Purpose:
-   --    This procedure creates an individual descriptor entry in the x86
-   --    platform's Global Descriptor Table.
-   --  Exceptions:
-   --    None.
+   --  Install_Descriptor
    ----------------------------------------------------------------------------
    procedure Install_Descriptor (
      Index      : in Descriptor_Entry_Range;

@@ -1,10 +1,14 @@
 package body x86.GDT is
    ----------------------------------------------------------------------------
    --  Finalise
+   --
+   --  Implementation Notes:
+   --   - It is assumed by the flush GDT procedure that the bootloader has
+   --     already placed the system in protected mode.
    ----------------------------------------------------------------------------
    procedure Finalise is
    begin
-      --  Flush the GDT and jump to protected mode.
+      --  Flush the GDT and reload.
       Flush_Gdt;
    end Finalise;
 
@@ -31,6 +35,11 @@ package body x86.GDT is
 
    ----------------------------------------------------------------------------
    --  Install_Descriptor
+   --
+   --  Implementation Notes:
+   --   - Even though the limit param will accept a full 32-bit memory address
+   --     only the lower 20 bits will be used.
+   --   - 4kb granularity is always enabled.
    ----------------------------------------------------------------------------
    procedure Install_Descriptor (
      Index      : in Descriptor_Entry_Range;

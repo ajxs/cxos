@@ -1,5 +1,6 @@
 with Interfaces;
 with System;
+with System.Storage_Elements;
 
 -------------------------------------------------------------------------------
 --  X86.GDT
@@ -12,6 +13,7 @@ package x86.GDT is
    pragma Preelaborate (x86.GDT);
 
    use Interfaces;
+   use System.Storage_Elements;
 
    ----------------------------------------------------------------------------
    --  Finalise
@@ -34,8 +36,8 @@ package x86.GDT is
    --    None.
    ----------------------------------------------------------------------------
    procedure Initialise;
-private
 
+private
    subtype Descriptor_Entry_Range is Natural;
 
    ----------------------------------------------------------------------------
@@ -46,6 +48,26 @@ private
      Data,
      None
    );
+
+   ----------------------------------------------------------------------------
+   --  Descriptor type information.
+   --  Refer to Page 100. Intel IA-32 SDM 3a.
+   ----------------------------------------------------------------------------
+   type Descriptor_Type is
+      record
+         A          : Boolean;
+         W_R        : Boolean;
+         E_C        : Boolean;
+         Field_Type : Boolean;
+      end record
+   with Size => 4;
+   for Descriptor_Type use
+      record
+         A          at 0 range 0 .. 0;
+         W_R        at 0 range 1 .. 1;
+         E_C        at 0 range 2 .. 2;
+         Field_Type at 0 range 3 .. 3;
+      end record;
 
    ----------------------------------------------------------------------------
    --  The privilege level for this particular segment.
@@ -76,12 +98,11 @@ private
    ----------------------------------------------------------------------------
    procedure Install_Descriptor (
      Index      : in Descriptor_Entry_Range;
-     Base       : in Unsigned_32 := 0;
-     Limit      : in Unsigned_32 := 0;
+     Base_Addr  : in System.Address  := To_Address (0);
+     Limit_Addr : in System.Address  := To_Address (0);
      Privilege  : in Privilege_Level := Ring_0;
-     Entry_Type : in Segment_Type := None
+     Entry_Type : in Segment_Type    := None
    );
-
 
    ----------------------------------------------------------------------------
    --  Flush_Gdt
@@ -108,7 +129,7 @@ private
          Base_Low    : Unsigned_16;
 
          Base_Mid    : Unsigned_8;
-         Descr_Type  : Unsigned_4;
+         Descr_Type  : Descriptor_Type;
          S           : Boolean;
          DPL         : Privilege_Level;
          P           : Boolean;

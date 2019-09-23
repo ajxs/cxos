@@ -1,7 +1,7 @@
 library project Runtime is
-   for Source_Dirs use ("obj/adainclude");
-   for Object_Dir use "obj";
    for Create_Missing_Dirs use "True";
+   for Source_Dirs use ("build/adainclude");
+   for Object_Dir use "obj";
 
    for Languages use (
      "Ada",
@@ -29,11 +29,11 @@ library project Runtime is
       );
    end Compiler;
 
+   for Library_Dir use "build/adalib";
    for Library_Kind use "static";
    for Library_Name use "gnat";
-   for Library_Dir use "obj/adalib";
 
-   for Runtime ("Ada") use "obj";
+   for Runtime ("Ada") use "build";
 
    for Target use "i686-elf";
 end Runtime;

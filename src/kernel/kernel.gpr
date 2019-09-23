@@ -39,7 +39,7 @@ project Kernel is
       );
    end Linker;
 
-   for Runtime ("Ada") use "../runtime/obj";
+   for Runtime ("Ada") use "../runtime/build";
 
    for Target use "i686-elf";
 end Kernel;

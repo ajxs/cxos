@@ -2,7 +2,7 @@ KERNEL_DIR        := kernel
 KERNEL_BINARY     := ${KERNEL_DIR}/build/cxos.elf
 
 RUNTIME_DIR       := runtime
-RUNTIME_BINARY    := ${RUNTIME_DIR}/obj/adalib/libgnat.a
+RUNTIME_BINARY    := ${RUNTIME_DIR}/build/adalib/libgnat.a
 
 BUILD_DIR := ../build
 ISO       := ${BUILD_DIR}/cxos.img

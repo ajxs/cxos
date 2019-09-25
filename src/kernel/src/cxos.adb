@@ -12,7 +12,7 @@ package body Cxos is
       Terminal_Foreground : constant x86.Vga.Color := x86.Vga.Light_Green;
       Terminal_Background : constant x86.Vga.Color := x86.Vga.Black;
    begin
-      x86.Vga.Clear (x86.Vga.Black);
+      x86.Vga.Clear (Terminal_Background);
 
       --  Print ASCII art test screen.
       x86.Vga.Put_String (1, 1, Terminal_Foreground, Terminal_Background,

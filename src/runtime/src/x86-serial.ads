@@ -15,8 +15,15 @@ package x86.Serial is
 
    MAXIMUM_BAUD_RATE : constant := 115200;
 
+   ----------------------------------------------------------------------------
+   --  Serial Baud Rate
+   ----------------------------------------------------------------------------
    subtype Baud_Rate is Natural range 50 .. MAXIMUM_BAUD_RATE;
 
+   ----------------------------------------------------------------------------
+   --  Serial Port Type
+   --  Defines the serial ports that can be used in the system.
+   ----------------------------------------------------------------------------
    type Serial_Port is (
      COM1,
      COM2,

@@ -128,6 +128,21 @@ private
    );
 
    ----------------------------------------------------------------------------
+   --  Set_Interrupt_Generation
+   --
+   --  Purpose:
+   --    This procedure enables or disables the generation of interrupts
+   --    of a particular type.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   procedure Set_Interrupt_Generation (
+     Port           : Serial_Port;
+     Interrupt_Type : Serial_Interrupt_Type;
+     Status         : Boolean
+   );
+
+   ----------------------------------------------------------------------------
    --  Set_Divisor_Latch_State
    --
    --  Purpose:

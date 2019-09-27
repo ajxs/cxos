@@ -35,6 +35,9 @@ package body x86.Serial is
 
    ----------------------------------------------------------------------------
    --  Initialise
+   --
+   --  Implementation Notes:
+   --   - All interrupts are disabled during initialisation.
    ----------------------------------------------------------------------------
    procedure Initialise (
      Port : Serial_Port;
@@ -51,7 +54,7 @@ package body x86.Serial is
                return;
          end Get_COM_Port_Address;
 
-      --  Disable interrupts.
+      --  Disable all interrupts.
       x86.Port_IO.Outb (Port_Address + 1, 0);
 
       --  Set the baud rate.
@@ -252,4 +255,71 @@ package body x86.Serial is
          null;
    end Set_Divisor_Latch_State;
 
+   ----------------------------------------------------------------------------
+   --  Set_Interrupt_Generation
+   --
+   --  Implementation Notes:
+   --   - Does not determine whether the port has been initialised.
+   ----------------------------------------------------------------------------
+   procedure Set_Interrupt_Generation (
+     Port           : Serial_Port;
+     Interrupt_Type : Serial_Interrupt_Type;
+     Status         : Boolean
+   ) is
+      Interrupt_Status : Unsigned_8;
+      Port_Address     : System.Address;
+   begin
+      --  Get the address for the selected serial port.
+      Get_COM_Port_Address :
+         begin
+            Port_Address := Get_Port_Address (Port);
+         exception
+            when Constraint_Error =>
+               return;
+         end Get_COM_Port_Address;
+
+      --  Get the current status of this device's interrupts to
+      --  preserve the current interrupt status.
+      Get_Interrupt_Status :
+         begin
+            Interrupt_Status := x86.Port_IO.Inb (Port_Address + 1);
+         end Get_Interrupt_Status;
+
+      Set_Interrupt_Status :
+         begin
+            --  Set the interrupt status var to the desired value.
+            case Interrupt_Type is
+               when Modem_Line_Status =>
+                  if Status then
+                     Interrupt_Status := Interrupt_Status or 16#8#;
+                  else
+                     Interrupt_Status := Interrupt_Status and (not 16#8#);
+                  end if;
+               when Rx_Data_Available =>
+                  if Status then
+                     Interrupt_Status := Interrupt_Status or 16#1#;
+                  else
+                     Interrupt_Status := Interrupt_Status and (not 16#1#);
+                  end if;
+               when Rx_Line_Status =>
+                  if Status then
+                     Interrupt_Status := Interrupt_Status or 16#4#;
+                  else
+                     Interrupt_Status := Interrupt_Status and (not 16#4#);
+                  end if;
+               when Tx_Empty =>
+                  if Status then
+                     Interrupt_Status := Interrupt_Status or 16#2#;
+                  else
+                     Interrupt_Status := Interrupt_Status and (not 16#2#);
+                  end if;
+            end case;
+         exception
+            when Constraint_Error =>
+               return;
+         end Set_Interrupt_Status;
+
+      --  Write to the Interrupt enable register.
+      x86.Port_IO.Outb (Port_Address + 1, Interrupt_Status);
+   end Set_Interrupt_Generation;
 end x86.Serial;

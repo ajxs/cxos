@@ -50,11 +50,11 @@ package body x86.GDT is
    --   - 4kb granularity is always enabled.
    ----------------------------------------------------------------------------
    procedure Install_Descriptor (
-     Index      : in Descriptor_Entry_Range;
-     Base_Addr  : in System.Address             := To_Address (0);
-     Limit_Addr : in System.Address             := To_Address (0);
-     Privilege  : in Descriptor_Privilege_Level := Ring_0;
-     Entry_Type : in Segment_Type               := None
+     Index      : Descriptor_Entry_Range;
+     Base_Addr  : System.Address             := To_Address (0);
+     Limit_Addr : System.Address             := To_Address (0);
+     Privilege  : Descriptor_Privilege_Level := Ring_0;
+     Entry_Type : Segment_Type               := None
    ) is
    begin
       --  Set the segment base and limit addresses.

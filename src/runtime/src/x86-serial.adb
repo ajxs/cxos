@@ -11,7 +11,7 @@ package body x86.Serial is
    --   - Returns a constant value stored within the function.
    ----------------------------------------------------------------------------
    function Get_Port_Address (
-     Port : in Serial_Port
+     Port : Serial_Port
    ) return System.Address is
       COM1_Address : constant System.Address := To_Address (16#3F8#);
       COM2_Address : constant System.Address := To_Address (16#3F8#);
@@ -37,8 +37,8 @@ package body x86.Serial is
    --  Initialise
    ----------------------------------------------------------------------------
    procedure Initialise (
-     Port : in Serial_Port;
-     Rate : in Baud_Rate := MAXIMUM_BAUD_RATE
+     Port : Serial_Port;
+     Rate : Baud_Rate := MAXIMUM_BAUD_RATE
    ) is
       Port_Address : System.Address;
    begin
@@ -78,7 +78,7 @@ package body x86.Serial is
    --   - Does not determine whether the port has been initialised.
    ----------------------------------------------------------------------------
    function Is_Tx_Empty (
-     Port : in Serial_Port
+     Port : Serial_Port
    ) return Boolean is
       --  The port mapped address for this COM port.
       Port_Address : System.Address;
@@ -102,8 +102,8 @@ package body x86.Serial is
    --   - Does not determine whether the port has been initialised.
    ----------------------------------------------------------------------------
    procedure Put_Char (
-     Port : in Serial_Port;
-     Data : in Unsigned_8
+     Port : Serial_Port;
+     Data : Unsigned_8
    ) is
       --  The port mapped address for this COM port.
       Port_Address : System.Address;
@@ -128,14 +128,34 @@ package body x86.Serial is
    end Put_Char;
 
    ----------------------------------------------------------------------------
+   --  Put_String
+   --
+   --  Implementation Notes:
+   --   - Does not determine whether the port has been initialised.
+   ----------------------------------------------------------------------------
+   procedure Put_String (
+     Port : Serial_Port;
+     Data : String
+   ) is
+   begin
+      Print_Loop :
+         for C of Data loop
+            Put_Char (Port, Character'Pos (C));
+         end loop Print_Loop;
+   exception
+      when Constraint_Error =>
+         null;
+   end Put_String;
+
+   ----------------------------------------------------------------------------
    --  Set_Baud_Rate
    --
    --  Implementation Notes:
    --   - Does not determine whether the port has been initialised.
    ----------------------------------------------------------------------------
    procedure Set_Baud_Rate (
-     Port : in Serial_Port;
-     Rate : in Baud_Rate
+     Port : Serial_Port;
+     Rate : Baud_Rate
    ) is
       --  The baud rate divisor for this baud rate.
       Divisor : Unsigned_16;
@@ -197,8 +217,8 @@ package body x86.Serial is
    --   - Does not determine whether the port has been initialised.
    ----------------------------------------------------------------------------
    procedure Set_Divisor_Latch_State (
-     Port  : in Serial_Port;
-     State : in Boolean
+     Port  : Serial_Port;
+     State : Boolean
    ) is
       --  The existing line map status value.
       Line_Control_Status : Unsigned_8;
@@ -232,23 +252,4 @@ package body x86.Serial is
          null;
    end Set_Divisor_Latch_State;
 
-   ----------------------------------------------------------------------------
-   --  Put_String
-   --
-   --  Implementation Notes:
-   --   - Does not determine whether the port has been initialised.
-   ----------------------------------------------------------------------------
-   procedure Put_String (
-     Port : in Serial_Port;
-     Data : in String
-   ) is
-   begin
-      Print_Loop :
-         for C of Data loop
-            Put_Char (Port, Character'Pos (C));
-         end loop Print_Loop;
-   exception
-      when Constraint_Error =>
-         null;
-   end Put_String;
 end x86.Serial;

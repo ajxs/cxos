@@ -32,6 +32,17 @@ package x86.Serial is
    );
 
    ----------------------------------------------------------------------------
+   --  Serial Interrupt Type
+   --  Defines the types of interrupts the serial port can generate.
+   ----------------------------------------------------------------------------
+   type Serial_Interrupt_Type is (
+     Modem_Line_Status,
+     Rx_Data_Available,
+     Rx_Line_Status,
+     Tx_Empty
+   );
+
+   ----------------------------------------------------------------------------
    --  Initialise
    --
    --  Purpose:
@@ -42,8 +53,8 @@ package x86.Serial is
    --    None.
    ----------------------------------------------------------------------------
    procedure Initialise (
-     Port : in Serial_Port;
-     Rate : in Baud_Rate := MAXIMUM_BAUD_RATE
+     Port : Serial_Port;
+     Rate : Baud_Rate := MAXIMUM_BAUD_RATE
    );
 
    ----------------------------------------------------------------------------
@@ -55,8 +66,8 @@ package x86.Serial is
    --    None.
    ----------------------------------------------------------------------------
    procedure Put_String (
-     Port : in Serial_Port;
-     Data : in String
+     Port : Serial_Port;
+     Data : String
    );
 
 private
@@ -70,7 +81,7 @@ private
    --    None.
    ----------------------------------------------------------------------------
    function Get_Port_Address (
-     Port : in Serial_Port
+     Port : Serial_Port
    ) return System.Address
    with Pure_Function;
 
@@ -86,7 +97,7 @@ private
    --    None.
    ----------------------------------------------------------------------------
    function Is_Tx_Empty (
-     Port : in Serial_Port
+     Port : Serial_Port
    ) return Boolean
    with Volatile_Function;
 
@@ -99,8 +110,8 @@ private
    --    None.
    ----------------------------------------------------------------------------
    procedure Put_Char (
-     Port : in Serial_Port;
-     Data : in Unsigned_8
+     Port : Serial_Port;
+     Data : Unsigned_8
    );
 
    ----------------------------------------------------------------------------
@@ -112,8 +123,8 @@ private
    --    None.
    ----------------------------------------------------------------------------
    procedure Set_Baud_Rate (
-     Port : in Serial_Port;
-     Rate : in Baud_Rate
+     Port : Serial_Port;
+     Rate : Baud_Rate
    );
 
    ----------------------------------------------------------------------------
@@ -129,8 +140,8 @@ private
    --    None.
    ----------------------------------------------------------------------------
    procedure Set_Divisor_Latch_State (
-     Port  : in Serial_Port;
-     State : in Boolean
+     Port  : Serial_Port;
+     State : Boolean
    );
 
 end x86.Serial;

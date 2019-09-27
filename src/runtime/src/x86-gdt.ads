@@ -1,6 +1,7 @@
 with Interfaces;
 with System;
 with System.Storage_Elements;
+with x86.Descriptors;
 
 -------------------------------------------------------------------------------
 --  X86.GDT
@@ -14,6 +15,7 @@ package x86.GDT is
 
    use Interfaces;
    use System.Storage_Elements;
+   use x86.Descriptors;
 
    ----------------------------------------------------------------------------
    --  Finalise
@@ -38,8 +40,6 @@ package x86.GDT is
    procedure Initialise;
 
 private
-   subtype Descriptor_Entry_Range is Natural;
-
    ----------------------------------------------------------------------------
    --  The type of this memory segment.
    ----------------------------------------------------------------------------
@@ -70,24 +70,6 @@ private
       end record;
 
    ----------------------------------------------------------------------------
-   --  The privilege level for this particular segment.
-   --  This is the 'protection ring' that this segment is accessible from.
-   ----------------------------------------------------------------------------
-   type Privilege_Level is (
-     Ring_0,
-     Ring_1,
-     Ring_2,
-     Ring_3
-   )
-   with Size => 2;
-   for Privilege_Level use (
-     Ring_0 => 0,
-     Ring_1 => 1,
-     Ring_2 => 2,
-     Ring_3 => 3
-   );
-
-   ----------------------------------------------------------------------------
    --  Install_Descriptor
    --
    --  Purpose:
@@ -98,10 +80,10 @@ private
    ----------------------------------------------------------------------------
    procedure Install_Descriptor (
      Index      : in Descriptor_Entry_Range;
-     Base_Addr  : in System.Address  := To_Address (0);
-     Limit_Addr : in System.Address  := To_Address (0);
-     Privilege  : in Privilege_Level := Ring_0;
-     Entry_Type : in Segment_Type    := None
+     Base_Addr  : in System.Address             := To_Address (0);
+     Limit_Addr : in System.Address             := To_Address (0);
+     Privilege  : in Descriptor_Privilege_Level := Ring_0;
+     Entry_Type : in Segment_Type               := None
    );
 
    ----------------------------------------------------------------------------
@@ -125,15 +107,12 @@ private
    type GDT_Descriptor is
       record
          Limit_Low   : Unsigned_16;
-
          Base_Low    : Unsigned_16;
-
          Base_Mid    : Unsigned_8;
          Descr_Type  : Descriptor_Type;
          S           : Boolean;
-         DPL         : Privilege_Level;
+         DPL         : Descriptor_Privilege_Level;
          P           : Boolean;
-
          Limit_High  : Unsigned_4;
          AVL         : Boolean;
          L           : Boolean;
@@ -144,24 +123,22 @@ private
    with Size => 64;
    for GDT_Descriptor use
       record
-         Limit_Low   at 0 range  0  .. 15;
-         Base_Low    at 0 range  16 .. 31;
-
-         Base_Mid    at 4 range  0  .. 7;
-         Descr_Type  at 4 range  8  .. 11;
-         S           at 4 range  12 .. 12;
-         DPL         at 4 range  13 .. 14;
-         P           at 4 range  15 .. 15;
-
-         Limit_High  at 4 range  16 .. 19;
-         AVL         at 4 range  20 .. 20;
-         L           at 4 range  21 .. 21;
-         DB          at 4 range  22 .. 22;
-         G           at 4 range  23 .. 23;
-         Base_High   at 4 range  24 .. 31;
+         Limit_Low   at 0 range 0  .. 15;
+         Base_Low    at 0 range 16 .. 31;
+         Base_Mid    at 4 range 0  .. 7;
+         Descr_Type  at 4 range 8  .. 11;
+         S           at 4 range 12 .. 12;
+         DPL         at 4 range 13 .. 14;
+         P           at 4 range 15 .. 15;
+         Limit_High  at 4 range 16 .. 19;
+         AVL         at 4 range 20 .. 20;
+         L           at 4 range 21 .. 21;
+         DB          at 4 range 22 .. 22;
+         G           at 4 range 23 .. 23;
+         Base_High   at 4 range 24 .. 31;
       end record;
 
-   type GDT_Table is array (Natural range <>) of GDT_Descriptor;
+   type GDT_Table is array (Descriptor_Entry_Range range <>) of GDT_Descriptor;
 
    GDT_LENGTH : constant := 5;
 
@@ -176,7 +153,7 @@ private
      Volatile;
 
    ----------------------------------------------------------------------------
-   --  The format of the  GDT pointer needed by the processor to load the GDT.
+   --  The format of the GDT pointer needed by the processor to load the GDT.
    ----------------------------------------------------------------------------
    type GDT_Pointer is
       record

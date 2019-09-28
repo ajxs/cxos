@@ -2,7 +2,7 @@
 --  X86.PIC
 --
 --  Purpose:
---    This package contains code for working with the x86 programmable
+--    This package contains code for working with the x86 8259A programmable
 --    interrupt controller.
 -------------------------------------------------------------------------------
 package x86.PIC is

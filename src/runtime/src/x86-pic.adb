@@ -1,7 +1,9 @@
+with Interfaces;
 with System.Storage_Elements;
---  with x86.Port_IO;
+with x86.Port_IO;
 
 package body x86.PIC is
+   use Interfaces;
    use System.Storage_Elements;
 
    ----------------------------------------------------------------------------
@@ -34,4 +36,27 @@ package body x86.PIC is
    begin
       null;
    end Initialise;
+
+   ----------------------------------------------------------------------------
+   --  Send_EOI
+   ----------------------------------------------------------------------------
+   procedure Send_EOI (
+     IRQ : Interrupt_Source
+   ) is
+      EOI_Signal      : constant Unsigned_8 := 16#20#;
+      Controller_Addr : System.Address;
+   begin
+      --  Get the correct controller address to send the EOI signal to.
+      Get_Controller_Address :
+         begin
+            if IRQ >= 8 then
+               Controller_Addr := Get_Controller_Base_Address (PIC2);
+            else
+               Controller_Addr := Get_Controller_Base_Address (PIC1);
+            end if;
+         end Get_Controller_Address;
+
+      --  Send the signal.
+      x86.Port_IO.Outb (Controller_Addr, EOI_Signal);
+   end Send_EOI;
 end x86.PIC;

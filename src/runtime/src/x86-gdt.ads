@@ -140,6 +140,10 @@ private
 
    type GDT_Table is array (Descriptor_Entry_Range range <>) of GDT_Descriptor;
 
+   ----------------------------------------------------------------------------
+   --  The number of entries in the Global Descriptor Table.
+   --  Room for this number of entries is statically allocated.
+   ----------------------------------------------------------------------------
    GDT_LENGTH : constant := 5;
 
    ----------------------------------------------------------------------------
@@ -147,7 +151,7 @@ private
    --  The length of the entries is statically allocated.
    ----------------------------------------------------------------------------
    Global_Descriptor_Table : GDT_Table (0 .. (GDT_LENGTH - 1))
-   with Alignment => 16,
+   with Alignment  => 16,
      Export,
      Convention    => C,
      External_Name => "global_descriptor_table",

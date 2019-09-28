@@ -17,6 +17,19 @@ package x86.IDT is
    use x86.Descriptors;
 
    ----------------------------------------------------------------------------
+   --  Finalise
+   --
+   --  Purpose:
+   --    This procedure loads the IDT into the processor register.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   procedure Finalise
+   with Import,
+     Convention    => C,
+     External_Name => "_idt_load";
+
+   ----------------------------------------------------------------------------
    --  Initialise
    --
    --  Purpose:
@@ -28,6 +41,19 @@ package x86.IDT is
    procedure Initialise;
 
 private
+   ----------------------------------------------------------------------------
+   --  Initialise_Descriptor
+   --
+   --  Purpose:
+   --    This initialises a descriptor entry. It creates an unused descriptor
+   --    entry at an arbitrary position in the IDT.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   procedure Initialise_Descriptor (
+      Index : Descriptor_Entry_Range
+   );
+
    ----------------------------------------------------------------------------
    --  Install_Descriptor
    --
@@ -89,6 +115,10 @@ private
 
    type IDT_Table is array (Descriptor_Entry_Range range <>) of IDT_Descriptor;
 
+   ----------------------------------------------------------------------------
+   --  The number of entries in the Global Descriptor Table.
+   --  Room for this number of entries is statically allocated.
+   ----------------------------------------------------------------------------
    IDT_LENGTH : constant := 256;
 
    ----------------------------------------------------------------------------
@@ -96,7 +126,8 @@ private
    --  The length of the entries is statically allocated.
    ----------------------------------------------------------------------------
    Interrupt_Descriptor_Table : IDT_Table (0 .. (IDT_LENGTH - 1))
-   with Export,
+   with Alignment  => 8,
+     Export,
      Convention    => C,
      External_Name => "interrupt_descriptor_table",
      Volatile;
@@ -107,6 +138,6 @@ private
    IDT_Ptr : System_Table_Descriptor
    with Export,
      Convention    => C,
-     External_Name => "IDT_Pointer",
+     External_Name => "idt_pointer",
      Volatile;
 end x86.IDT;

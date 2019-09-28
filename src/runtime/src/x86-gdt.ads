@@ -147,30 +147,16 @@ private
    --  The length of the entries is statically allocated.
    ----------------------------------------------------------------------------
    Global_Descriptor_Table : GDT_Table (0 .. (GDT_LENGTH - 1))
-   with Export,
+   with Alignment => 16,
+     Export,
      Convention    => C,
      External_Name => "global_descriptor_table",
      Volatile;
 
    ----------------------------------------------------------------------------
-   --  The format of the GDT pointer needed by the processor to load the GDT.
-   ----------------------------------------------------------------------------
-   type GDT_Pointer is
-      record
-         Size   : Unsigned_16;
-         Offset : System.Address;
-      end record
-   with Size => 48;
-   for GDT_Pointer use
-      record
-         Size   at 0 range 0  .. 15;
-         Offset at 0 range 16 .. 47;
-      end record;
-
-   ----------------------------------------------------------------------------
    --  The pointer to the GDT needed by the processor to load the GDT.
    ----------------------------------------------------------------------------
-   GDT_Ptr : GDT_Pointer
+   GDT_Ptr : System_Table_Descriptor
    with Export,
      Convention    => C,
      External_Name => "gdt_pointer",

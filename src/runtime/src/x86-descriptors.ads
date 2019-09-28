@@ -1,5 +1,9 @@
+with Interfaces;
+
 package x86.Descriptors is
    pragma Preelaborate (x86.Descriptors);
+
+   use Interfaces;
 
    ----------------------------------------------------------------------------
    --  The privilege level for a particular descriptor.
@@ -20,5 +24,24 @@ package x86.Descriptors is
      Ring_3 => 3
    );
 
+   ----------------------------------------------------------------------------
+   --  Range type for Descriptor tables.
+   ----------------------------------------------------------------------------
    subtype Descriptor_Entry_Range is Natural;
+
+   ----------------------------------------------------------------------------
+   --  The format of the System Table Descriptor pointer used by the processor
+   --  to load descriptor tables like the GDT and IDT.
+   ----------------------------------------------------------------------------
+   type System_Table_Descriptor is
+      record
+         Size   : Unsigned_16;
+         Offset : System.Address;
+      end record
+   with Size => 48;
+   for System_Table_Descriptor use
+      record
+         Size   at 0 range 0  .. 15;
+         Offset at 0 range 16 .. 47;
+      end record;
 end x86.Descriptors;

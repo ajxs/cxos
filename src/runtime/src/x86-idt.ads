@@ -87,21 +87,6 @@ private
          Offset_High at 4 range 16 .. 31;
       end record;
 
-   ----------------------------------------------------------------------------
-   --  The format of the IDT pointer needed by the processor to load the IDT.
-   ----------------------------------------------------------------------------
-   type IDT_Pointer is
-      record
-         Size   : Unsigned_16;
-         Offset : System.Address;
-      end record
-   with Size => 48;
-   for IDT_Pointer use
-      record
-         Size   at 0 range 0  .. 15;
-         Offset at 0 range 16 .. 47;
-      end record;
-
    type IDT_Table is array (Descriptor_Entry_Range range <>) of IDT_Descriptor;
 
    IDT_LENGTH : constant := 256;
@@ -119,7 +104,7 @@ private
    ----------------------------------------------------------------------------
    --  The pointer to the IDT needed by the processor to load the IDT.
    ----------------------------------------------------------------------------
-   IDT_Ptr : IDT_Pointer
+   IDT_Ptr : System_Table_Descriptor
    with Export,
      Convention    => C,
      External_Name => "IDT_Pointer",

@@ -15,10 +15,10 @@ package body x86.IDT is
    --  Install_Descriptor
    ----------------------------------------------------------------------------
    procedure Install_Descriptor (
-     Index       : in Descriptor_Entry_Range;
-     Offset_Addr : in System.Address;
-     Selector    : in Descriptor_Entry_Range;
-     Privilege   : in Descriptor_Privilege_Level := Ring_0
+     Index       : Descriptor_Entry_Range;
+     Offset_Addr : System.Address;
+     Selector    : Descriptor_Entry_Range;
+     Privilege   : Descriptor_Privilege_Level := Ring_0
    ) is
    begin
       --  Set the descriptor's offset fields.

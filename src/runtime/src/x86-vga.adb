@@ -3,7 +3,7 @@ package body x86.Vga is
    --  Clear
    ----------------------------------------------------------------------------
    procedure Clear (
-     Bg : in Color
+     Bg : Color
    ) is
    begin
       for X in Col'Range loop
@@ -20,11 +20,11 @@ package body x86.Vga is
    --  Put_Char
    ----------------------------------------------------------------------------
    procedure Put_Char (
-     X  : in Col;
-     Y  : in Row;
-     Fg : in Color;
-     Bg : in Color;
-     Ch : in Character
+     X  : Col;
+     Y  : Row;
+     Fg : Color;
+     Bg : Color;
+     Ch : Character
    ) is
    begin
       Vga_Output_Buffer (Y * VGA_COL_COUNT + X) := (Ch, Fg, Bg);
@@ -37,11 +37,11 @@ package body x86.Vga is
    --  Put_String
    ----------------------------------------------------------------------------
    procedure Put_String (
-     X  : in Col;
-     Y  : in Row;
-     Fg : in Color;
-     Bg : in Color;
-     S  : in String
+     X  : Col;
+     Y  : Row;
+     Fg : Color;
+     Bg : Color;
+     S  : String
    ) is
       C : Natural := 0;
    begin

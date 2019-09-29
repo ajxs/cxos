@@ -70,11 +70,11 @@ package x86.Vga is
    --    None.
    ----------------------------------------------------------------------------
    procedure Put_String (
-     X  : in Col;
-     Y  : in Row;
-     Fg : in Color;
-     Bg : in Color;
-     S  : in String
+     X  : Col;
+     Y  : Row;
+     Fg : Color;
+     Bg : Color;
+     S  : String
    );
 
    ----------------------------------------------------------------------------
@@ -122,11 +122,11 @@ private
    --    None.
    ----------------------------------------------------------------------------
    procedure Put_Char (
-     X  : in Col;
-     Y  : in Row;
-     Fg : in Color;
-     Bg : in Color;
-     Ch : in Character
+     X  : Col;
+     Y  : Row;
+     Fg : Color;
+     Bg : Color;
+     Ch : Character
    );
 
    ----------------------------------------------------------------------------

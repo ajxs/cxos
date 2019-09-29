@@ -47,29 +47,6 @@ package body System.Storage_Elements is
    function To_Offset  is
      new Ada.Unchecked_Conversion (Address, Storage_Offset);
 
-   --  Conversion to/from integers
-
-   --  These functions must be place first because they are inlined_always
-   --  and are used and inlined in other subprograms defined in this unit.
-
-   ----------------
-   -- To_Address --
-   ----------------
-
-   function To_Address (Value : Integer_Address) return Address is
-   begin
-      return Address (Value);
-   end To_Address;
-
-   ----------------
-   -- To_Integer --
-   ----------------
-
-   function To_Integer (Value : Address) return Integer_Address is
-   begin
-      return Integer_Address (Value);
-   end To_Integer;
-
    --  Address arithmetic
 
    ---------
@@ -115,5 +92,28 @@ package body System.Storage_Elements is
    begin
       return Storage_Offset (To_Integer (Left) mod Integer_Address (Right));
    end "mod";
+
+   --  Conversion to/from integers
+
+   --  These functions must be place first because they are inlined_always
+   --  and are used and inlined in other subprograms defined in this unit.
+
+   ----------------
+   -- To_Address --
+   ----------------
+
+   function To_Address (Value : Integer_Address) return Address is
+   begin
+      return Address (Value);
+   end To_Address;
+
+   ----------------
+   -- To_Integer --
+   ----------------
+
+   function To_Integer (Value : Address) return Integer_Address is
+   begin
+      return Integer_Address (Value);
+   end To_Integer;
 
 end System.Storage_Elements;

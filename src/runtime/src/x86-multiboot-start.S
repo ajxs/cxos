@@ -27,9 +27,15 @@ _start:
 
 	movl $stack_top, %esp
 
-	# Initialise the system.
+	# Push Magic number and boot info address onto the stack as per Multiboot spec.
+	# See: https://www.gnu.org/software/grub/manual/multiboot/multiboot.html#Machine-state
 	pushl %ebx
 	pushl %eax
+
+	# Call Multiboot entry.
+	call __multiboot_init
+
+	# Initialise the system.
 	call __system_init
 
 	# Initialise Ada runtime.

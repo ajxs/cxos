@@ -7,8 +7,14 @@ RUNTIME_BINARY    := ${RUNTIME_DIR}/build/adalib/libgnat.a
 BUILD_DIR := ../build
 ISO       := ${BUILD_DIR}/cxos.img
 
-QEMU_FLAGS := -serial stdio    \
-	-usb                         \
+QEMU_FLAGS :=                 \
+	-accel tcg,thread=single    \
+	-cpu core2duo               \
+	-serial stdio               \
+	-m 128                      \
+	-no-reboot                  \
+	-smp 1                      \
+	-usb                        \
 	-vga std
 
 .POSIX:
@@ -30,6 +36,7 @@ debug: ${ISO}
 	qemu-system-i386                   \
 		${QEMU_FLAGS}                    \
 		-drive format=raw,file=${ISO}    \
+		-d cpu_reset                     \
 		-S                               \
 		-gdb tcp::1234
 

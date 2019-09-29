@@ -11,7 +11,7 @@ package body x86.Serial is
    --   - Returns a constant value stored within the function.
    ----------------------------------------------------------------------------
    function Get_Port_Address (
-     Port : in Serial_Port
+     Port : Serial_Port
    ) return System.Address is
       COM1_Address : constant System.Address := To_Address (16#3F8#);
       COM2_Address : constant System.Address := To_Address (16#3F8#);
@@ -35,10 +35,13 @@ package body x86.Serial is
 
    ----------------------------------------------------------------------------
    --  Initialise
+   --
+   --  Implementation Notes:
+   --   - All interrupts are disabled during initialisation.
    ----------------------------------------------------------------------------
    procedure Initialise (
-     Port : in Serial_Port;
-     Rate : in Baud_Rate := MAXIMUM_BAUD_RATE
+     Port : Serial_Port;
+     Rate : Baud_Rate := MAXIMUM_BAUD_RATE
    ) is
       Port_Address : System.Address;
    begin
@@ -51,7 +54,7 @@ package body x86.Serial is
                return;
          end Get_COM_Port_Address;
 
-      --  Disable interrupts.
+      --  Disable all interrupts.
       x86.Port_IO.Outb (Port_Address + 1, 0);
 
       --  Set the baud rate.
@@ -78,7 +81,7 @@ package body x86.Serial is
    --   - Does not determine whether the port has been initialised.
    ----------------------------------------------------------------------------
    function Is_Tx_Empty (
-     Port : in Serial_Port
+     Port : Serial_Port
    ) return Boolean is
       --  The port mapped address for this COM port.
       Port_Address : System.Address;
@@ -102,8 +105,8 @@ package body x86.Serial is
    --   - Does not determine whether the port has been initialised.
    ----------------------------------------------------------------------------
    procedure Put_Char (
-     Port : in Serial_Port;
-     Data : in Unsigned_8
+     Port : Serial_Port;
+     Data : Unsigned_8
    ) is
       --  The port mapped address for this COM port.
       Port_Address : System.Address;
@@ -128,14 +131,34 @@ package body x86.Serial is
    end Put_Char;
 
    ----------------------------------------------------------------------------
+   --  Put_String
+   --
+   --  Implementation Notes:
+   --   - Does not determine whether the port has been initialised.
+   ----------------------------------------------------------------------------
+   procedure Put_String (
+     Port : Serial_Port;
+     Data : String
+   ) is
+   begin
+      Print_Loop :
+         for C of Data loop
+            Put_Char (Port, Character'Pos (C));
+         end loop Print_Loop;
+   exception
+      when Constraint_Error =>
+         null;
+   end Put_String;
+
+   ----------------------------------------------------------------------------
    --  Set_Baud_Rate
    --
    --  Implementation Notes:
    --   - Does not determine whether the port has been initialised.
    ----------------------------------------------------------------------------
    procedure Set_Baud_Rate (
-     Port : in Serial_Port;
-     Rate : in Baud_Rate
+     Port : Serial_Port;
+     Rate : Baud_Rate
    ) is
       --  The baud rate divisor for this baud rate.
       Divisor : Unsigned_16;
@@ -197,8 +220,8 @@ package body x86.Serial is
    --   - Does not determine whether the port has been initialised.
    ----------------------------------------------------------------------------
    procedure Set_Divisor_Latch_State (
-     Port  : in Serial_Port;
-     State : in Boolean
+     Port  : Serial_Port;
+     State : Boolean
    ) is
       --  The existing line map status value.
       Line_Control_Status : Unsigned_8;
@@ -233,22 +256,70 @@ package body x86.Serial is
    end Set_Divisor_Latch_State;
 
    ----------------------------------------------------------------------------
-   --  Put_String
+   --  Set_Interrupt_Generation
    --
    --  Implementation Notes:
    --   - Does not determine whether the port has been initialised.
    ----------------------------------------------------------------------------
-   procedure Put_String (
-     Port : in Serial_Port;
-     Data : in String
+   procedure Set_Interrupt_Generation (
+     Port           : Serial_Port;
+     Interrupt_Type : Serial_Interrupt_Type;
+     Status         : Boolean
    ) is
+      Interrupt_Status : Unsigned_8;
+      Port_Address     : System.Address;
    begin
-      Print_Loop :
-         for C of Data loop
-            Put_Char (Port, Character'Pos (C));
-         end loop Print_Loop;
-   exception
-      when Constraint_Error =>
-         null;
-   end Put_String;
+      --  Get the address for the selected serial port.
+      Get_COM_Port_Address :
+         begin
+            Port_Address := Get_Port_Address (Port);
+         exception
+            when Constraint_Error =>
+               return;
+         end Get_COM_Port_Address;
+
+      --  Get the current status of this device's interrupts to
+      --  preserve the current interrupt status.
+      Get_Interrupt_Status :
+         begin
+            Interrupt_Status := x86.Port_IO.Inb (Port_Address + 1);
+         end Get_Interrupt_Status;
+
+      Set_Interrupt_Status :
+         begin
+            --  Set the interrupt status var to the desired value.
+            case Interrupt_Type is
+               when Modem_Line_Status =>
+                  if Status then
+                     Interrupt_Status := Interrupt_Status or 16#8#;
+                  else
+                     Interrupt_Status := Interrupt_Status and (not 16#8#);
+                  end if;
+               when Rx_Data_Available =>
+                  if Status then
+                     Interrupt_Status := Interrupt_Status or 16#1#;
+                  else
+                     Interrupt_Status := Interrupt_Status and (not 16#1#);
+                  end if;
+               when Rx_Line_Status =>
+                  if Status then
+                     Interrupt_Status := Interrupt_Status or 16#4#;
+                  else
+                     Interrupt_Status := Interrupt_Status and (not 16#4#);
+                  end if;
+               when Tx_Empty =>
+                  if Status then
+                     Interrupt_Status := Interrupt_Status or 16#2#;
+                  else
+                     Interrupt_Status := Interrupt_Status and (not 16#2#);
+                  end if;
+            end case;
+         exception
+            when Constraint_Error =>
+               return;
+         end Set_Interrupt_Status;
+
+      --  Write to the Interrupt enable register.
+      x86.Port_IO.Outb (Port_Address + 1, Interrupt_Status);
+   end Set_Interrupt_Generation;
 end x86.Serial;

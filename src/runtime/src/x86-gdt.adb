@@ -1,3 +1,5 @@
+with x86.Interrupts;
+
 package body x86.GDT is
    ----------------------------------------------------------------------------
    --  Finalise
@@ -8,8 +10,14 @@ package body x86.GDT is
    ----------------------------------------------------------------------------
    procedure Finalise is
    begin
+      --  Clear interrupts.
+      x86.Interrupts.Clear_Interrupt_Flag;
+
       --  Flush the GDT and reload.
       Flush_Gdt;
+
+      --  Enable Interrupts.
+      x86.Interrupts.Set_Interrupt_Flag;
    end Finalise;
 
    ----------------------------------------------------------------------------
@@ -42,11 +50,11 @@ package body x86.GDT is
    --   - 4kb granularity is always enabled.
    ----------------------------------------------------------------------------
    procedure Install_Descriptor (
-     Index      : in Descriptor_Entry_Range;
-     Base_Addr  : in System.Address  := To_Address (0);
-     Limit_Addr : in System.Address  := To_Address (0);
-     Privilege  : in Privilege_Level := Ring_0;
-     Entry_Type : in Segment_Type    := None
+     Index      : Descriptor_Entry_Range;
+     Base_Addr  : System.Address             := To_Address (0);
+     Limit_Addr : System.Address             := To_Address (0);
+     Privilege  : Descriptor_Privilege_Level := Ring_0;
+     Entry_Type : Segment_Type               := None
    ) is
    begin
       --  Set the segment base and limit addresses.

@@ -25,7 +25,7 @@ project Kernel is
         "-gnat2012",
         "-gnatwadhl",
         "-gnatVa",
-        "-gnatyy",
+        "-gnaty3abcdefhiklmnoprstux",
         "-Wall"
       );
    end Compiler;

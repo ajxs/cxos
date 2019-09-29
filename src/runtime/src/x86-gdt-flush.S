@@ -3,9 +3,6 @@
 .global _gdt_flush
 .type _gdt_flush, @function
 _gdt_flush:
-	# Clear interrupts
-	cli
-
 	lgdt gdt_pointer
 
 # This far-jump instruction loads the value of '1' into the CS register. JMP is used here
@@ -26,8 +23,5 @@ _gdt_flush:
 	mov %ax, %fs
 	mov %ax, %gs
 	mov %ax, %ss
-
-	# Re-enable interrupts
-	# sti
 
 	ret

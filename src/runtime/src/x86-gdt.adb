@@ -17,7 +17,7 @@ package body x86.GDT is
       Flush_Gdt;
 
       --  Enable Interrupts.
-      --  x86.Interrupts.Set_Interrupt_Flag;
+      x86.Interrupts.Set_Interrupt_Flag;
    end Finalise;
 
    ----------------------------------------------------------------------------

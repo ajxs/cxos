@@ -1,3 +1,5 @@
+with Ada.Interrupts;
+
 -------------------------------------------------------------------------------
 --  X86.PIC
 --
@@ -8,12 +10,12 @@
 package x86.PIC is
    pragma Preelaborate (x86.PIC);
 
+   use Ada.Interrupts;
+
    type PIC_Controller is (
      PIC1,
      PIC2
    );
-
-   type Interrupt_Source is mod 2 ** 8;
 
    ----------------------------------------------------------------------------
    --  Initialise
@@ -34,7 +36,20 @@ package x86.PIC is
    --    None.
    ----------------------------------------------------------------------------
    procedure Send_EOI (
-     IRQ : Interrupt_Source
+     IRQ : Interrupt_ID
+   );
+
+   ----------------------------------------------------------------------------
+   --  Set_Interrupt_Mask
+   --
+   --  Purpose:
+   --    Sets the mask status of an individual interrupt.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   procedure Set_Interrupt_Mask (
+     IRQ    : Interrupt_ID;
+     Status : Boolean
    );
 
 private

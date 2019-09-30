@@ -59,6 +59,8 @@ package body x86.PIC is
 
       --  ICW3 instructs PIC1 that it is the master PIC, and to use IRQ2
       --  to control PIC2 in slave mode.
+      --  It is a hardware convention used by manufacturers to use IRQ2 as
+      --  the slave cascade line.
       x86.Port_IO.Outb (PIC1_Addr + 1, 16#04#);
       --  Tell the slave PIC its cascade identity.
       x86.Port_IO.Outb (PIC2_Addr + 1, 16#02#);
@@ -79,8 +81,12 @@ package body x86.PIC is
    procedure Send_EOI (
      IRQ : Interrupt_ID
    ) is
-      EOI_Signal      : constant Unsigned_8 := 16#20#;
-      Controller_Addr : System.Address;
+      --  Represents a default non-specific EOI signal.
+      EOI_Signal : constant Unsigned_8 := 16#20#;
+      PIC1_Addr  : constant System.Address :=
+        Get_Controller_Base_Address (PIC1);
+      PIC2_Addr  : constant System.Address :=
+        Get_Controller_Base_Address (PIC2);
    begin
       --  Raise an exception if the IRQ line is above what the PIC is
       --  set to handle.
@@ -88,18 +94,14 @@ package body x86.PIC is
          raise Constraint_Error;
       end if;
 
-      --  Get the correct controller address to send the EOI signal to.
-      Get_Controller_Address :
-         begin
-            if IRQ >= 8 then
-               Controller_Addr := Get_Controller_Base_Address (PIC2);
-            else
-               Controller_Addr := Get_Controller_Base_Address (PIC1);
-            end if;
-         end Get_Controller_Address;
-
       --  Send the signal.
-      x86.Port_IO.Outb  (Controller_Addr, EOI_Signal);
+      if IRQ >= 8 then
+         x86.Port_IO.Outb  (PIC2_Addr, EOI_Signal);
+      end if;
+
+      --  Even if the IRQ line in question was on PIC1, we send an EOI
+      --  signal to PIC1 since the cascade line was raised.
+      x86.Port_IO.Outb  (PIC1_Addr, EOI_Signal);
 
    exception
       when Constraint_Error =>

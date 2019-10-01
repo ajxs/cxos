@@ -21,6 +21,7 @@ library project Runtime is
         "-O0",
         "-ffunction-sections", 
         "-fdata-sections",
+        "-g",
         "-gnat2012",
         "-gnatg",
         "-gnatwadhl",

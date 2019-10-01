@@ -36,7 +36,7 @@ debug: ${ISO}
 	qemu-system-i386                   \
 		${QEMU_FLAGS}                    \
 		-drive format=raw,file=${ISO}    \
-		-d cpu_reset                     \
+		-d cpu_reset,int,guest_errors    \
 		-S                               \
 		-gdb tcp::1234
 

@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
 
 # Cleans and builds the OS image.
-
-make clean -C "src" && make -C "src" && make emu -C "src"
+make clean -C "src"; make -C "src" && make emu -C "src"

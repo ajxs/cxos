@@ -98,7 +98,7 @@ private
    procedure Flush_Gdt
    with Import,
      Convention    => C,
-     External_Name => "_gdt_flush";
+     External_Name => "__gdt_flush";
 
    ----------------------------------------------------------------------------
    --  An individual segment descriptor within the GDT.

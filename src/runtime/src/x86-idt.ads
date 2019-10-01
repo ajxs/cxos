@@ -27,7 +27,7 @@ package x86.IDT is
    procedure Finalise
    with Import,
      Convention    => C,
-     External_Name => "_idt_load";
+     External_Name => "__idt_load";
 
    ----------------------------------------------------------------------------
    --  Initialise
@@ -39,6 +39,22 @@ package x86.IDT is
    --    None.
    ----------------------------------------------------------------------------
    procedure Initialise;
+
+   ----------------------------------------------------------------------------
+   --  Install_Descriptor
+   --
+   --  Purpose:
+   --    This procedure creates an individual descriptor entry in the x86
+   --    platform's Interrupt Descriptor Table.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   procedure Install_Descriptor (
+     Index       : Descriptor_Entry_Range;
+     Offset_Addr : System.Address;
+     Selector    : Unsigned_16;
+     Privilege   : Descriptor_Privilege_Level := Ring_0
+   );
 
 private
    ----------------------------------------------------------------------------
@@ -55,32 +71,18 @@ private
    );
 
    ----------------------------------------------------------------------------
-   --  Install_Descriptor
-   --
-   --  Purpose:
-   --    This procedure creates an individual descriptor entry in the x86
-   --    platform's Interrupt Descriptor Table.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   procedure Install_Descriptor (
-     Index       : Descriptor_Entry_Range;
-     Offset_Addr : System.Address;
-     Selector    : Descriptor_Entry_Range;
-     Privilege   : Descriptor_Privilege_Level := Ring_0
-   );
-
-   ----------------------------------------------------------------------------
    --  Descriptor type information.
    --  Differs from GDT descriptor type field.
    --  Refer to Page 197. Intel IA-32 SDM 3a.
    ----------------------------------------------------------------------------
    type Descriptor_Type is (
+     None,
      Interrupt_Gate_16_Bit,
      Interrupt_Gate_32_Bit
    )
    with Size => 4;
    for Descriptor_Type use (
+     None                  => 0,
      Interrupt_Gate_16_Bit => 16#6#,
      Interrupt_Gate_32_Bit => 16#E#
    );

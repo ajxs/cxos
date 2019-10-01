@@ -24,13 +24,16 @@ package body x86.IDT is
       Index : Descriptor_Entry_Range
    ) is
    begin
-      Interrupt_Descriptor_Table (Index).Offset_Low  := 0;
-      Interrupt_Descriptor_Table (Index).Offset_High := 0;
-      Interrupt_Descriptor_Table (Index).Selector    := 0;
-      Interrupt_Descriptor_Table (Index).Descr_Type  := Interrupt_Gate_32_Bit;
-      Interrupt_Descriptor_Table (Index).S          := False;
-      Interrupt_Descriptor_Table (Index).DPL         := Ring_0;
-      Interrupt_Descriptor_Table (Index).P           := False;
+      Interrupt_Descriptor_Table (Index) := (
+         Offset_Low  => 0,
+         Selector    => 0,
+         Reserved    => 0,
+         Descr_Type  => None,
+         S           => False,
+         DPL         => Ring_0,
+         P           => False,
+         Offset_High => 0
+      );
 
    exception
       when Constraint_Error =>
@@ -43,7 +46,7 @@ package body x86.IDT is
    procedure Install_Descriptor (
      Index       : Descriptor_Entry_Range;
      Offset_Addr : System.Address;
-     Selector    : Descriptor_Entry_Range;
+     Selector    : Unsigned_16;
      Privilege   : Descriptor_Privilege_Level := Ring_0
    ) is
    begin
@@ -63,8 +66,9 @@ package body x86.IDT is
                return;
          end Set_Descriptor_Offset;
 
-      Interrupt_Descriptor_Table (Index).Selector   := Unsigned_16 (Selector);
+      Interrupt_Descriptor_Table (Index).Selector   := Selector;
       Interrupt_Descriptor_Table (Index).Descr_Type := Interrupt_Gate_32_Bit;
+      Interrupt_Descriptor_Table (Index).Reserved   := 0;
       Interrupt_Descriptor_Table (Index).S          := False;
       Interrupt_Descriptor_Table (Index).DPL        := Privilege;
       Interrupt_Descriptor_Table (Index).P          := True;

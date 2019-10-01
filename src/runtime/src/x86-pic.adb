@@ -116,7 +116,6 @@ package body x86.PIC is
      Status : Boolean
    ) is
       Interrupt_Mask : Unsigned_8;
-      Mask_Bit       : Unsigned_8;
 
       PIC1_Addr : constant System.Address :=
         Get_Controller_Base_Address (PIC1);
@@ -141,31 +140,26 @@ package body x86.PIC is
 
       --  Get the correct mask bit.
       Set_Mask_Bit :
+         declare
+            --  This is the amount we need to shift the mask bit to set
+            --  the mask for a particular IRQ line.
+            Shift_Amount : constant Integer := Integer (IRQ) mod 8;
          begin
-            if IRQ >= 8 then
-               --  If we are above IRQ 8 then subtract 8 from the
-               --  mask bit.
-               Mask_Bit := Unsigned_8 (IRQ - 8);
+            --  Set the interrupt mask value.
+            if Status then
+               Interrupt_Mask :=
+                 Interrupt_Mask or Shift_Left (1, Shift_Amount);
             else
-               Mask_Bit := Unsigned_8 (IRQ);
+               Interrupt_Mask :=
+                 Interrupt_Mask and (not Shift_Left (1, Shift_Amount));
             end if;
-         exception
-            when Constraint_Error =>
-               return;
          end Set_Mask_Bit;
-
-      --  Set the interrupt mask value.
-      if Status then
-         Interrupt_Mask := Interrupt_Mask or Shift_Left (Mask_Bit, 1);
-      else
-         Interrupt_Mask := Interrupt_Mask and not Shift_Left (Mask_Bit, 1);
-      end if;
 
       --  Write the interrupt mask.
       if IRQ >= 8 then
          x86.Port_IO.Outb (PIC2_Addr + 1, Interrupt_Mask);
       else
-         x86.Port_IO.Outb (PIC2_Addr + 1, Interrupt_Mask);
+         x86.Port_IO.Outb (PIC1_Addr + 1, Interrupt_Mask);
       end if;
 
    exception

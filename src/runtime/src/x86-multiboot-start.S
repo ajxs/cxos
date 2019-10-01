@@ -35,11 +35,11 @@ _start:
 	# Call Multiboot entry.
 	call __multiboot_init
 
-	# Initialise the system.
-	call __system_init
-
 	# Initialise Ada runtime.
 	call adainit
+
+	# Initialise the system.
+	call __system_init
 
 	# Jump to the kernel entry.
 	call _ada_kernel_entry

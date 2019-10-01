@@ -11,13 +11,13 @@ package body x86.GDT is
    procedure Finalise is
    begin
       --  Clear interrupts.
-      x86.Interrupts.Clear_Interrupt_Flag;
+      x86.Interrupts.Set_Interrupt_Flag (False);
 
       --  Flush the GDT and reload.
       Flush_Gdt;
 
       --  Enable Interrupts.
-      x86.Interrupts.Set_Interrupt_Flag;
+      x86.Interrupts.Set_Interrupt_Flag (True);
    end Finalise;
 
    ----------------------------------------------------------------------------

@@ -22,12 +22,14 @@ package x86.GDT is
    --
    --  Purpose:
    --    This procedure finalises the initialisation of the GDT.
-   --    This function initiates the loading of the global descriptor table and
-   --    the final jump to protected mode.
+   --    This function initiates the loading of the global descriptor table.
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Finalise;
+   procedure Finalise
+   with Import,
+     Convention    => C,
+     External_Name => "__gdt_load";
 
    ----------------------------------------------------------------------------
    --  Initialise
@@ -85,20 +87,6 @@ private
      Privilege  : Descriptor_Privilege_Level := Ring_0;
      Entry_Type : Segment_Type               := None
    );
-
-   ----------------------------------------------------------------------------
-   --  Flush_Gdt
-   --
-   --  Purpose:
-   --    This procedure is a link to the assembly code that loads the GDT
-   --    pointer and then performs the jump to protected mode.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   procedure Flush_Gdt
-   with Import,
-     Convention    => C,
-     External_Name => "__gdt_flush";
 
    ----------------------------------------------------------------------------
    --  An individual segment descriptor within the GDT.

@@ -94,19 +94,19 @@ private
    ----------------------------------------------------------------------------
    type GDT_Descriptor is
       record
-         Limit_Low   : Unsigned_16;
-         Base_Low    : Unsigned_16;
-         Base_Mid    : Unsigned_8;
-         Descr_Type  : Descriptor_Type;
-         S           : Boolean;
-         DPL         : Descriptor_Privilege_Level;
-         P           : Boolean;
-         Limit_High  : Unsigned_4;
-         AVL         : Boolean;
-         L           : Boolean;
-         DB          : Boolean;
-         G           : Boolean;
-         Base_High   : Unsigned_8;
+         Limit_Low  : Unsigned_16;
+         Base_Low   : Unsigned_16;
+         Base_Mid   : Unsigned_8;
+         Descr_Type : Descriptor_Type;
+         S          : Boolean;
+         DPL        : Descriptor_Privilege_Level;
+         P          : Boolean;
+         Limit_High : Unsigned_4;
+         AVL        : Boolean;
+         L          : Boolean;
+         DB         : Boolean;
+         G          : Boolean;
+         Base_High  : Unsigned_8;
       end record
    with Size => 64;
    for GDT_Descriptor use

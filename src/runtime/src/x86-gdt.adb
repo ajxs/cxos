@@ -36,72 +36,64 @@ package body x86.GDT is
      Entry_Type : Segment_Type               := None
    ) is
    begin
-      --  Set the segment base and limit addresses.
+      --  Initialise the descriptor entry. The segment base and limit
+      --  addresses are computed and set here.
+      --  The Descriptor is set to a code entry by default.
       --  If an overflow occurs here the procedure will exit.
-      Set_Segment_Addresses :
+      Initialise_Descriptor :
          declare
+            --  These constants are used to compute the split
+            --  base and offset entry values.
             Base  : constant Unsigned_32 :=
               Unsigned_32 (To_Integer (Base_Addr));
             Limit : constant Unsigned_32 :=
               Unsigned_32 (To_Integer (Limit_Addr));
          begin
-            Global_Descriptor_Table (Index).Limit_Low :=
-              Unsigned_16 (Limit and 16#FFFF#);
-            Global_Descriptor_Table (Index).Limit_High :=
-              Unsigned_4 (Shift_Right (Limit, 16) and 16#F#);
-
-            Global_Descriptor_Table (Index).Base_Low :=
-              Unsigned_16 (Base and 16#FFFF#);
-            Global_Descriptor_Table (Index).Base_Mid :=
-              Unsigned_8 (Shift_Right (Base, 16) and 16#FF#);
-            Global_Descriptor_Table (Index).Base_High :=
-              Unsigned_8 (Shift_Right (Base, 24) and 16#FF#);
+            Global_Descriptor_Table (Index) := (
+               Limit_Low  => Unsigned_16 (Limit and 16#FFFF#),
+               Base_Low   => Unsigned_16 (Base and 16#FFFF#),
+               Base_Mid   => Unsigned_8 (Shift_Right (Base, 16) and 16#FF#),
+               Descr_Type => (
+                  A          => False,
+                  W_R        => True,
+                  E_C        => False,
+                  Field_Type => True
+               ),
+               S          => True,
+               DPL        => Privilege,
+               P          => True,
+               Limit_High => Unsigned_4 (Shift_Right (Limit, 16) and 16#F#),
+               AVL        => False,
+               L          => False,
+               DB         => True,
+               G          => True,
+               Base_High  => Unsigned_8 (Shift_Right (Base, 24) and 16#FF#)
+            );
          exception
             when Constraint_Error =>
                return;
-         end Set_Segment_Addresses;
+         end Initialise_Descriptor;
 
       case Entry_Type is
          when Code =>
-            Global_Descriptor_Table (Index).S          := True;
-            Global_Descriptor_Table (Index).P          := True;
-            Global_Descriptor_Table (Index).DPL        := Privilege;
-            Global_Descriptor_Table (Index).Descr_Type := (
-              A          => False,
-              W_R        => True,
-              E_C        => False,
-              Field_Type => True
-            );
-
-            Global_Descriptor_Table (Index).AVL        := True;
-            Global_Descriptor_Table (Index).L          := True;
-            Global_Descriptor_Table (Index).DB         := True;
-            Global_Descriptor_Table (Index).G          := True;
+            --  The descriptor is already configured as a valid
+            --  code segment.
+            null;
          when Data =>
-            Global_Descriptor_Table (Index).S          := True;
-            Global_Descriptor_Table (Index).P          := True;
-            Global_Descriptor_Table (Index).DPL        := Privilege;
-            Global_Descriptor_Table (Index).Descr_Type := (
-              A          => False,
-              W_R        => True,
-              E_C        => False,
-              Field_Type => False
-            );
-
-            Global_Descriptor_Table (Index).AVL        := True;
-            Global_Descriptor_Table (Index).L          := True;
-            Global_Descriptor_Table (Index).DB         := True;
-            Global_Descriptor_Table (Index).G          := True;
+            Global_Descriptor_Table (Index).Descr_Type.Field_Type := False;
          when None =>
-            Global_Descriptor_Table (Index).P          := False;
-            Global_Descriptor_Table (Index).DPL        := Ring_0;
-            Global_Descriptor_Table (Index).G          := False;
             Global_Descriptor_Table (Index).Descr_Type := (
-              A          => False,
-              W_R        => False,
-              E_C        => False,
-              Field_Type => False
+               A          => False,
+               W_R        => False,
+               E_C        => False,
+               Field_Type => False
             );
+            Global_Descriptor_Table (Index).S   := False;
+            Global_Descriptor_Table (Index).P   := False;
+            Global_Descriptor_Table (Index).AVL := False;
+            Global_Descriptor_Table (Index).L   := False;
+            Global_Descriptor_Table (Index).DB  := False;
+            Global_Descriptor_Table (Index).G   := False;
       end case;
    exception
       when Constraint_Error =>

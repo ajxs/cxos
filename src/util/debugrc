@@ -1,14 +1,14 @@
 target remote localhost:1234
 file src/kernel/build/cxos.elf -readnow
 
-b x86.gdt.finalise
+b x86.irq_handlers.irq1_handler
 
 c
 
-x /5xg &global_descriptor_table
-x /1dh &gdt_pointer
-x /1xw &gdt_pointer+2
+x /1xg &idt_pointer
 
-x /5xg &gdt
-x /1xh &gdt_ptr
-x /1xw &gdt_ptr+2
+
+x /5xg &global_descriptor_table
+x /3xg &interrupt_descriptor_table+(256)
+
+x /5xg &x86.irq_handlers.irq0_handler

@@ -1,3 +1,4 @@
+with System.Machine_Code;
 with x86;
 with x86.Serial;
 with x86.Vga;
@@ -37,7 +38,7 @@ package body Cxos is
 
       --  Loop forever.
       loop
-         null;
+         System.Machine_Code.Asm ("hlt", Volatile => True);
       end loop;
    end Main;
 end Cxos;

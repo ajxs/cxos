@@ -17,9 +17,16 @@ __pmode_init:
 	orl $0x1, %eax
 	movl %eax, %cr0
 
-	# Use a far jump to reload the segment registers.
-	# Refer to '__gdt_load' function and associated documentation for 
-	# a better explanation of this method.
+	# This far-jump instruction loads the value of '1' into the CS register. JMP is used 
+	# here since we can't modify CS with the MOV instruction. The JMP instruction used with 
+	# the format 'CS:OFFSET' will reload the CS register to the target of the jump.
+	# Refer to: https://c9x.me/x86/html/file_module_x86_id_147.html
+	# This refers to GDT entry 1 being the code segment.
+	# This is because bit 1 << 3 is the index bit of the segment structure, the 0x8 here 
+	# will set that bit to '1'.
+	# Refer to 3.4.2 of the Intel SDM on page 95 for a description of the segment selector
+	# structure. 
+	# For a simple explanation, refer to: https://stackoverflow.com/a/23979175/5931673
 	ljmp $0x0008, $.Lpmode_reload_segments
 
 .Lpmode_reload_segments:

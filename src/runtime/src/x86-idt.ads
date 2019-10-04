@@ -67,7 +67,7 @@ private
    --    None.
    ----------------------------------------------------------------------------
    procedure Initialise_Descriptor (
-      Index : Descriptor_Entry_Range
+     Index : Descriptor_Entry_Range
    );
 
    ----------------------------------------------------------------------------

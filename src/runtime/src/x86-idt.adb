@@ -8,10 +8,18 @@ package body x86.IDT is
    ----------------------------------------------------------------------------
    procedure Initialise is
    begin
+      --  Initialise all IDT Entries.
       Initialise_Loop :
          for I in Descriptor_Entry_Range range 0 .. IDT_LENGTH loop
             Initialise_Descriptor (I);
          end loop Initialise_Loop;
+
+      --  Initialise the IDT pointer.
+      IDT_Ptr.Size   := Interrupt_Descriptor_Table'Size - 1;
+      IDT_Ptr.Offset := Interrupt_Descriptor_Table'Address;
+   exception
+      when Constraint_Error =>
+         null;
    end Initialise;
 
    ----------------------------------------------------------------------------
@@ -21,7 +29,7 @@ package body x86.IDT is
    --    - Zeroes out an individual descriptor entry.
    ----------------------------------------------------------------------------
    procedure Initialise_Descriptor (
-      Index : Descriptor_Entry_Range
+     Index : Descriptor_Entry_Range
    ) is
    begin
       Interrupt_Descriptor_Table (Index) := (

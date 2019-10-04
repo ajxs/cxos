@@ -99,7 +99,7 @@ package body x86.PIC is
          x86.Port_IO.Outb  (PIC2_Addr, EOI_Signal);
       end if;
 
-      --  Even if the IRQ line in question was on PIC1, we send an EOI
+      --  Even if the IRQ line in question was on PIC2, we send an EOI
       --  signal to PIC1 since the cascade line was raised.
       x86.Port_IO.Outb  (PIC1_Addr, EOI_Signal);
 

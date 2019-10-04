@@ -67,8 +67,6 @@ package body x86.Serial is
       --  Enable FIFO.
       x86.Port_IO.Outb (Port_Address + 2, 16#C7#);
 
-      --  IRQs enabled, RTS/DSR set.
-      x86.Port_IO.Outb (Port_Address + 4, 16#0B#);
    exception
       when Constraint_Error =>
          null;

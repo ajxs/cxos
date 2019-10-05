@@ -45,6 +45,17 @@ package x86 is
      Convention => C,
      External_Name => "__gnat_last_chance_handler";
 
+private
+   ----------------------------------------------------------------------------
+   --  Install_Exception_Handlers
+   --
+   --  Purpose:
+   --    This procedure installs the processor exception handlers.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   procedure Install_Exception_Handlers;
+
    ----------------------------------------------------------------------------
    --  Protected_Mode_Init
    --

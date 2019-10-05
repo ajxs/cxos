@@ -1,7 +1,7 @@
 target remote localhost:1234
 file src/kernel/build/cxos.elf -readnow
 
-b x86.pic.send_eoi
+b System.x86.PIC.send_eoi
 
 c
 
@@ -12,4 +12,4 @@ x /1xg &idt_pointer
 x /5xg &global_descriptor_table
 x /3xg &interrupt_descriptor_table+(256)
 
-x /5xg &x86.irq_handlers.irq0_handler
+x /5xg &System.x86.IRQ_Handlers.irq0_handler

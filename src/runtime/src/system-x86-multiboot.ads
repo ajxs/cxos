@@ -2,15 +2,15 @@ with Interfaces;
 with System;
 
 -------------------------------------------------------------------------------
---  X86.Multiboot
+--  System.x86.Multiboot
 --
 --  Purpose:
 --    This package contains code for working with multiboot functionality and
 --    data structures. It also contains the first entry function to be called
 --    by the boot code, which validates that the kernel image has been loaded.
 -------------------------------------------------------------------------------
-package x86.Multiboot is
-   pragma Preelaborate (x86.Multiboot);
+package System.x86.Multiboot is
+   pragma Preelaborate (System.x86.Multiboot);
 
    use Interfaces;
 
@@ -115,4 +115,4 @@ package x86.Multiboot is
      Convention => C,
      External_Name => "__multiboot_init";
 
-end x86.Multiboot;
+end System.x86.Multiboot;

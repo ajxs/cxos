@@ -1,20 +1,20 @@
 with Interfaces;
 with System;
-with x86.Descriptors;
+with System.x86.Descriptors;
 
 -------------------------------------------------------------------------------
---  X86.IDT
+--  System.x86.IDT
 --
 --  Purpose:
 --    This package contains code for initialising the Interrupt Descriptor
 --    Table. The initialisation procedure within is called by the system
 --    init code.
 -------------------------------------------------------------------------------
-package x86.IDT is
-   pragma Preelaborate (x86.IDT);
+package System.x86.IDT is
+   pragma Preelaborate (System.x86.IDT);
 
    use Interfaces;
-   use x86.Descriptors;
+   use System.x86.Descriptors;
 
    ----------------------------------------------------------------------------
    --  Finalise
@@ -142,4 +142,4 @@ private
      Convention    => C,
      External_Name => "idt_pointer",
      Volatile;
-end x86.IDT;
+end System.x86.IDT;

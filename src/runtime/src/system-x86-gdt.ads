@@ -1,21 +1,21 @@
 with Interfaces;
 with System;
 with System.Storage_Elements;
-with x86.Descriptors;
+with System.x86.Descriptors;
 
 -------------------------------------------------------------------------------
---  X86.GDT
+--  System.x86.GDT
 --
 --  Purpose:
 --    This package contains code for initialising the Global Descriptor Table.
 --    The initialisation procedure within is called by the system init code.
 -------------------------------------------------------------------------------
-package x86.GDT is
-   pragma Preelaborate (x86.GDT);
+package System.x86.GDT is
+   pragma Preelaborate (System.x86.GDT);
 
    use Interfaces;
    use System.Storage_Elements;
-   use x86.Descriptors;
+   use System.x86.Descriptors;
 
    ----------------------------------------------------------------------------
    --  Finalise
@@ -154,4 +154,4 @@ private
      External_Name => "gdt_pointer",
      Volatile;
 
-end x86.GDT;
+end System.x86.GDT;

@@ -2,7 +2,7 @@ with Interfaces;
 with System;
 
 -------------------------------------------------------------------------------
---  X86.PORT_IO
+--  System.x86.Port_IO
 --
 --  Purpose:
 --    This package contains functionality for port-mapped I/O on the x86
@@ -10,8 +10,8 @@ with System;
 --    Functions are included for inputting and outputting data to port-mapped
 --    addresses, useful for interacting with system peripherals.
 -------------------------------------------------------------------------------
-package x86.Port_IO is
-   pragma Preelaborate (x86.Port_IO);
+package System.x86.Port_IO is
+   pragma Preelaborate (System.x86.Port_IO);
 
    ----------------------------------------------------------------------------
    --  Inb
@@ -38,4 +38,4 @@ package x86.Port_IO is
      Port : System.Address;
      Data : Interfaces.Unsigned_8
    );
-end x86.Port_IO;
+end System.x86.Port_IO;

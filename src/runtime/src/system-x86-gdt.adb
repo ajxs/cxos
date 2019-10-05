@@ -1,4 +1,4 @@
-package body x86.GDT is
+package body System.x86.GDT is
    ----------------------------------------------------------------------------
    --  Initialise
    ----------------------------------------------------------------------------
@@ -99,4 +99,4 @@ package body x86.GDT is
       when Constraint_Error =>
          null;
    end Install_Descriptor;
-end x86.GDT;
+end System.x86.GDT;

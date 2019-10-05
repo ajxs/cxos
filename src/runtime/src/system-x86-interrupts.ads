@@ -1,11 +1,11 @@
 -------------------------------------------------------------------------------
---  X86.Interrupts
+--  System.x86.Interrupts
 --
 --  Purpose:
 --    This package contains code for managing x86 processor interrupts.
 -------------------------------------------------------------------------------
-package x86.Interrupts is
-   pragma Preelaborate (x86.Interrupts);
+package System.x86.Interrupts is
+   pragma Preelaborate (System.x86.Interrupts);
 
    ----------------------------------------------------------------------------
    --  Set_Interrupt_Flag
@@ -20,4 +20,4 @@ package x86.Interrupts is
    procedure Set_Interrupt_Flag (
      Status : Boolean
    );
-end x86.Interrupts;
+end System.x86.Interrupts;

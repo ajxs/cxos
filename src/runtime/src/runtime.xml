@@ -6,7 +6,7 @@
       <![CDATA[
         package Linker is
             for Required_Switches use Linker'Required_Switches & (
-              "-T${RUNTIME_DIR(ada)}/x86-multiboot.ld"
+              "-T${RUNTIME_DIR(ada)}/system-x86-multiboot.ld"
             );
         end Linker;
       ]]>

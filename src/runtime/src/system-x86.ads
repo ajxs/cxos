@@ -8,8 +8,8 @@ with System;
 --    The initialisation procedure here will perform all the required
 --    initialisation code for the platform.
 -------------------------------------------------------------------------------
-package x86 is
-   pragma Preelaborate (x86);
+package System.x86 is
+   pragma Preelaborate (System.x86);
 
    ----------------------------------------------------------------------------
    --  Initialise
@@ -68,4 +68,4 @@ private
    with Import,
      Convention    => C,
      External_Name => "__pmode_init";
-end x86;
+end System.x86;

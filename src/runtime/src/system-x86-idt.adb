@@ -1,6 +1,6 @@
 with System.Storage_Elements;
 
-package body x86.IDT is
+package body System.x86.IDT is
    use System.Storage_Elements;
 
    ----------------------------------------------------------------------------
@@ -85,4 +85,4 @@ package body x86.IDT is
       when Constraint_Error =>
          return;
    end Install_Descriptor;
-end x86.IDT;
+end System.x86.IDT;

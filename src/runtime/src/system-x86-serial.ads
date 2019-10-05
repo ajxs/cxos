@@ -1,15 +1,15 @@
 with Interfaces;
 
 -------------------------------------------------------------------------------
---  X86.SERIAL
+--  System.x86.Serial
 --
 --  Purpose:
 --    This package contains a basic Serial I/O driver.
 --    The procedures and type definitions contained within this module can be
 --    used to interact with the system's serial ports.
 -------------------------------------------------------------------------------
-package x86.Serial is
-   pragma Preelaborate (x86.Serial);
+package System.x86.Serial is
+   pragma Preelaborate (System.x86.Serial);
 
    use Interfaces;
 
@@ -159,4 +159,4 @@ private
      State : Boolean
    );
 
-end x86.Serial;
+end System.x86.Serial;

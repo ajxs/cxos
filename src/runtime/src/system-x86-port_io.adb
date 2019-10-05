@@ -1,6 +1,6 @@
 with System.Machine_Code;
 
-package body x86.Port_IO is
+package body System.x86.Port_IO is
    ----------------------------------------------------------------------------
    --  Inb
    ----------------------------------------------------------------------------
@@ -38,4 +38,4 @@ package body x86.Port_IO is
         ),
         Volatile => True);
    end Outb;
-end x86.Port_IO;
+end System.x86.Port_IO;

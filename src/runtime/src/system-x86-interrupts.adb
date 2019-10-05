@@ -1,6 +1,6 @@
 with System.Machine_Code;
 
-package body x86.Interrupts is
+package body System.x86.Interrupts is
    ----------------------------------------------------------------------------
    --  Set_Interrupt_Flag
    ----------------------------------------------------------------------------
@@ -22,4 +22,4 @@ package body x86.Interrupts is
       when Constraint_Error =>
          return;
    end Set_Interrupt_Flag;
-end x86.Interrupts;
+end System.x86.Interrupts;

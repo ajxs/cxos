@@ -12,6 +12,10 @@ package System.x86.PIC is
 
    use Ada.Interrupts;
 
+   ----------------------------------------------------------------------------
+   --  PIC Controller type.
+   --  Used in selecting which PIC to perform an operation on.
+   ----------------------------------------------------------------------------
    type PIC_Controller is (
      PIC1,
      PIC2

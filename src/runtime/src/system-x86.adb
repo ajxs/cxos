@@ -16,18 +16,22 @@ package body System.x86 is
    procedure Initialise is
    begin
       System.x86.Serial.Initialise (System.x86.Serial.COM1, 38400);
-      System.x86.Serial.Put_String (System.x86.Serial.COM1, "COM1 initialised" & ASCII.LF);
+      System.x86.Serial.Put_String (System.x86.Serial.COM1,
+        "COM1 initialised" & ASCII.LF);
 
-      System.x86.Serial.Put_String (System.x86.Serial.COM1, "Initialising PIC" & ASCII.LF);
+      System.x86.Serial.Put_String (System.x86.Serial.COM1,
+        "Initialising PIC" & ASCII.LF);
       System.x86.PIC.Initialise;
 
       --  Clear interrupts.
       System.x86.Interrupts.Set_Interrupt_Flag (False);
 
-      System.x86.Serial.Put_String (System.x86.Serial.COM1, "Initialising GDT" & ASCII.LF);
+      System.x86.Serial.Put_String (System.x86.Serial.COM1,
+        "Initialising GDT" & ASCII.LF);
       System.x86.GDT.Initialise;
 
-      System.x86.Serial.Put_String (System.x86.Serial.COM1, "Initialising IDT" & ASCII.LF);
+      System.x86.Serial.Put_String (System.x86.Serial.COM1,
+        "Initialising IDT" & ASCII.LF);
       System.x86.IDT.Initialise;
 
       System.x86.Serial.Put_String (System.x86.Serial.COM1,
@@ -46,7 +50,8 @@ package body System.x86 is
 
       System.x86.IDT.Finalise;
 
-      System.x86.Serial.Put_String (System.x86.Serial.COM1, "Flushing GDT" & ASCII.LF);
+      System.x86.Serial.Put_String (System.x86.Serial.COM1,
+        "Flushing GDT" & ASCII.LF);
       System.x86.GDT.Finalise;
 
       System.x86.Serial.Put_String (System.x86.Serial.COM1,

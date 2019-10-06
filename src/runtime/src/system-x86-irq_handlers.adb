@@ -76,7 +76,8 @@ package body System.x86.IRQ_Handlers is
       --  Read the keycode.
       Keycode := System.x86.Port_IO.Inb (To_Address (16#60#));
 
-      System.x86.Serial.Put_String (System.x86.Serial.COM1, "" & Character'Val (Keycode));
+      System.x86.Serial.Put_String (System.x86.Serial.COM1,
+        "" & Character'Val (Keycode));
 
       System.x86.PIC.Send_EOI (IRQ1);
 

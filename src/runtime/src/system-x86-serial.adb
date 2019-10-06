@@ -30,7 +30,7 @@ package body System.x86.Serial is
       end case;
    exception
       when Constraint_Error =>
-         return COM1_Address;
+         return Null_Address;
    end Get_Port_Address;
 
    ----------------------------------------------------------------------------

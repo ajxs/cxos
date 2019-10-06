@@ -26,7 +26,7 @@ package body System.x86.PIC is
       end case;
    exception
       when Constraint_Error =>
-         return PIC1_Base_Addr;
+         return Null_Address;
    end Get_Controller_Base_Address;
 
    ----------------------------------------------------------------------------

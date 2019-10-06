@@ -1,5 +1,14 @@
 with Interfaces;
 
+-------------------------------------------------------------------------------
+--  SYSTEM.X86.DESCRIPTORS
+--
+--  Purpose:
+--    This package contains definitions common to the use of descriptors in the
+--    x86 system. These are used in the Global Descriptor Table (GDT) and the
+--    Interrupt Descriptor Table (IDT).
+--    Refer to 'system-x86-gdt.ads' and 'system-x86-idt.ads' respectively.
+-------------------------------------------------------------------------------
 package System.x86.Descriptors is
    pragma Preelaborate (System.x86.Descriptors);
 

@@ -1,7 +1,7 @@
 with Interfaces;
 
 -------------------------------------------------------------------------------
---  System.x86.Serial
+--  SYSTEM.X86.SERIAL
 --
 --  Purpose:
 --    This package contains a basic Serial I/O driver.

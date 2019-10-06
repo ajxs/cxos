@@ -2,7 +2,7 @@ with Interfaces;
 with System;
 
 -------------------------------------------------------------------------------
---  System.x86.Multiboot
+--  SYSTEM.X86.MULTIBOOT
 --
 --  Purpose:
 --    This package contains code for working with multiboot functionality and

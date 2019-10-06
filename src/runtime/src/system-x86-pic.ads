@@ -1,7 +1,7 @@
 with Ada.Interrupts;
 
 -------------------------------------------------------------------------------
---  System.x86.PIC
+--  SYSTEM.X86.PIC
 --
 --  Purpose:
 --    This package contains code for working with the x86 8259A programmable

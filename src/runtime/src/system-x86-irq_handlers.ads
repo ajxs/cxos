@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
---  System.x86.IRQ_Handlers
+--  SYSTEM.X86.IRQ_HANDLERS
 --
 --  Purpose:
 --    This package contains code for handling individual IRQ requests.

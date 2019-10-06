@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
---  System.x86.Exceptions
+--  SYSTEM.X86.EXCEPTIONS
 --
 --  Purpose:
 --    This package contains code for handling x86 processor exceptions.

@@ -2,7 +2,7 @@ with Interfaces;
 with System;
 
 -------------------------------------------------------------------------------
---  System.x86.Port_IO
+--  SYSTEM.X86.PORT_IO
 --
 --  Purpose:
 --    This package contains functionality for port-mapped I/O on the x86

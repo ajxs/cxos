@@ -1,7 +1,7 @@
 with System.Storage_Elements;
 
 -------------------------------------------------------------------------------
---  System.x86.Vga
+--  SYSTEM.X86.VGA
 --
 --  Purpose:
 --    This package contains a basic VGA text-mode driver.

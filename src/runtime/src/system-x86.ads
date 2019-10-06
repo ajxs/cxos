@@ -1,7 +1,7 @@
 with System;
 
 -------------------------------------------------------------------------------
---  X86
+--  SYSTEM.X86
 --
 --  Purpose:
 --    This package contains initialisation code for the x86 system.

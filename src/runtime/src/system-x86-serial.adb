@@ -268,7 +268,7 @@ package body System.x86.Serial is
      Interrupt_Type : Serial_Interrupt_Type;
      Status         : Boolean
    ) is
-      Interrupt_Status : Unsigned_8;
+      Interrupt_Status : Port_Interrupt_Status;
       Port_Address     : System.Address;
    begin
       --  Get the address for the selected serial port.
@@ -284,8 +284,8 @@ package body System.x86.Serial is
       --  preserve the current interrupt status.
       Get_Interrupt_Status :
          begin
-            Interrupt_Status := System.x86.Port_IO.Inb (
-              Port_Address + Storage_Offset (1));
+            Interrupt_Status := Byte_To_Port_Interrupt_Status (
+              System.x86.Port_IO.Inb (Port_Address + Storage_Offset (1)));
          end Get_Interrupt_Status;
 
       Set_Interrupt_Status :
@@ -293,29 +293,13 @@ package body System.x86.Serial is
             --  Set the interrupt status var to the desired value.
             case Interrupt_Type is
                when Modem_Line_Status =>
-                  if Status then
-                     Interrupt_Status := Interrupt_Status or 16#8#;
-                  else
-                     Interrupt_Status := Interrupt_Status and (not 16#8#);
-                  end if;
+                  Interrupt_Status.EDSSI := Status;
                when Rx_Data_Available =>
-                  if Status then
-                     Interrupt_Status := Interrupt_Status or 16#1#;
-                  else
-                     Interrupt_Status := Interrupt_Status and (not 16#1#);
-                  end if;
+                  Interrupt_Status.ERBFI := Status;
                when Rx_Line_Status =>
-                  if Status then
-                     Interrupt_Status := Interrupt_Status or 16#4#;
-                  else
-                     Interrupt_Status := Interrupt_Status and (not 16#4#);
-                  end if;
+                  Interrupt_Status.ELSI := Status;
                when Tx_Empty =>
-                  if Status then
-                     Interrupt_Status := Interrupt_Status or 16#2#;
-                  else
-                     Interrupt_Status := Interrupt_Status and (not 16#2#);
-                  end if;
+                  Interrupt_Status.ETBEI := Status;
             end case;
          exception
             when Constraint_Error =>
@@ -324,6 +308,6 @@ package body System.x86.Serial is
 
       --  Write to the Interrupt enable register.
       System.x86.Port_IO.Outb (Port_Address + Storage_Offset (1),
-        Interrupt_Status);
+        Port_Interrupt_Status_To_Byte (Interrupt_Status));
    end Set_Interrupt_Generation;
 end System.x86.Serial;

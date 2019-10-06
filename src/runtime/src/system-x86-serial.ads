@@ -1,3 +1,4 @@
+with Ada.Unchecked_Conversion;
 with Interfaces;
 
 -------------------------------------------------------------------------------
@@ -158,5 +159,59 @@ private
      Port  : Serial_Port;
      State : Boolean
    );
+
+   ----------------------------------------------------------------------------
+   --  Port Interrupt status/enable register type.
+   --  This type can be used for getting/setting the interrupt generation
+   --  status of a particular interrupt type.
+   --  For more information refer to page 17 of the PC16550D datasheet.
+   ----------------------------------------------------------------------------
+   type Port_Interrupt_Status is
+      record
+         ERBFI : Boolean;
+         ETBEI : Boolean;
+         ELSI  : Boolean;
+         EDSSI : Boolean;
+      end record
+   with Size => 8,
+     Convention => C,
+     Volatile;
+   for Port_Interrupt_Status use
+      record
+         ERBFI at 0 range 0 .. 0;
+         ETBEI at 0 range 1 .. 1;
+         ELSI  at 0 range 2 .. 2;
+         EDSSI at 0 range 3 .. 3;
+      end record;
+
+   ----------------------------------------------------------------------------
+   --  Byte_To_Port_Interrupt_Status
+   --
+   --  Purpose:
+   --    Unchecked conversion to read a port's interrupt status from
+   --    an IO port.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   function Byte_To_Port_Interrupt_Status is
+      new Ada.Unchecked_Conversion (
+        Source => Unsigned_8,
+        Target => Port_Interrupt_Status
+      );
+
+   ----------------------------------------------------------------------------
+   --  Port_Interrupt_Status_To_Byte
+   --
+   --  Purpose:
+   --    Unchecked conversion to write a port's interrupt status to
+   --    an IO port.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   function Port_Interrupt_Status_To_Byte is
+      new Ada.Unchecked_Conversion (
+        Source => Port_Interrupt_Status,
+        Target => Unsigned_8
+      );
 
 end System.x86.Serial;

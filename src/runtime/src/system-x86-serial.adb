@@ -1,5 +1,5 @@
-with System.x86.Port_IO;
 with System.Storage_Elements;
+with System.x86.Port_IO;
 
 package body System.x86.Serial is
    use System.Storage_Elements;

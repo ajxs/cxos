@@ -4,6 +4,7 @@ with System.Storage_Elements;
 with System.x86.PIC;
 with System.x86.Port_IO;
 with System.x86.Serial;
+with System.x86.Time_Keeping;
 
 package body System.x86.IRQ_Handlers is
    use Ada.Interrupts.Names;
@@ -12,10 +13,18 @@ package body System.x86.IRQ_Handlers is
 
    ----------------------------------------------------------------------------
    --  IRQ0_Internal_Handler
+   --
+   --  Implementation Notes:
+   --   - Calls the system tick handler to signal that a timer tick has
+   --     occurred. This will increment the system's internal time.
    ----------------------------------------------------------------------------
    procedure IRQ0_Internal_Handler is
    begin
+      --  Trigger the internal System Tick Handler to signal that a
+      --  timer tick has occurred.
+      System.x86.Time_Keeping.System_Tick_Handler;
       System.x86.PIC.Send_EOI (IRQ0);
+
    end IRQ0_Internal_Handler;
 
    ----------------------------------------------------------------------------

@@ -5,7 +5,9 @@ with System.x86.Interrupts;
 with System.x86.IRQ_Handlers;
 with System.x86.GDT;
 with System.x86.PIC;
+with System.x86.PIT;
 with System.x86.Serial;
+with System.x86.Time_Keeping;
 
 package body System.x86 is
    use Ada.Interrupts.Names;
@@ -57,6 +59,14 @@ package body System.x86 is
       System.x86.Serial.Put_String (System.x86.Serial.COM1,
         "Jumping to protected mode" & ASCII.LF);
       Protected_Mode_Init;
+
+      System.x86.Serial.Put_String (System.x86.Serial.COM1,
+        "Initialising system timer" & ASCII.LF);
+      System.x86.Time_Keeping.Initialise;
+
+      System.x86.Serial.Put_String (System.x86.Serial.COM1,
+        "Initialising PIT" & ASCII.LF);
+      System.x86.PIT.Initialise;
 
       --  Enable interrupts.
       System.x86.Interrupts.Set_Interrupt_Flag (True);

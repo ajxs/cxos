@@ -34,7 +34,7 @@ _start:
 
 	movl $stack_top, %esp
 
-	# Save multiboot variables, since we want to pass these to the multiboot
+	# Save multiboot variables, since we want to pass these to the system
 	# initialisation function after having initialised the runtime.
 	movl %eax, multiboot_magic
 	movl %ebx, multiboot_struct
@@ -50,9 +50,6 @@ _start:
 
 	pushl %ebx
 	pushl %eax
-
-	# Call Multiboot entry.
-	call __multiboot_init
 
 	# Initialise the system.
 	call __system_init

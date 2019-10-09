@@ -1,4 +1,5 @@
 with Ada.Interrupts.Names;
+with Interfaces;
 with System.x86.Exceptions;
 with System.x86.IDT;
 with System.x86.Interrupts;
@@ -8,18 +9,38 @@ with System.x86.PIC;
 with System.x86.PIT;
 with System.x86.Serial;
 with System.x86.Time_Keeping;
+with System.x86.Vga;
 
 package body System.x86 is
    use Ada.Interrupts.Names;
+   use Interfaces;
 
    ----------------------------------------------------------------------------
    --  Initialise
    ----------------------------------------------------------------------------
-   procedure Initialise is
+   procedure Initialise (
+     Magic_Number      : Multiboot_Magic_Number;
+     Boot_Info_Address : System.Address
+   ) is
+      --  Create multiboot info structure overlaid at boot info address.
+      Boot_Info : Multiboot_Info
+      with Address => Boot_Info_Address,
+        Import,
+        Convention => Ada,
+        Volatile;
    begin
       System.x86.Serial.Initialise (System.x86.Serial.COM1, 38400);
       System.x86.Serial.Put_String (System.x86.Serial.COM1,
         "COM1 initialised" & ASCII.LF);
+
+      --  Check whether we were booted by a Multiboot compatible bootloader.
+      if Magic_Number = VALID_MAGIC_NUMBER then
+         System.x86.Serial.Put_String (System.x86.Serial.COM1,
+           "Detected valid Multiboot magic number" & ASCII.LF);
+      else
+         System.x86.Serial.Put_String (System.x86.Serial.COM1,
+           "Unable to detect valid Multiboot magic number" & ASCII.LF);
+      end if;
 
       System.x86.Serial.Put_String (System.x86.Serial.COM1,
         "Initialising PIC" & ASCII.LF);
@@ -73,6 +94,9 @@ package body System.x86 is
 
       System.x86.Serial.Put_String (System.x86.Serial.COM1,
         "Protected mode entered" & ASCII.LF);
+
+      --  Print the ASCII splash screen.
+      Print_Splash_Screen;
 
    end Initialise;
 
@@ -189,4 +213,37 @@ package body System.x86 is
    begin
       null;
    end Last_Chance_Handler;
+
+   ----------------------------------------------------------------------------
+   --  Print_Splash_Screen
+   ----------------------------------------------------------------------------
+   procedure Print_Splash_Screen is
+      use type System.x86.Vga.Color;
+
+      Terminal_Foreground : constant System.x86.Vga.Color :=
+        System.x86.Vga.Light_Green;
+      Terminal_Background : constant System.x86.Vga.Color :=
+        System.x86.Vga.Black;
+   begin
+      System.x86.Vga.Clear (Terminal_Background);
+
+      --  Print ASCII art test screen.
+      System.x86.Vga.Put_String (1, 1, Terminal_Foreground,
+        Terminal_Background, "  /$$$$$$  /$$   /$$  /$$$$$$   /$$$$$$ ");
+      System.x86.Vga.Put_String (1, 2, Terminal_Foreground,
+        Terminal_Background, " /$$__  $$| $$  / $$ /$$__  $$ /$$__  $$");
+      System.x86.Vga.Put_String (1, 3, Terminal_Foreground,
+        Terminal_Background, "| $$  \__/|  $$/ $$/| $$  \ $$| $$  \__/");
+      System.x86.Vga.Put_String (1, 4, Terminal_Foreground,
+        Terminal_Background, "| $$       \  $$$$/ | $$  | $$|  $$$$$$");
+      System.x86.Vga.Put_String (1, 5, Terminal_Foreground,
+        Terminal_Background, "| $$        >$$  $$ | $$  | $$ \____  $$");
+      System.x86.Vga.Put_String (1, 6, Terminal_Foreground,
+        Terminal_Background, "| $$    $$ /$$/\  $$| $$  | $$ /$$  \ $$");
+      System.x86.Vga.Put_String (1, 7, Terminal_Foreground,
+        Terminal_Background, "|  $$$$$$/| $$  \ $$|  $$$$$$/|  $$$$$$/");
+      System.x86.Vga.Put_String (1, 8, Terminal_Foreground,
+        Terminal_Background, " \______/ |__/  |__/ \______/  \______/");
+   end Print_Splash_Screen;
+
 end System.x86;

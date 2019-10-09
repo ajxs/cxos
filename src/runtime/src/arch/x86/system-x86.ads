@@ -29,7 +29,7 @@ package System.x86 is
      Boot_Info_Address : System.Address
    )
    with Export,
-     Convention => C,
+     Convention => Assembler,
      External_Name => "__system_init";
 
 private

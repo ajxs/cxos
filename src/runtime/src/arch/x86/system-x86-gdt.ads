@@ -28,7 +28,7 @@ package System.x86.GDT is
    ----------------------------------------------------------------------------
    procedure Finalise
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__gdt_load";
 
    ----------------------------------------------------------------------------
@@ -141,7 +141,7 @@ private
    Global_Descriptor_Table : GDT_Table (0 .. (GDT_LENGTH - 1))
    with Alignment  => 16,
      Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "global_descriptor_table",
      Volatile;
 
@@ -150,7 +150,7 @@ private
    ----------------------------------------------------------------------------
    GDT_Ptr : System_Table_Descriptor
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "gdt_pointer",
      Volatile;
 

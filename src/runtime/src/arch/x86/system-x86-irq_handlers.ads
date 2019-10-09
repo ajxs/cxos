@@ -23,7 +23,7 @@ package System.x86.IRQ_Handlers is
    ----------------------------------------------------------------------------
    procedure IRQ0_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq0_entry";
 
    ----------------------------------------------------------------------------
@@ -36,7 +36,7 @@ package System.x86.IRQ_Handlers is
    ----------------------------------------------------------------------------
    procedure IRQ1_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq1_entry";
 
    ----------------------------------------------------------------------------
@@ -49,7 +49,7 @@ package System.x86.IRQ_Handlers is
    ----------------------------------------------------------------------------
    procedure IRQ2_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq2_entry";
 
    ----------------------------------------------------------------------------
@@ -62,7 +62,7 @@ package System.x86.IRQ_Handlers is
    ----------------------------------------------------------------------------
    procedure IRQ3_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq3_entry";
 
    ----------------------------------------------------------------------------
@@ -75,7 +75,7 @@ package System.x86.IRQ_Handlers is
    ----------------------------------------------------------------------------
    procedure IRQ4_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq4_entry";
 
    ----------------------------------------------------------------------------
@@ -88,7 +88,7 @@ package System.x86.IRQ_Handlers is
    ----------------------------------------------------------------------------
    procedure IRQ5_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq5_entry";
 
    ----------------------------------------------------------------------------
@@ -101,7 +101,7 @@ package System.x86.IRQ_Handlers is
    ----------------------------------------------------------------------------
    procedure IRQ6_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq6_entry";
 
    ----------------------------------------------------------------------------
@@ -114,7 +114,7 @@ package System.x86.IRQ_Handlers is
    ----------------------------------------------------------------------------
    procedure IRQ7_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq7_entry";
 
    ----------------------------------------------------------------------------
@@ -127,7 +127,7 @@ package System.x86.IRQ_Handlers is
    ----------------------------------------------------------------------------
    procedure IRQ8_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq8_entry";
 
    ----------------------------------------------------------------------------
@@ -140,7 +140,7 @@ package System.x86.IRQ_Handlers is
    ----------------------------------------------------------------------------
    procedure IRQ9_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq9_entry";
 
    ----------------------------------------------------------------------------
@@ -153,7 +153,7 @@ package System.x86.IRQ_Handlers is
    ----------------------------------------------------------------------------
    procedure IRQ10_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq10_entry";
 
    ----------------------------------------------------------------------------
@@ -166,7 +166,7 @@ package System.x86.IRQ_Handlers is
    ----------------------------------------------------------------------------
    procedure IRQ11_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq11_entry";
 
    ----------------------------------------------------------------------------
@@ -179,7 +179,7 @@ package System.x86.IRQ_Handlers is
    ----------------------------------------------------------------------------
    procedure IRQ12_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq12_entry";
 
    ----------------------------------------------------------------------------
@@ -192,7 +192,7 @@ package System.x86.IRQ_Handlers is
    ----------------------------------------------------------------------------
    procedure IRQ13_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq13_entry";
 
    ----------------------------------------------------------------------------
@@ -205,7 +205,7 @@ package System.x86.IRQ_Handlers is
    ----------------------------------------------------------------------------
    procedure IRQ14_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq14_entry";
 
    ----------------------------------------------------------------------------
@@ -218,7 +218,7 @@ package System.x86.IRQ_Handlers is
    ----------------------------------------------------------------------------
    procedure IRQ15_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq15_entry";
 
 private
@@ -232,7 +232,7 @@ private
    ----------------------------------------------------------------------------
    procedure IRQ0_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq0_handler";
 
    ----------------------------------------------------------------------------
@@ -245,7 +245,7 @@ private
    ----------------------------------------------------------------------------
    procedure IRQ1_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq1_handler";
 
    ----------------------------------------------------------------------------
@@ -258,7 +258,7 @@ private
    ----------------------------------------------------------------------------
    procedure IRQ2_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq2_handler";
 
    ----------------------------------------------------------------------------
@@ -271,7 +271,7 @@ private
    ----------------------------------------------------------------------------
    procedure IRQ3_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq3_handler";
 
    ----------------------------------------------------------------------------
@@ -284,7 +284,7 @@ private
    ----------------------------------------------------------------------------
    procedure IRQ4_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq4_handler";
 
    ----------------------------------------------------------------------------
@@ -297,7 +297,7 @@ private
    ----------------------------------------------------------------------------
    procedure IRQ5_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq5_handler";
 
    ----------------------------------------------------------------------------
@@ -310,7 +310,7 @@ private
    ----------------------------------------------------------------------------
    procedure IRQ6_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq6_handler";
 
    ----------------------------------------------------------------------------
@@ -323,7 +323,7 @@ private
    ----------------------------------------------------------------------------
    procedure IRQ7_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq7_handler";
 
    ----------------------------------------------------------------------------
@@ -336,7 +336,7 @@ private
    ----------------------------------------------------------------------------
    procedure IRQ8_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq8_handler";
 
    ----------------------------------------------------------------------------
@@ -349,7 +349,7 @@ private
    ----------------------------------------------------------------------------
    procedure IRQ9_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq9_handler";
 
    ----------------------------------------------------------------------------
@@ -362,7 +362,7 @@ private
    ----------------------------------------------------------------------------
    procedure IRQ10_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq10_handler";
 
    ----------------------------------------------------------------------------
@@ -375,7 +375,7 @@ private
    ----------------------------------------------------------------------------
    procedure IRQ11_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq11_handler";
 
    ----------------------------------------------------------------------------
@@ -388,7 +388,7 @@ private
    ----------------------------------------------------------------------------
    procedure IRQ12_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq12_handler";
 
    ----------------------------------------------------------------------------
@@ -401,7 +401,7 @@ private
    ----------------------------------------------------------------------------
    procedure IRQ13_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq13_handler";
 
    ----------------------------------------------------------------------------
@@ -414,7 +414,7 @@ private
    ----------------------------------------------------------------------------
    procedure IRQ14_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq14_handler";
 
    ----------------------------------------------------------------------------
@@ -427,7 +427,7 @@ private
    ----------------------------------------------------------------------------
    procedure IRQ15_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__irq15_handler";
 
 end System.x86.IRQ_Handlers;

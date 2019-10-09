@@ -17,7 +17,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_0_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception0_entry";
 
    ----------------------------------------------------------------------------
@@ -30,7 +30,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_1_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception1_entry";
 
    ----------------------------------------------------------------------------
@@ -43,7 +43,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_2_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception2_entry";
 
    ----------------------------------------------------------------------------
@@ -56,7 +56,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_3_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception3_entry";
 
    ----------------------------------------------------------------------------
@@ -69,7 +69,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_4_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception4_entry";
 
    ----------------------------------------------------------------------------
@@ -82,7 +82,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_5_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception5_entry";
 
    ----------------------------------------------------------------------------
@@ -95,7 +95,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_6_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception6_entry";
 
    ----------------------------------------------------------------------------
@@ -108,7 +108,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_7_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception7_entry";
 
    ----------------------------------------------------------------------------
@@ -121,7 +121,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_8_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception8_entry";
 
    ----------------------------------------------------------------------------
@@ -134,7 +134,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_9_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception9_entry";
 
    ----------------------------------------------------------------------------
@@ -147,7 +147,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_10_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception10_entry";
 
    ----------------------------------------------------------------------------
@@ -160,7 +160,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_11_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception11_entry";
 
    ----------------------------------------------------------------------------
@@ -173,7 +173,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_12_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception12_entry";
 
    ----------------------------------------------------------------------------
@@ -186,7 +186,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_13_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception13_entry";
 
    ----------------------------------------------------------------------------
@@ -199,7 +199,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_14_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception14_entry";
 
    ----------------------------------------------------------------------------
@@ -212,7 +212,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_15_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception15_entry";
 
    ----------------------------------------------------------------------------
@@ -225,7 +225,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_16_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception16_entry";
 
    ----------------------------------------------------------------------------
@@ -238,7 +238,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_17_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception17_entry";
 
    ----------------------------------------------------------------------------
@@ -251,7 +251,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_18_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception18_entry";
 
    ----------------------------------------------------------------------------
@@ -264,7 +264,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_19_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception19_entry";
 
    ----------------------------------------------------------------------------
@@ -277,7 +277,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_20_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception20_entry";
 
    ----------------------------------------------------------------------------
@@ -290,7 +290,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_21_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception21_entry";
 
    ----------------------------------------------------------------------------
@@ -303,7 +303,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_22_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception22_entry";
 
    ----------------------------------------------------------------------------
@@ -316,7 +316,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_23_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception23_entry";
 
    ----------------------------------------------------------------------------
@@ -329,7 +329,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_24_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception24_entry";
 
    ----------------------------------------------------------------------------
@@ -342,7 +342,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_25_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception25_entry";
 
    ----------------------------------------------------------------------------
@@ -355,7 +355,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_26_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception26_entry";
 
    ----------------------------------------------------------------------------
@@ -368,7 +368,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_27_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception27_entry";
 
    ----------------------------------------------------------------------------
@@ -381,7 +381,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_28_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception28_entry";
 
    ----------------------------------------------------------------------------
@@ -394,7 +394,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_29_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception29_entry";
 
    ----------------------------------------------------------------------------
@@ -407,7 +407,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_30_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception30_entry";
 
    ----------------------------------------------------------------------------
@@ -420,7 +420,7 @@ package System.x86.Exceptions is
    ----------------------------------------------------------------------------
    procedure Exception_31_Handler
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception31_entry";
 
 private
@@ -434,7 +434,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_0_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception0_handler";
 
    ----------------------------------------------------------------------------
@@ -447,7 +447,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_1_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception1_handler";
 
    ----------------------------------------------------------------------------
@@ -460,7 +460,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_2_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception2_handler";
 
    ----------------------------------------------------------------------------
@@ -473,7 +473,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_3_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception3_handler";
 
    ----------------------------------------------------------------------------
@@ -486,7 +486,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_4_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception4_handler";
 
    ----------------------------------------------------------------------------
@@ -499,7 +499,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_5_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception5_handler";
 
    ----------------------------------------------------------------------------
@@ -512,7 +512,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_6_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception6_handler";
 
    ----------------------------------------------------------------------------
@@ -525,7 +525,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_7_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception7_handler";
 
    ----------------------------------------------------------------------------
@@ -538,7 +538,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_8_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception8_handler";
 
    ----------------------------------------------------------------------------
@@ -551,7 +551,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_9_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception9_handler";
 
    ----------------------------------------------------------------------------
@@ -564,7 +564,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_10_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception10_handler";
 
    ----------------------------------------------------------------------------
@@ -577,7 +577,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_11_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception11_handler";
 
    ----------------------------------------------------------------------------
@@ -590,7 +590,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_12_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception12_handler";
 
    ----------------------------------------------------------------------------
@@ -603,7 +603,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_13_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception13_handler";
 
    ----------------------------------------------------------------------------
@@ -616,7 +616,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_14_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception14_handler";
 
    ----------------------------------------------------------------------------
@@ -629,7 +629,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_15_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception15_handler";
 
    ----------------------------------------------------------------------------
@@ -642,7 +642,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_16_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception16_handler";
 
    ----------------------------------------------------------------------------
@@ -655,7 +655,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_17_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception17_handler";
 
    ----------------------------------------------------------------------------
@@ -668,7 +668,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_18_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception18_handler";
 
    ----------------------------------------------------------------------------
@@ -681,7 +681,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_19_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception19_handler";
 
    ----------------------------------------------------------------------------
@@ -694,7 +694,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_20_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception20_handler";
 
    ----------------------------------------------------------------------------
@@ -707,7 +707,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_21_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception21_handler";
 
    ----------------------------------------------------------------------------
@@ -720,7 +720,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_22_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception22_handler";
 
    ----------------------------------------------------------------------------
@@ -733,7 +733,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_23_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception23_handler";
 
    ----------------------------------------------------------------------------
@@ -746,7 +746,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_24_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception24_handler";
 
    ----------------------------------------------------------------------------
@@ -759,7 +759,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_25_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception25_handler";
 
    ----------------------------------------------------------------------------
@@ -772,7 +772,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_26_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception26_handler";
 
    ----------------------------------------------------------------------------
@@ -785,7 +785,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_27_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception27_handler";
 
    ----------------------------------------------------------------------------
@@ -798,7 +798,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_28_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception28_handler";
 
    ----------------------------------------------------------------------------
@@ -811,7 +811,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_29_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception29_handler";
 
    ----------------------------------------------------------------------------
@@ -824,7 +824,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_30_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception30_handler";
 
    ----------------------------------------------------------------------------
@@ -837,7 +837,7 @@ private
    ----------------------------------------------------------------------------
    procedure Exception_31_Internal_Handler
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__exception31_handler";
 
    ----------------------------------------------------------------------------

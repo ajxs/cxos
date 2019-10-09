@@ -26,7 +26,7 @@ package System.x86.IDT is
    ----------------------------------------------------------------------------
    procedure Finalise
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__idt_load";
 
    ----------------------------------------------------------------------------
@@ -130,7 +130,7 @@ private
    Interrupt_Descriptor_Table : IDT_Table (0 .. (IDT_LENGTH - 1))
    with Alignment  => 8,
      Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "interrupt_descriptor_table",
      Volatile;
 
@@ -139,7 +139,7 @@ private
    ----------------------------------------------------------------------------
    IDT_Ptr : System_Table_Descriptor
    with Export,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "idt_pointer",
      Volatile;
 end System.x86.IDT;

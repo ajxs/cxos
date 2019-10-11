@@ -1,4 +1,4 @@
-package body System.x86.Vga is
+package body x86.Vga is
    ----------------------------------------------------------------------------
    --  Clear
    ----------------------------------------------------------------------------
@@ -53,4 +53,4 @@ package body System.x86.Vga is
       when Constraint_Error =>
          null;
    end Put_String;
-end System.x86.Vga;
+end x86.Vga;

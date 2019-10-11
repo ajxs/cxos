@@ -17,4 +17,14 @@ package Cxos is
    ----------------------------------------------------------------------------
    procedure Main
    with No_Return;
+
+   ----------------------------------------------------------------------------
+   --  Print_Splash
+   --
+   --  Purpose:
+   --    Prints the CXOS test splash screen.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   procedure Print_Splash;
 end Cxos;

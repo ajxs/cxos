@@ -1,5 +1,5 @@
+with Multiboot;
 with System;
-with System.Multiboot;
 
 -------------------------------------------------------------------------------
 --  SYSTEM.X86
@@ -9,10 +9,10 @@ with System.Multiboot;
 --    The initialisation procedure here will perform all the required
 --    initialisation code for the platform.
 -------------------------------------------------------------------------------
-package System.x86 is
-   pragma Preelaborate (System.x86);
+package x86 is
+   pragma Preelaborate (x86);
 
-   use System.Multiboot;
+   use Multiboot;
 
    ----------------------------------------------------------------------------
    --  Initialise
@@ -63,16 +63,6 @@ private
      External_Name => "__gnat_last_chance_handler";
 
    ----------------------------------------------------------------------------
-   --  Print_Splash_Screen
-   --
-   --  Purpose:
-   --    Prints the CXOS test splash screen.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   procedure Print_Splash_Screen;
-
-   ----------------------------------------------------------------------------
    --  Protected_Mode_Init
    --
    --  Purpose:
@@ -84,4 +74,4 @@ private
    with Import,
      Convention    => C,
      External_Name => "__pmode_init";
-end System.x86;
+end x86;

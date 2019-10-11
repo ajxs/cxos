@@ -1,8 +1,8 @@
 with Interfaces;
 with System.Storage_Elements;
-with System.x86.Port_IO;
+with x86.Port_IO;
 
-package body System.x86.PIC is
+package body x86.PIC is
    use Interfaces;
    use System.Storage_Elements;
 
@@ -26,7 +26,7 @@ package body System.x86.PIC is
       end case;
    exception
       when Constraint_Error =>
-         return Null_Address;
+         return System.Null_Address;
    end Get_Controller_Base_Address;
 
    ----------------------------------------------------------------------------
@@ -44,35 +44,35 @@ package body System.x86.PIC is
    begin
       --  Begin initialization mode.
       --  Send ICW1 to each PIC.
-      System.x86.Port_IO.Outb (PIC1_Addr, 16#11#);
-      System.x86.Port_IO.Outb (PIC2_Addr, 16#11#);
+      x86.Port_IO.Outb (PIC1_Addr, 16#11#);
+      x86.Port_IO.Outb (PIC2_Addr, 16#11#);
 
       --  Send ICW2 to 'remap' the PIC.
       --  This tells the PIC that IRQ0 should start at vector 32 into the
       --  IDT. This is because in protected mode the first 31 IDT vectors
       --  are reserved for processor exceptions. So we remap the PIC to
       --  use vectors 32+ for interrupts.
-      System.x86.Port_IO.Outb (PIC1_Addr + Storage_Offset (1), 16#20#);
+      x86.Port_IO.Outb (PIC1_Addr + Storage_Offset (1), 16#20#);
       --  PIC1 has 8 interrupt lines, so we 'remap' PIC2 to respond to
       --  interrupts from 16#28# onwards.
-      System.x86.Port_IO.Outb (PIC2_Addr + Storage_Offset (1), 16#28#);
+      x86.Port_IO.Outb (PIC2_Addr + Storage_Offset (1), 16#28#);
 
       --  ICW3 instructs PIC1 that it is the master PIC, and to use IRQ2
       --  to control PIC2 in slave mode.
       --  It is a hardware convention used by manufacturers to use IRQ2 as
       --  the slave cascade line.
-      System.x86.Port_IO.Outb (PIC1_Addr + Storage_Offset (1), 16#04#);
+      x86.Port_IO.Outb (PIC1_Addr + Storage_Offset (1), 16#04#);
       --  Tell the slave PIC its cascade identity.
-      System.x86.Port_IO.Outb (PIC2_Addr + Storage_Offset (1), 16#02#);
+      x86.Port_IO.Outb (PIC2_Addr + Storage_Offset (1), 16#02#);
 
       --  Instruct PIC1 and PIC2 that they are to be used in x86 mode.
-      System.x86.Port_IO.Outb (PIC1_Addr + Storage_Offset (1), 16#01#);
-      System.x86.Port_IO.Outb (PIC2_Addr + Storage_Offset (1), 16#01#);
+      x86.Port_IO.Outb (PIC1_Addr + Storage_Offset (1), 16#01#);
+      x86.Port_IO.Outb (PIC2_Addr + Storage_Offset (1), 16#01#);
 
       --  Mask all interrupts.
-      System.x86.Port_IO.Outb (
+      x86.Port_IO.Outb (
         PIC1_Addr + Storage_Offset (1), not 16#0#);
-      System.x86.Port_IO.Outb (
+      x86.Port_IO.Outb (
         PIC2_Addr + Storage_Offset (1), not 16#0#);
 
    end Initialise;
@@ -98,12 +98,12 @@ package body System.x86.PIC is
 
       --  Send the signal.
       if IRQ >= 8 then
-         System.x86.Port_IO.Outb  (PIC2_Addr, EOI_Signal);
+         x86.Port_IO.Outb  (PIC2_Addr, EOI_Signal);
       end if;
 
       --  Even if the IRQ line in question was on PIC2, we send an EOI
       --  signal to PIC1 since the cascade line was raised.
-      System.x86.Port_IO.Outb  (PIC1_Addr, EOI_Signal);
+      x86.Port_IO.Outb  (PIC1_Addr, EOI_Signal);
 
    exception
       when Constraint_Error =>
@@ -134,10 +134,10 @@ package body System.x86.PIC is
       Get_Existing_Mask :
          begin
             if IRQ >= 8 then
-               Interrupt_Mask := System.x86.Port_IO.Inb (
+               Interrupt_Mask := x86.Port_IO.Inb (
                  PIC2_Addr + Storage_Offset (1));
             else
-               Interrupt_Mask := System.x86.Port_IO.Inb (
+               Interrupt_Mask := x86.Port_IO.Inb (
                  PIC1_Addr + Storage_Offset (1));
             end if;
          end Get_Existing_Mask;
@@ -161,10 +161,10 @@ package body System.x86.PIC is
 
       --  Write the interrupt mask.
       if IRQ >= 8 then
-         System.x86.Port_IO.Outb (PIC2_Addr + Storage_Offset (1),
+         x86.Port_IO.Outb (PIC2_Addr + Storage_Offset (1),
            Interrupt_Mask);
       else
-         System.x86.Port_IO.Outb (PIC1_Addr + Storage_Offset (1),
+         x86.Port_IO.Outb (PIC1_Addr + Storage_Offset (1),
            Interrupt_Mask);
       end if;
 
@@ -173,4 +173,4 @@ package body System.x86.PIC is
          return;
    end Set_Interrupt_Mask;
 
-end System.x86.PIC;
+end x86.PIC;

@@ -2,15 +2,15 @@ with Ada.Unchecked_Conversion;
 with Interfaces;
 
 -------------------------------------------------------------------------------
---  SYSTEM.X86.SERIAL
+--  X86.SERIAL
 --
 --  Purpose:
 --    This package contains a basic Serial I/O driver.
 --    The procedures and type definitions contained within this module can be
 --    used to interact with the system's serial ports.
 -------------------------------------------------------------------------------
-package System.x86.Serial is
-   pragma Preelaborate (System.x86.Serial);
+package x86.Serial is
+   pragma Preelaborate (x86.Serial);
 
    use Interfaces;
 
@@ -214,4 +214,4 @@ private
         Target => Unsigned_8
       );
 
-end System.x86.Serial;
+end x86.Serial;

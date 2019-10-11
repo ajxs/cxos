@@ -7,8 +7,8 @@ with Ada.Interrupts;
 --    This package contains code for working with the x86 8259A programmable
 --    interrupt controller.
 -------------------------------------------------------------------------------
-package System.x86.PIC is
-   pragma Preelaborate (System.x86.PIC);
+package x86.PIC is
+   pragma Preelaborate (x86.PIC);
 
    use Ada.Interrupts;
 
@@ -69,4 +69,4 @@ private
       Controller : PIC_Controller
    ) return System.Address;
 
-end System.x86.PIC;
+end x86.PIC;

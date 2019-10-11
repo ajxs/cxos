@@ -1,4 +1,4 @@
-package body System.x86.Time_Keeping is
+package body x86.Time_Keeping is
    ----------------------------------------------------------------------------
    --  Clock
    ----------------------------------------------------------------------------
@@ -31,4 +31,4 @@ package body System.x86.Time_Keeping is
       System_Time := System_Time + SYSTEM_TICK_PERIOD;
    end System_Tick_Handler;
 
-end System.x86.Time_Keeping;
+end x86.Time_Keeping;

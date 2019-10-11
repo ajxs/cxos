@@ -9,7 +9,7 @@ BUILD_DIR      := build
 LIB_DIR        := ${BUILD_DIR}/adalib
 INCLUDE_DIR    := ${BUILD_DIR}/adainclude
 
-LINKER_SCRIPT  := system-x86-multiboot.ld
+LINKER_SCRIPT  := x86-multiboot.ld
 RUNTIME_CONFIG := runtime.xml
 
 .PHONY: clean

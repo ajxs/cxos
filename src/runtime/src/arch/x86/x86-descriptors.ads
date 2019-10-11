@@ -9,8 +9,8 @@ with Interfaces;
 --    Interrupt Descriptor Table (IDT).
 --    Refer to 'system-x86-gdt.ads' and 'system-x86-idt.ads' respectively.
 -------------------------------------------------------------------------------
-package System.x86.Descriptors is
-   pragma Preelaborate (System.x86.Descriptors);
+package x86.Descriptors is
+   pragma Preelaborate (x86.Descriptors);
 
    use Interfaces;
 
@@ -53,4 +53,4 @@ package System.x86.Descriptors is
          Size   at 0 range 0  .. 15;
          Offset at 0 range 16 .. 47;
       end record;
-end System.x86.Descriptors;
+end x86.Descriptors;

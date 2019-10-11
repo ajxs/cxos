@@ -1,7 +1,7 @@
 with System.Storage_Elements;
-with System.x86.Port_IO;
+with x86.Port_IO;
 
-package body System.x86.Serial is
+package body x86.Serial is
    use System.Storage_Elements;
 
    ----------------------------------------------------------------------------
@@ -30,7 +30,7 @@ package body System.x86.Serial is
       end case;
    exception
       when Constraint_Error =>
-         return Null_Address;
+         return System.Null_Address;
    end Get_Port_Address;
 
    ----------------------------------------------------------------------------
@@ -55,17 +55,17 @@ package body System.x86.Serial is
          end Get_COM_Port_Address;
 
       --  Disable all interrupts.
-      System.x86.Port_IO.Outb (Port_Address + Storage_Offset (1), 0);
+      x86.Port_IO.Outb (Port_Address + Storage_Offset (1), 0);
 
       --  Set the baud rate.
       Set_Baud_Rate (Port, Rate);
 
       --  Configure the port with 8 bit word length.
       --  No parity bit, one stop bit.
-      System.x86.Port_IO.Outb (Port_Address + Storage_Offset (3), 16#03#);
+      x86.Port_IO.Outb (Port_Address + Storage_Offset (3), 16#03#);
 
       --  Enable FIFO.
-      System.x86.Port_IO.Outb (Port_Address + Storage_Offset (2), 16#C7#);
+      x86.Port_IO.Outb (Port_Address + Storage_Offset (2), 16#C7#);
 
    exception
       when Constraint_Error =>
@@ -93,7 +93,7 @@ package body System.x86.Serial is
                return False;
          end Get_COM_Port_Address;
 
-      return (System.x86.Port_IO.Inb (Port_Address + Storage_Offset (5))
+      return (x86.Port_IO.Inb (Port_Address + Storage_Offset (5))
         and 16#20#) /= 0;
    end Is_Tx_Empty;
 
@@ -123,7 +123,7 @@ package body System.x86.Serial is
          null;
       end loop;
 
-      System.x86.Port_IO.Outb (Port_Address, Data);
+      x86.Port_IO.Outb (Port_Address, Data);
    exception
       when Constraint_Error =>
          null;
@@ -202,9 +202,9 @@ package body System.x86.Serial is
       --  Enable DLAB.
       Set_Divisor_Latch_State (Port, True);
       --  Set baud rate divisor low byte to 3 38400 baud.
-      System.x86.Port_IO.Outb (Port_Address, Divisor_Low_Byte);
+      x86.Port_IO.Outb (Port_Address, Divisor_Low_Byte);
       --  Set baud rate divisor high byte.
-      System.x86.Port_IO.Outb (Port_Address + Storage_Offset (1),
+      x86.Port_IO.Outb (Port_Address + Storage_Offset (1),
         Divisor_High_Byte);
       --  Disable DLAB.
       Set_Divisor_Latch_State (Port, False);
@@ -239,7 +239,7 @@ package body System.x86.Serial is
 
       --  Get the existing line control status, and modify accordingly
       --  to set the divisor latch state.
-      Line_Control_Status := System.x86.Port_IO.Inb (
+      Line_Control_Status := x86.Port_IO.Inb (
         Port_Address + Storage_Offset (3));
 
       case State is
@@ -250,7 +250,7 @@ package body System.x86.Serial is
       end case;
 
       --  Write the DLAB state.
-      System.x86.Port_IO.Outb (Port_Address + Storage_Offset (3),
+      x86.Port_IO.Outb (Port_Address + Storage_Offset (3),
         Line_Control_Status);
    exception
       when Constraint_Error =>
@@ -285,7 +285,7 @@ package body System.x86.Serial is
       Get_Interrupt_Status :
          begin
             Interrupt_Status := Byte_To_Port_Interrupt_Status (
-              System.x86.Port_IO.Inb (Port_Address + Storage_Offset (1)));
+              x86.Port_IO.Inb (Port_Address + Storage_Offset (1)));
          end Get_Interrupt_Status;
 
       Set_Interrupt_Status :
@@ -307,7 +307,7 @@ package body System.x86.Serial is
          end Set_Interrupt_Status;
 
       --  Write to the Interrupt enable register.
-      System.x86.Port_IO.Outb (Port_Address + Storage_Offset (1),
+      x86.Port_IO.Outb (Port_Address + Storage_Offset (1),
         Port_Interrupt_Status_To_Byte (Interrupt_Status));
    end Set_Interrupt_Generation;
-end System.x86.Serial;
+end x86.Serial;

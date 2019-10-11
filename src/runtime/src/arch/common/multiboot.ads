@@ -2,14 +2,14 @@ with Interfaces;
 with System;
 
 -------------------------------------------------------------------------------
---  SYSTEM.MULTIBOOT
+--  MULTIBOOT
 --
 --  Purpose:
 --    This package contains code for working with multiboot functionality and
 --    data structures.
 -------------------------------------------------------------------------------
-package System.Multiboot is
-   pragma Preelaborate (System.Multiboot);
+package Multiboot is
+   pragma Preelaborate (Multiboot);
 
    use Interfaces;
 
@@ -98,4 +98,4 @@ package System.Multiboot is
    ----------------------------------------------------------------------------
    VALID_MAGIC_NUMBER : constant Multiboot_Magic_Number := 16#2BADB002#;
 
-end System.Multiboot;
+end Multiboot;

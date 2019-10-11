@@ -1,7 +1,8 @@
+with System;
 with System.Storage_Elements;
-with System.x86.Port_IO;
+with x86.Port_IO;
 
-package body System.x86.PIT is
+package body x86.PIT is
    use System.Storage_Elements;
 
    ----------------------------------------------------------------------------
@@ -30,7 +31,7 @@ package body System.x86.PIT is
       end case;
    exception
       when Constraint_Error =>
-         return Null_Address;
+         return System.Null_Address;
    end Get_Register_Address;
 
    ----------------------------------------------------------------------------
@@ -122,7 +123,7 @@ package body System.x86.PIT is
 
       --  Write the command data to prepare the channel to receive the
       --  low/high bytes of the initial value.
-      System.x86.Port_IO.Outb (Command_Address,
+      x86.Port_IO.Outb (Command_Address,
         Mode_Select_Register_To_Byte (Command_Data));
 
       --  Write the initial value, low byte first.
@@ -135,12 +136,12 @@ package body System.x86.PIT is
             High_Byte := Unsigned_8 (
               Shift_Left (Initial_Value and 16#FF00#, 8));
 
-            System.x86.Port_IO.Outb (Channel_Address, Low_Byte);
-            System.x86.Port_IO.Outb (Channel_Address, High_Byte);
+            x86.Port_IO.Outb (Channel_Address, Low_Byte);
+            x86.Port_IO.Outb (Channel_Address, High_Byte);
          exception
             when Constraint_Error =>
                return;
          end Write_Initial_Value;
    end Initialise_Channel;
 
-end System.x86.PIT;
+end x86.PIT;

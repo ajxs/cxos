@@ -4,8 +4,8 @@
 --  Purpose:
 --    This package contains code for handling x86 processor exceptions.
 -------------------------------------------------------------------------------
-package System.x86.Exceptions is
-   pragma Preelaborate (System.x86.Exceptions);
+package x86.Exceptions is
+   pragma Preelaborate (x86.Exceptions);
 
    ----------------------------------------------------------------------------
    --  Exception_0_Handler
@@ -851,4 +851,4 @@ private
    procedure Halt_Processor
    with No_Return;
 
-end System.x86.Exceptions;
+end x86.Exceptions;

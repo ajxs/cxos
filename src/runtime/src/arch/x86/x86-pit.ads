@@ -8,8 +8,8 @@ with Interfaces;
 --    This package contains code for working with the x86 8253/8254
 --    Programmable Interval Timer.
 -------------------------------------------------------------------------------
-package System.x86.PIT is
-   pragma Preelaborate (System.x86.PIT);
+package x86.PIT is
+   pragma Preelaborate (x86.PIT);
 
    use Interfaces;
 
@@ -190,4 +190,4 @@ private
         Target => Mode_Select_Register
       );
 
-end System.x86.PIT;
+end x86.PIT;

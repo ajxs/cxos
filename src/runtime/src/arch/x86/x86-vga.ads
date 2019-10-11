@@ -1,15 +1,15 @@
 with System.Storage_Elements;
 
 -------------------------------------------------------------------------------
---  SYSTEM.X86.VGA
+--  X86.VGA
 --
 --  Purpose:
 --    This package contains a basic VGA text-mode driver.
 --    The procedures and type definitions contained within this module can be
 --    used for printing text to the system VGA text-mode buffer.
 -------------------------------------------------------------------------------
-package System.x86.Vga is
-   pragma Preelaborate (System.x86.Vga);
+package x86.Vga is
+   pragma Preelaborate (x86.Vga);
 
    use System.Storage_Elements;
 
@@ -138,4 +138,4 @@ private
      Address    => To_Address (16#B8000#),
      Volatile;
 
-end System.x86.Vga;
+end x86.Vga;

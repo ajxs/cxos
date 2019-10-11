@@ -10,8 +10,8 @@
 --    successfully exited. Refer to the implementation of each 'entry function'
 --    in 'x86-irq_handlers-entry.S'.
 -------------------------------------------------------------------------------
-package System.x86.IRQ_Handlers is
-   pragma Preelaborate (System.x86.IRQ_Handlers);
+package x86.IRQ_Handlers is
+   pragma Preelaborate (x86.IRQ_Handlers);
 
    ----------------------------------------------------------------------------
    --  IRQ0_Handler
@@ -430,4 +430,4 @@ private
      Convention    => Assembler,
      External_Name => "__irq15_handler";
 
-end System.x86.IRQ_Handlers;
+end x86.IRQ_Handlers;

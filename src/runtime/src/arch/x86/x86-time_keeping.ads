@@ -9,8 +9,8 @@ pragma Restrictions (No_Elaboration_Code);
 --    reading the current system clock as well as the functionality for
 --    initialising and incrementing the timer.
 -------------------------------------------------------------------------------
-package System.x86.Time_Keeping is
-   pragma Preelaborate (System.x86.Time_Keeping);
+package x86.Time_Keeping is
+   pragma Preelaborate (x86.Time_Keeping);
 
    ----------------------------------------------------------------------------
    --  Time type.
@@ -65,4 +65,4 @@ private
    System_Time : Time
    with Volatile;
 
-end System.x86.Time_Keeping;
+end x86.Time_Keeping;

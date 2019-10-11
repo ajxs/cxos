@@ -1,6 +1,6 @@
 with Interfaces;
 with System;
-with System.x86.Descriptors;
+with x86.Descriptors;
 
 -------------------------------------------------------------------------------
 --  SYSTEM.X86.IDT
@@ -10,11 +10,11 @@ with System.x86.Descriptors;
 --    Table. The initialisation procedure within is called by the system
 --    init code.
 -------------------------------------------------------------------------------
-package System.x86.IDT is
-   pragma Preelaborate (System.x86.IDT);
+package x86.IDT is
+   pragma Preelaborate (x86.IDT);
 
    use Interfaces;
-   use System.x86.Descriptors;
+   use x86.Descriptors;
 
    ----------------------------------------------------------------------------
    --  Finalise
@@ -142,4 +142,4 @@ private
      Convention    => Assembler,
      External_Name => "idt_pointer",
      Volatile;
-end System.x86.IDT;
+end x86.IDT;

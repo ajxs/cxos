@@ -17,6 +17,7 @@ with x86.Interrupts;
 with x86.IRQ_Handlers;
 with x86.GDT;
 with x86.PIC;
+with x86.Paging;
 with x86.PIT;
 with x86.Serial;
 with x86.Time_Keeping;
@@ -109,6 +110,10 @@ package body x86 is
 
       x86.Serial.Put_String (x86.Serial.COM1,
         "Protected mode entered" & ASCII.LF);
+
+      x86.Serial.Put_String (x86.Serial.COM1,
+        "Initialising Paging" & ASCII.LF);
+      x86.Paging.Initialise;
 
    end Initialise;
 

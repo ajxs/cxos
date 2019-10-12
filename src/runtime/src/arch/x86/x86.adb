@@ -114,6 +114,7 @@ package body x86 is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Initialising Paging" & ASCII.LF);
       x86.Paging.Initialise;
+      x86.Paging.Finalise;
 
    end Initialise;
 

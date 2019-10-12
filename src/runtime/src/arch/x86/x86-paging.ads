@@ -47,6 +47,7 @@ package x86.Paging is
      Convention    => Assembler,
      External_Name => "__paging_load";
 
+private
    ----------------------------------------------------------------------------
    --  Type to hold the address of a page table.
    --  Used by a Page Directory Entry.
@@ -118,6 +119,20 @@ package x86.Paging is
       end record;
 
    ----------------------------------------------------------------------------
+   --  Address_To_Page_Table_Address
+   --
+   --  Purpose:
+   --    This function converts a System Address to the 20bit 4kb aligned
+   --    addresses expected by the page table entities.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   function Address_To_Page_Table_Address (
+     Addr : System.Address
+   ) return Page_Table_Address
+   with Pure_Function;
+
+   ----------------------------------------------------------------------------
    --  Individual Page Table type.
    --  This is an array of 1024 indiviudal Page Table Entries.
    ----------------------------------------------------------------------------
@@ -135,9 +150,19 @@ package x86.Paging is
    --  Page Directory array.
    --  This is used to implement the main page table directory.
    ----------------------------------------------------------------------------
-   type Page_Directory is array (Natural range 0 .. 1023)
+   type Page_Directory_Array is array (Natural range 0 .. 1023)
      of Page_Directory_Entry;
 
+   ----------------------------------------------------------------------------
+   --  System Page Directory.
+   --  This is the main directory containing all of the page tables.
+   ----------------------------------------------------------------------------
+   Page_Directory : Page_Directory_Array
+   with Alignment  => 4,
+     Export,
+     Convention    => Assembler,
+     External_Name => "page_directory_pointer",
+     Volatile;
    ----------------------------------------------------------------------------
    --  The System's Page Tables.
    --  This is implemented by reserving space in the linker script, which we
@@ -155,7 +180,7 @@ package x86.Paging is
    Page_Directory_Ptr : System.Address
    with Export,
      Convention    => Assembler,
-     External_Name => "page_directory_pointer",
+     External_Name => "kkkk",
      Volatile;
 
 end x86.Paging;

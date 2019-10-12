@@ -1,15 +1,17 @@
 target remote localhost:1234
 file src/kernel/build/cxos.elf -readnow
 
-b x86.PIC.send_eoi
+b __paging_load
+# b x86-paging.adb:78
+b cxos.main
 
 c
 
+# x /1xg &idt_pointer
+# x /5xg &global_descriptor_table
+# x /3xg &interrupt_descriptor_table+(256)
 
-x /1xg &idt_pointer
 
-
-x /5xg &global_descriptor_table
-x /3xg &interrupt_descriptor_table+(256)
-
-x /5xg &x86.IRQ_Handlers.irq0_handler
+x /8xw &page_tables_start
+x /8xw &page_directory_pointer
+# x /8xw page_directory_pointer

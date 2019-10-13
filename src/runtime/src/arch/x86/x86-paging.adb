@@ -46,9 +46,6 @@ package body x86.Paging is
    ----------------------------------------------------------------------------
    procedure Initialise is
    begin
-      --  Set Page Directory pointer.
-      Page_Directory_Ptr := Page_Directory'Address;
-
       --  Initialise the page table structure.
       --  Initially all tables are marked as non-present.
       Initialise_Page_Tables :
@@ -81,26 +78,28 @@ package body x86.Paging is
       --  Initialises all of the page directory entries.
       --  This correctly points each entry at the relevant page table.
       Initialise_Page_Directory :
+         declare
+            Table_Address : Page_Table_Address;
          begin
             for Idx in Page_Directory'Range loop
-               Page_Directory (Idx).Present       := False;
+               Page_Directory (Idx).Present       := True;
                Page_Directory (Idx).Read_Write    := True;
                Page_Directory (Idx).U_S           := False;
                Page_Directory (Idx).PWT           := False;
                Page_Directory (Idx).PCD           := False;
                Page_Directory (Idx).A             := False;
                Page_Directory (Idx).PS            := False;
+               Page_Directory (Idx).G             := False;
 
-               Page_Directory (Idx).Table_Address :=
+               Table_Address :=
                  Address_To_Page_Table_Address (Page_Tables (Idx)'Address);
+               Page_Directory (Idx).Table_Address := Table_Address;
+
             end loop;
          exception
             when Constraint_Error =>
                return;
          end Initialise_Page_Directory;
-
-      --  Enable the first page directory entry.
-      Page_Directory (0).Present := True;
 
    end Initialise;
 end x86.Paging;

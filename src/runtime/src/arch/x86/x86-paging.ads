@@ -71,7 +71,10 @@ private
          PWT           : Boolean;
          PCD           : Boolean;
          A             : Boolean;
+         Reserved      : Boolean := False;
          PS            : Boolean;
+         G             : Boolean;
+         Avail         : Boolean := False;
          Table_Address : Page_Table_Address;
       end record
    with Size => 32;
@@ -83,7 +86,10 @@ private
          PWT           at 0 range 3 .. 3;
          PCD           at 0 range 4 .. 4;
          A             at 0 range 5 .. 5;
+         Reserved      at 0 range 6 .. 6;
          PS            at 0 range 7 .. 7;
+         G             at 0 range 8 .. 8;
+         Avail         at 0 range 9 .. 11;
          Table_Address at 0 range 12 .. 31;
       end record;
 
@@ -158,11 +164,12 @@ private
    --  This is the main directory containing all of the page tables.
    ----------------------------------------------------------------------------
    Page_Directory : Page_Directory_Array
-   with Alignment  => 4,
+   with Alignment  => 4096,
      Export,
      Convention    => Assembler,
      External_Name => "page_directory_pointer",
      Volatile;
+
    ----------------------------------------------------------------------------
    --  The System's Page Tables.
    --  This is implemented by reserving space in the linker script, which we
@@ -172,15 +179,6 @@ private
    with Import,
      Convention    => Assembler,
      External_Name => "page_tables_start",
-     Volatile;
-
-   ----------------------------------------------------------------------------
-   --  The pointer to the Page Directory structure.
-   ----------------------------------------------------------------------------
-   Page_Directory_Ptr : System.Address
-   with Export,
-     Convention    => Assembler,
-     External_Name => "kkkk",
      Volatile;
 
 end x86.Paging;

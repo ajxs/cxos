@@ -21,13 +21,15 @@
 __paging_load:
 	movl %esp, %ebp
 
-	# Store address of page directory in eax, move to CR3
+	# Store address of page directory in eax, move to CR3.
 	leal page_directory_pointer, %eax
 	movl %eax, %cr3
 
+	# Enable paging bit in CR0.
 	movl %cr0, %eax
-	orl $0x80000000, %eax
+	orl $0x80000001, %eax
 	movl %eax, %cr0
+
 	# Restore stack pointer
 	movl %ebp, %esp
 

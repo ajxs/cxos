@@ -33,7 +33,7 @@ SECTIONS {
     ebss = .;
 
     /* Reserve space for page table entries. */
-    . = ALIGN(4);
+    . = ALIGN(4K);
     page_tables_start = .;
     . += (1024*1024*4);
     page_tables_end = .;

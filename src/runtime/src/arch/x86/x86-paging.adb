@@ -50,7 +50,7 @@ package body x86.Paging is
       --  Initially all tables are marked as non-present.
       Initialise_Page_Tables :
          declare
-            Current_Memory_Address : Physical_Page_Address := 0;
+            Current_Address : Unsigned_32 := 0;
          begin
             --  Initialise each table in the page table structure.
             for Table of Page_Tables loop
@@ -62,12 +62,15 @@ package body x86.Paging is
                   PT_Entry.PWT          := False;
                   PT_Entry.PCD          := False;
                   PT_Entry.A            := False;
-                  PT_Entry.Page_Address := Current_Memory_Address;
+
+                  --  Shift the address right 12 bits to fit the 20bit format.
+                  PT_Entry.Page_Address :=
+                    Physical_Page_Address (Shift_Right (Current_Address, 12));
 
                   --  Since the memory addresses are all page aligned
                   --  we can just keep incrementing this for the purpose
                   --  of identity mapping.
-                  Current_Memory_Address := Current_Memory_Address + 16#1000#;
+                  Current_Address := Current_Address + 16#1000#;
                end loop;
             end loop;
          exception

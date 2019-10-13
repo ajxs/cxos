@@ -1,3 +1,4 @@
+set architecture i386
 target remote localhost:1234
 file src/kernel/build/cxos.elf -readnow
 
@@ -12,6 +13,11 @@ c
 # x /3xg &interrupt_descriptor_table+(256)
 
 
-x /8xw &page_tables_start
-x /8xw &page_directory_pointer
-# x /8xw page_directory_pointer
+echo Page table 0:\n
+x /4xw &page_tables_start
+echo Page table 1:\n
+x /4xw (&page_tables_start + 0x1000)
+echo Page table 2:\n
+x /4xw (&page_tables_start + 0x2000)
+echo Page directory:\n
+x /4xw &page_directory_start

@@ -164,10 +164,9 @@ private
    --  This is the main directory containing all of the page tables.
    ----------------------------------------------------------------------------
    Page_Directory : Page_Directory_Array
-   with Alignment  => 4096,
-     Export,
+   with Import,
      Convention    => Assembler,
-     External_Name => "page_directory_pointer",
+     External_Name => "page_directory_start",
      Volatile;
 
    ----------------------------------------------------------------------------

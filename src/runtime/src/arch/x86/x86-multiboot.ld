@@ -11,11 +11,13 @@
 
 ENTRY (_start)
 SECTIONS {
-  . = 0x00100000;
+  . = 1M;
 
   .text BLOCK(4K) : ALIGN(4K) {
     *(.multiboot)
+    kernel_start = .;
     *(.text)
+    kernel_end = .;
   }
 
   .rodata ALIGN (0x1000) : {
@@ -32,10 +34,16 @@ SECTIONS {
     *(.bss)
     ebss = .;
 
-    /* Reserve space for page table entries. */
+    /* Reserve space for Page Table entries. */
     . = ALIGN(4K);
     page_tables_start = .;
     . += (1024*1024*4);
     page_tables_end = .;
+
+    /* Reserve space for Page Directory. */
+    . = ALIGN(4K);
+    page_directory_start = .;
+    . += (1024*4);
+    page_directory_end = .;
   }
 }

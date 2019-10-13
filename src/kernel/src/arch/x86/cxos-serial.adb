@@ -19,6 +19,6 @@ package body Cxos.Serial is
      Data : String
    ) is
    begin
-      x86.Serial.Put_String(x86.Serial.COM1, Data);
-   end;
+      x86.Serial.Put_String (x86.Serial.COM1, Data);
+   end Put_String;
 end Cxos.Serial;

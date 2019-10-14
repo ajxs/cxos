@@ -15,9 +15,15 @@ c
 
 echo Page table 0:\n
 x /4xw &page_tables_start
+
 echo Page table 1:\n
 x /4xw (&page_tables_start + 0x1000)
+
 echo Page table 2:\n
 x /4xw (&page_tables_start + 0x2000)
+
+# echo Page table 1024:\n
+# x /1024xw (&page_tables_start + (1023*4096))
+
 echo Page directory:\n
 x /4xw &page_directory_start

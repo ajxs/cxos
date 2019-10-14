@@ -84,5 +84,5 @@ private
    procedure Protected_Mode_Init
    with Import,
      Convention    => C,
-     External_Name => "__pmode_init";
+     External_Name => "__protected_mode_init";
 end x86;

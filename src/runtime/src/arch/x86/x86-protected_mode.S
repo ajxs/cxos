@@ -17,9 +17,9 @@
 #  Performs the jump to protected mode.
 #  Reloads the segment registers after the jump.
 #####################################################################
-.global __pmode_init
-.type __pmode_init, @function
-__pmode_init:
+.global __protected_mode_init
+.type __protected_mode_init, @function
+__protected_mode_init:
 	# Clear interrupt flag.
 	cli
 

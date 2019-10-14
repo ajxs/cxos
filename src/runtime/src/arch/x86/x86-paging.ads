@@ -49,16 +49,23 @@ package x86.Paging is
 
 private
    ----------------------------------------------------------------------------
-   --  Type to hold the address of a page table.
+   --  Type to hold a 20bit address.
+   --  These are truncated 32bit addresses that are assumed to be 4K aligned,
+   --  as such there is no need to hold the lower-order 12bits.
+   ----------------------------------------------------------------------------
+   type Aligned_Address is mod 2 ** 20;
+
+   ----------------------------------------------------------------------------
+   --  Type for the address of a page table.
    --  Used by a Page Directory Entry.
    ----------------------------------------------------------------------------
-   type Page_Table_Address is mod 2 ** 20;
+   type Page_Table_Address is new Aligned_Address;
 
    ----------------------------------------------------------------------------
    --  Type to hold the physical address of a page.
    --  Used by a Page Table Entry.
    ----------------------------------------------------------------------------
-   type Physical_Page_Address is mod 2 ** 20;
+   type Physical_Page_Address is new Aligned_Address;
 
    ----------------------------------------------------------------------------
    --  Page Directory Entry type.
@@ -125,7 +132,7 @@ private
       end record;
 
    ----------------------------------------------------------------------------
-   --  Address_To_Page_Table_Address
+   --  Convert_To_Aligned_Address
    --
    --  Purpose:
    --    This function converts a System Address to the 20bit 4kb aligned
@@ -133,9 +140,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   function Address_To_Page_Table_Address (
+   function Convert_To_Aligned_Address (
      Addr : System.Address
-   ) return Page_Table_Address
+   ) return Aligned_Address
    with Pure_Function;
 
    ----------------------------------------------------------------------------

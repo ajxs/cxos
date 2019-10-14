@@ -17,26 +17,26 @@ package body x86.Paging is
    use System.Storage_Elements;
 
    ----------------------------------------------------------------------------
-   --  Address_To_Page_Table_Address
+   --  Convert_To_Aligned_Address
    --
    --  Implementation Notes:
    --   - Converts the address to a 32 bit unsigned integer in order to
    --     properly truncate the value to the 4kb aligned 20-bit value.
    ----------------------------------------------------------------------------
-   function Address_To_Page_Table_Address (
+   function Convert_To_Aligned_Address (
      Addr : System.Address
-   ) return Page_Table_Address is
+   ) return Aligned_Address is
       Address_As_Unsigned : Unsigned_32;
    begin
       Address_As_Unsigned := Unsigned_32 (To_Integer (Addr));
       Address_As_Unsigned := Address_As_Unsigned and 16#FFFFF000#;
       Address_As_Unsigned := Shift_Right (Address_As_Unsigned, 12);
 
-      return Page_Table_Address (Address_As_Unsigned);
+      return Aligned_Address (Address_As_Unsigned);
    exception
       when Constraint_Error =>
          return 0;
-   end Address_To_Page_Table_Address;
+   end Convert_To_Aligned_Address;
 
    ----------------------------------------------------------------------------
    --  Initialise
@@ -81,8 +81,6 @@ package body x86.Paging is
       --  Initialises all of the page directory entries.
       --  This correctly points each entry at the relevant page table.
       Initialise_Page_Directory :
-         declare
-            Table_Address : Page_Table_Address;
          begin
             for Idx in Page_Directory'Range loop
                Page_Directory (Idx).Present       := True;
@@ -94,9 +92,8 @@ package body x86.Paging is
                Page_Directory (Idx).PS            := False;
                Page_Directory (Idx).G             := False;
 
-               Table_Address :=
-                 Address_To_Page_Table_Address (Page_Tables (Idx)'Address);
-               Page_Directory (Idx).Table_Address := Table_Address;
+               Page_Directory (Idx).Table_Address := Page_Table_Address (
+                 Convert_To_Aligned_Address (Page_Tables (Idx)'Address));
 
             end loop;
          exception

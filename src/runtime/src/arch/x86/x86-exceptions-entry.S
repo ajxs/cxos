@@ -25,7 +25,7 @@
 		# Push blank error code and ISR number.
 		push $0
 		push $\EXCODE
-		jmp __interrupt_service_routine_entry
+		jmp .interrupt_service_routine_entry
 .endm
 
 
@@ -42,7 +42,7 @@
 		# Error code is has already been pushed onto the stack.
 		# Push ISR number.
 		push $\EXCODE
-		jmp __interrupt_service_routine_entry
+		jmp .interrupt_service_routine_entry
 .endm
 
 
@@ -51,8 +51,10 @@
 #
 #  This is the common entry point for all interrupt service routine
 #  entries. This will call the common exception handler function.
+#  Additional values are automatically pushed onto the stack by the 
+#  CPU: SS, USERESP, EFLAGS, CS, EIP.
 #####################################################################
-__interrupt_service_routine_entry:
+.interrupt_service_routine_entry:
 	# Push all registers onto our exception handler stack frame.
 	pushal
 	push %ds

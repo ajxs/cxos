@@ -9,6 +9,8 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
+with Interfaces;
+
 -------------------------------------------------------------------------------
 --  SYSTEM.X86.EXCEPTIONS
 --
@@ -17,6 +19,8 @@
 -------------------------------------------------------------------------------
 package x86.Exceptions is
    pragma Preelaborate (x86.Exceptions);
+
+   use Interfaces;
 
    ----------------------------------------------------------------------------
    --  Exception_0_Handler
@@ -436,6 +440,70 @@ package x86.Exceptions is
 
 private
    ----------------------------------------------------------------------------
+   --  Exception Stack Frame Type
+   --  Record structure containing the saved registers pushed to the stack
+   --  by the ISR entry handler function.
+   ----------------------------------------------------------------------------
+   type Exception_Stack_Frame is
+      record
+         GS               : Unsigned_32;
+         FS               : Unsigned_32;
+         ES               : Unsigned_32;
+         DS               : Unsigned_32;
+         EDI              : Unsigned_32;
+         ESI              : Unsigned_32;
+         EBP              : Unsigned_32;
+         ESP              : Unsigned_32;
+         EBX              : Unsigned_32;
+         EDX              : Unsigned_32;
+         ECX              : Unsigned_32;
+         EAX              : Unsigned_32;
+         Interrupt_Number : Unsigned_32;
+         Error_Code       : Unsigned_32;
+         EIP              : Unsigned_32;
+         CS               : Unsigned_32;
+         EFLAGS           : Unsigned_32;
+         USERESP          : Unsigned_32;
+         SS               : Unsigned_32;
+      end record;
+
+   ----------------------------------------------------------------------------
+   --  Exception_Handler
+   --
+   --  Purpose:
+   --    This procedure serves as a common entry point to all of the internal
+   --    exception handler functions. Its main purpose is to parse the stack
+   --    frame passed to us by the ISR entry handler function and then call
+   --    individual specific exception handlers.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   procedure Exception_Handler (
+     GS               : Unsigned_32;
+     FS               : Unsigned_32;
+     ES               : Unsigned_32;
+     DS               : Unsigned_32;
+     EDI              : Unsigned_32;
+     ESI              : Unsigned_32;
+     EBP              : Unsigned_32;
+     ESP              : Unsigned_32;
+     EBX              : Unsigned_32;
+     EDX              : Unsigned_32;
+     ECX              : Unsigned_32;
+     EAX              : Unsigned_32;
+     Interrupt_Number : Unsigned_32;
+     Error_Code       : Unsigned_32;
+     EIP              : Unsigned_32;
+     CS               : Unsigned_32;
+     EFLAGS           : Unsigned_32;
+     USERESP          : Unsigned_32;
+     SS               : Unsigned_32
+   )
+   with Export,
+     Convention    => Assembler,
+     External_Name => "__exception_handler";
+
+   ----------------------------------------------------------------------------
    --  Exception_0_Internal_Handler
    --
    --  Purpose:
@@ -443,9 +511,11 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_0_Internal_Handler
-   with Export,
-     Convention    => Assembler,
+   procedure Exception_0_Internal_Handler (
+     Saved_Registers : Exception_Stack_Frame
+   )
+   with Export     => True,
+     Convention    => C,
      External_Name => "__exception0_handler";
 
    ----------------------------------------------------------------------------

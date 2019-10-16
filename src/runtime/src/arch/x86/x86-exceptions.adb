@@ -15,8 +15,11 @@ package body x86.Exceptions is
    ----------------------------------------------------------------------------
    --  Exception_0_Internal_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_0_Internal_Handler is
+   procedure Exception_0_Internal_Handler (
+     Saved_Registers : Exception_Stack_Frame
+   ) is
    begin
+      pragma Unreferenced (Saved_Registers);
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 0 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
@@ -331,6 +334,69 @@ package body x86.Exceptions is
         "Exception 9 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
    end Exception_9_Internal_Handler;
+
+   ----------------------------------------------------------------------------
+   --  Exception_Handler
+   ----------------------------------------------------------------------------
+   procedure Exception_Handler (
+     GS               : Unsigned_32;
+     FS               : Unsigned_32;
+     ES               : Unsigned_32;
+     DS               : Unsigned_32;
+     EDI              : Unsigned_32;
+     ESI              : Unsigned_32;
+     EBP              : Unsigned_32;
+     ESP              : Unsigned_32;
+     EBX              : Unsigned_32;
+     EDX              : Unsigned_32;
+     ECX              : Unsigned_32;
+     EAX              : Unsigned_32;
+     Interrupt_Number : Unsigned_32;
+     Error_Code       : Unsigned_32;
+     EIP              : Unsigned_32;
+     CS               : Unsigned_32;
+     EFLAGS           : Unsigned_32;
+     USERESP          : Unsigned_32;
+     SS               : Unsigned_32
+   ) is
+      --  Stack frame record to hold the register values pushed
+      --  to the stack by the ISR entry function.
+      Stack_Frame : Exception_Stack_Frame;
+   begin
+      --  Populate the stack frame structure.
+      Stack_Frame := (
+        GS               => GS,
+        FS               => FS,
+        ES               => ES,
+        DS               => DS,
+        EDI              => EDI,
+        ESI              => ESI,
+        EBP              => EBP,
+        ESP              => ESP,
+        EBX              => EBX,
+        EDX              => EDX,
+        ECX              => ECX,
+        EAX              => EAX,
+        Interrupt_Number => Interrupt_Number,
+        Error_Code       => Error_Code,
+        EIP              => EIP,
+        CS               => CS,
+        EFLAGS           => EFLAGS,
+        USERESP          => USERESP,
+        SS               => SS
+      );
+
+      --  Pass control to the relevant individual exception handler.
+      case Interrupt_Number is
+         when 0 =>
+            Exception_0_Internal_Handler (Stack_Frame);
+         when others =>
+            x86.Serial.Put_String (x86.Serial.COM1,
+              "Exception occurred. System Halted." & ASCII.LF);
+            Halt_Processor;
+      end case;
+
+   end Exception_Handler;
 
    ----------------------------------------------------------------------------
    --  Halt_Processor

@@ -1,18 +1,20 @@
-KERNEL_DIR        := kernel
-KERNEL_BINARY     := ${KERNEL_DIR}/build/cxos.elf
+KERNEL_DIR      := kernel
+KERNEL_BINARY   := ${KERNEL_DIR}/build/cxos.elf
 
-RUNTIME_DIR       := runtime
-RUNTIME_BINARY    := ${RUNTIME_DIR}/build/adalib/libgnat.a
+RUNTIME_DIR     := runtime
+RUNTIME_BINARY  := ${RUNTIME_DIR}/build/adalib/libgnat.a
 
-BUILD_DIR := ../build
-ISO       := ${BUILD_DIR}/cxos.img
+BUILD_DIR       := ../build
+ISO             := ${BUILD_DIR}/cxos.img
+
+SERIAL_FILENAME := serial.log
 
 QEMU_FLAGS :=                 \
 	-accel tcg,thread=single    \
 	-cpu core2duo               \
-	-serial stdio               \
 	-m 128                      \
 	-no-reboot                  \
+	-no-shutdown                \
 	-smp 1                      \
 	-usb                        \
 	-vga std
@@ -37,13 +39,15 @@ debug: ${ISO}
 		${QEMU_FLAGS}                    \
 		-drive format=raw,file=${ISO}    \
 		-d cpu_reset,int,guest_errors    \
+		-gdb tcp::1234                   \
 		-S                               \
-		-gdb tcp::1234
+		-serial file:${SERIAL_FILENAME}
 
 emu: ${ISO}
 	qemu-system-i386                   \
 		${QEMU_FLAGS}                    \
 		-drive format=raw,file=${ISO}    \
+		-serial stdio                    \
 
 kernel: ${KERNEL_BINARY}
 

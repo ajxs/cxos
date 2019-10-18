@@ -25,7 +25,7 @@
 		# Push blank error code and ISR number.
 		push $0
 		push $\EXCODE
-		jmp .interrupt_service_routine_entry
+		jmp .Linterrupt_service_routine_entry
 .endm
 
 
@@ -42,7 +42,7 @@
 		# Error code is has already been pushed onto the stack.
 		# Push ISR number.
 		push $\EXCODE
-		jmp .interrupt_service_routine_entry
+		jmp .Linterrupt_service_routine_entry
 .endm
 
 
@@ -54,7 +54,7 @@
 #  Additional values are automatically pushed onto the stack by the 
 #  CPU: SS, USERESP, EFLAGS, CS, EIP.
 #####################################################################
-.interrupt_service_routine_entry:
+.Linterrupt_service_routine_entry:
 	# Push all registers onto our exception handler stack frame.
 	pushal
 	push %ds

@@ -3,8 +3,7 @@ target remote localhost:1234
 file src/kernel/build/cxos.elf -readnow
 
 b __paging_load
-# b x86-paging.adb:96
-b cxos.main
+b __exception_handler
 
 c
 

@@ -7,3 +7,5 @@ gnatprove
 *.elf
 *.bin
 *.img
+*.log
+*.out

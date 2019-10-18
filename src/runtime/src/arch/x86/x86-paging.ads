@@ -49,6 +49,19 @@ package x86.Paging is
 
 private
    ----------------------------------------------------------------------------
+   --  Paging Process Result
+   --  Used for storing and returning the result of an internal paging
+   --  procedure.
+   ----------------------------------------------------------------------------
+   type Paging_Process_Result is (
+     Invalid_Argument,
+     Invalid_Non_Aligned_Address,
+     Invalid_Table_Index,
+     Frame_Allocation_Error,
+     Success
+   );
+
+   ----------------------------------------------------------------------------
    --  Type to hold a 20bit address.
    --  These are truncated 32bit addresses that are assumed to be 4K aligned,
    --  as such there is no need to hold the lower-order 12bits.
@@ -132,17 +145,74 @@ private
       end record;
 
    ----------------------------------------------------------------------------
+   --  Check_Address_Aligned
+   --
+   --  Purpose:
+   --    Checks whether a provided address is 4K aligned.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   function Check_Address_Aligned (
+     Addr : System.Address
+   ) return Boolean
+   with Pure_Function;
+
+   ----------------------------------------------------------------------------
    --  Convert_To_Aligned_Address
    --
    --  Purpose:
    --    This function converts a System Address to the 20bit 4kb aligned
-   --    addresses expected by the page table entities.
+   --    address type expected by the page table entities.
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
    function Convert_To_Aligned_Address (
      Addr : System.Address
    ) return Aligned_Address
+   with Pure_Function;
+
+   ----------------------------------------------------------------------------
+   --  Convert_To_System_Address
+   --
+   --  Purpose:
+   --    This function converts a 20bit 4kb aligned address type back to a
+   --    native 32bit system address.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   function Convert_To_System_Address (
+     Addr : Aligned_Address
+   ) return System.Address
+   with Pure_Function;
+
+   ----------------------------------------------------------------------------
+   --  Get_Page_Directory_Index
+   --
+   --  Purpose:
+   --    This function gets the index of the page table in a page directory of
+   --    corresponding to a particular address.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   function Get_Page_Directory_Index (
+     Addr    : System.Address;
+     Index   : out Natural
+   ) return Paging_Process_Result
+   with Pure_Function;
+
+   ----------------------------------------------------------------------------
+   --  Get_Page_Table_Index
+   --
+   --  Purpose:
+   --    This function gets the index of the page table entry in a page table
+   --    corresponding to a particular address.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   function Get_Page_Table_Index (
+     Addr    : System.Address;
+     Index   : out Natural
+   ) return Paging_Process_Result
    with Pure_Function;
 
    ----------------------------------------------------------------------------
@@ -165,6 +235,20 @@ private
    ----------------------------------------------------------------------------
    type Page_Directory_Array is array (Natural range 0 .. 1023)
      of Page_Directory_Entry;
+
+   ----------------------------------------------------------------------------
+   --  Map_Page_Table_Entry
+   --
+   --  Purpose:
+   --    This procedure maps a specific page table entry to a virtual address.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   function Map_Page_Table_Entry (
+     Directory        : in out Page_Directory_Array;
+     Physical_Address : System.Address;
+     Virtual_Address  : System.Address
+   ) return Paging_Process_Result;
 
    ----------------------------------------------------------------------------
    --  System Page Directory.

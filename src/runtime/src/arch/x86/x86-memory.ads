@@ -237,7 +237,8 @@ private
    function Allocate_Page_Frame (
      Virtual_Address : System.Address;
      Frame_Address   : out Page_Aligned_Address
-   ) return Paging_Process_Result;
+   ) return Paging_Process_Result
+   with Volatile_Function;
 
    ----------------------------------------------------------------------------
    --  Map_Page_Frame
@@ -252,7 +253,8 @@ private
      Directory        : Page_Directory_Array;
      Physical_Address : System.Address;
      Virtual_Address  : System.Address
-   ) return Paging_Process_Result;
+   ) return Paging_Process_Result
+   with Volatile_Function;
 
    ----------------------------------------------------------------------------
    --  System Page Directory.

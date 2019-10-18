@@ -131,7 +131,7 @@ package body x86 is
 
       x86.Serial.Put_String (x86.Serial.COM1,
         "Initialising Memory Map" & ASCII.LF);
-      x86.Memory.Map.Init;
+      x86.Memory.Map.Initialise;
 
       Initialise_Memory_Map :
          begin
@@ -139,7 +139,8 @@ package body x86 is
                x86.Serial.Put_String (x86.Serial.COM1,
                  "Parsing Multiboot memory map" & ASCII.LF);
 
-               Parse_Multiboot_Memory_Map;
+               Multiboot.Parse_Memory_Map (Boot_Info.Mmap_Addr,
+                 Boot_Info.Mmap_Length);
             end if;
          exception
             when Constraint_Error =>
@@ -277,13 +278,5 @@ package body x86 is
    begin
       null;
    end Last_Chance_Handler;
-
-   ----------------------------------------------------------------------------
-   --  Parse_Multiboot_Memory_Map
-   ----------------------------------------------------------------------------
-   procedure Parse_Multiboot_Memory_Map is
-   begin
-      null;
-   end Parse_Multiboot_Memory_Map;
 
 end x86;

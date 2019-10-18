@@ -12,7 +12,7 @@
 with Interfaces;
 with System.Storage_Elements;
 
-package body x86.Paging is
+package body x86.Memory is
    use Interfaces;
    use System.Storage_Elements;
 
@@ -311,4 +311,4 @@ package body x86.Paging is
 
       return Success;
    end Map_Page_Frame;
-end x86.Paging;
+end x86.Memory;

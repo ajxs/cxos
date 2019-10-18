@@ -12,14 +12,14 @@
 with System;
 
 -------------------------------------------------------------------------------
---  SYSTEM.X86.PAGING
+--  SYSTEM.X86.MEMORY
 --
 --  Purpose:
 --    This package contains code and defintions for implementing and working
---    with paging on the x86 platform.
+--    with memory on the x86 platform.
 -------------------------------------------------------------------------------
-package x86.Paging is
-   pragma Preelaborate (x86.Paging);
+package x86.Memory is
+   pragma Preelaborate (x86.Memory);
 
    ----------------------------------------------------------------------------
    --  Initialise
@@ -286,4 +286,4 @@ private
      External_Name => "kernel_page_directory",
      Volatile;
 
-end x86.Paging;
+end x86.Memory;

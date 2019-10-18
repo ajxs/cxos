@@ -17,7 +17,7 @@ with x86.Interrupts;
 with x86.IRQ_Handlers;
 with x86.GDT;
 with x86.PIC;
-with x86.Paging;
+with x86.Memory;
 with x86.PIT;
 with x86.Serial;
 with x86.Time_Keeping;
@@ -113,8 +113,8 @@ package body x86 is
 
       x86.Serial.Put_String (x86.Serial.COM1,
         "Initialising Paging" & ASCII.LF);
-      x86.Paging.Initialise;
-      x86.Paging.Finalise;
+      x86.Memory.Initialise;
+      x86.Memory.Finalise;
       x86.Serial.Put_String (x86.Serial.COM1,
         "Paging Initialised" & ASCII.LF);
    end Initialise;

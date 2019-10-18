@@ -54,11 +54,13 @@ private
    --  procedure.
    ----------------------------------------------------------------------------
    type Paging_Process_Result is (
+     Frame_Allocation_Error,
+     Frame_Not_Allocated,
      Invalid_Argument,
      Invalid_Non_Aligned_Address,
      Invalid_Table_Index,
-     Frame_Allocation_Error,
-     Success
+     Success,
+     Table_Not_Allocated
    );
 
    ----------------------------------------------------------------------------
@@ -66,19 +68,7 @@ private
    --  These are truncated 32bit addresses that are assumed to be 4K aligned,
    --  as such there is no need to hold the lower-order 12bits.
    ----------------------------------------------------------------------------
-   type Aligned_Address is mod 2 ** 20;
-
-   ----------------------------------------------------------------------------
-   --  Type for the address of a page table.
-   --  Used by a Page Directory Entry.
-   ----------------------------------------------------------------------------
-   type Page_Table_Address is new Aligned_Address;
-
-   ----------------------------------------------------------------------------
-   --  Type to hold the physical address of a page.
-   --  Used by a Page Table Entry.
-   ----------------------------------------------------------------------------
-   type Physical_Page_Address is new Aligned_Address;
+   type Page_Aligned_Address is mod 2 ** 20;
 
    ----------------------------------------------------------------------------
    --  Page Directory Entry type.
@@ -95,7 +85,7 @@ private
          PS            : Boolean;
          G             : Boolean;
          Avail         : Boolean := False;
-         Table_Address : Page_Table_Address;
+         Table_Address : Page_Aligned_Address;
       end record
    with Size => 32;
    for Page_Directory_Entry use
@@ -114,9 +104,9 @@ private
       end record;
 
    ----------------------------------------------------------------------------
-   --  Page Table Entry type.
+   --  Page Frame type.
    ----------------------------------------------------------------------------
-   type Page_Table_Entry is
+   type Page_Frame is
       record
          Present      : Boolean;
          Read_Write   : Boolean;
@@ -127,10 +117,10 @@ private
          D            : Boolean;
          PAT          : Boolean;
          G            : Boolean;
-         Page_Address : Physical_Page_Address;
+         Page_Address : Page_Aligned_Address;
       end record
    with Size => 32;
-   for Page_Table_Entry use
+   for Page_Frame use
       record
          Present      at 0 range 0 .. 0;
          Read_Write   at 0 range 1 .. 1;
@@ -148,7 +138,8 @@ private
    --  Check_Address_Aligned
    --
    --  Purpose:
-   --    Checks whether a provided address is 4K aligned.
+   --    Checks whether a provided address is 4K aligned, as required by the
+   --    paging entity structures.
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
@@ -161,14 +152,14 @@ private
    --  Convert_To_Aligned_Address
    --
    --  Purpose:
-   --    This function converts a System Address to the 20bit 4kb aligned
+   --    This function converts a System Address to the 20bit 4kb page aligned
    --    address type expected by the page table entities.
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
    function Convert_To_Aligned_Address (
      Addr : System.Address
-   ) return Aligned_Address
+   ) return Page_Aligned_Address
    with Pure_Function;
 
    ----------------------------------------------------------------------------
@@ -181,7 +172,7 @@ private
    --    None.
    ----------------------------------------------------------------------------
    function Convert_To_System_Address (
-     Addr : Aligned_Address
+     Addr : Page_Aligned_Address
    ) return System.Address
    with Pure_Function;
 
@@ -195,8 +186,8 @@ private
    --    None.
    ----------------------------------------------------------------------------
    function Get_Page_Directory_Index (
-     Addr    : System.Address;
-     Index   : out Natural
+     Addr  : System.Address;
+     Index : out Natural
    ) return Paging_Process_Result
    with Pure_Function;
 
@@ -210,16 +201,16 @@ private
    --    None.
    ----------------------------------------------------------------------------
    function Get_Page_Table_Index (
-     Addr    : System.Address;
-     Index   : out Natural
+     Addr  : System.Address;
+     Index : out Natural
    ) return Paging_Process_Result
    with Pure_Function;
 
    ----------------------------------------------------------------------------
    --  Individual Page Table type.
-   --  This is an array of 1024 indiviudal Page Table Entries.
+   --  This is an array of 1024 indiviudal Pages.
    ----------------------------------------------------------------------------
-   type Page_Table is array (Natural range 0 .. 1023) of Page_Table_Entry;
+   type Page_Table is array (Natural range 0 .. 1023) of Page_Frame;
 
    ----------------------------------------------------------------------------
    --  Page Table array type.
@@ -237,15 +228,29 @@ private
      of Page_Directory_Entry;
 
    ----------------------------------------------------------------------------
-   --  Map_Page_Table_Entry
+   --  Allocate_Page_Frame
    --
    --  Purpose:
-   --    This procedure maps a specific page table entry to a virtual address.
+   --    This procedure allocates a page frame.
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   function Map_Page_Table_Entry (
-     Directory        : in out Page_Directory_Array;
+   function Allocate_Page_Frame (
+     Virtual_Address : System.Address;
+     Frame_Address   : out Page_Aligned_Address
+   ) return Paging_Process_Result;
+
+   ----------------------------------------------------------------------------
+   --  Map_Page_Frame
+   --
+   --  Purpose:
+   --    This procedure maps an individual page frame. This maps an individual
+   --    4K aligned virtual address frame to a physical address.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   function Map_Page_Frame (
+     Directory        : Page_Directory_Array;
      Physical_Address : System.Address;
      Virtual_Address  : System.Address
    ) return Paging_Process_Result;
@@ -269,6 +274,16 @@ private
    with Import,
      Convention    => Assembler,
      External_Name => "page_tables_start",
+     Volatile;
+
+   ----------------------------------------------------------------------------
+   --  The Kernel page directory.
+   --  Used for identity mapping the kernel after boot.
+   ----------------------------------------------------------------------------
+   Kernel_Page_Directory : Page_Directory_Array
+   with Export,
+     Convention    => Assembler,
+     External_Name => "kernel_page_directory",
      Volatile;
 
 end x86.Paging;

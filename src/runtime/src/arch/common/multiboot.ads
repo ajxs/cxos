@@ -55,6 +55,22 @@ package Multiboot is
          Framebuffer_Table_Available  at 0 range 12 .. 12;
       end record;
 
+   type Multiboot_Memory_Map_Section is
+      record
+         Size        : Unsigned_32;
+         Base        : Unsigned_64;
+         Length      : Unsigned_64;
+         Memory_Type : Unsigned_32;
+      end record
+   with Size => 192;
+   for Multiboot_Memory_Map_Section use
+      record
+         Size        at 0 range 0 .. 31;
+         Base        at 0 range 32 .. 95;
+         Length      at 0 range 96 .. 159;
+         Memory_Type at 0 range 160 .. 191;
+      end record;
+
    ----------------------------------------------------------------------------
    --  Multiboot information struct.
    --  As defined in the Multiboot spec in the GNU GRUB manual.
@@ -134,5 +150,18 @@ package Multiboot is
    --  The expected, valid Multiboot magic number value.
    ----------------------------------------------------------------------------
    VALID_MAGIC_NUMBER : constant Multiboot_Magic_Number := 16#2BADB002#;
+
+   ----------------------------------------------------------------------------
+   --  Parse_Memory_Map
+   --
+   --  Purpose:
+   --    Parses the memory map passed in the multiboot info struct.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   procedure Parse_Memory_Map (
+     Memory_Map_Addr   : Unsigned_32;
+     Memory_Map_Length : Unsigned_32
+   );
 
 end Multiboot;

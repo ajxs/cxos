@@ -22,19 +22,18 @@ package x86.Memory is
    pragma Preelaborate (x86.Memory);
 
    ----------------------------------------------------------------------------
-   --  Initialise
+   --  Map_Kernel
    --
    --  Purpose:
-   --    This procedure iniitalises paging on the processor.
-   --    This initialises the page directory and table structures and loads
-   --    their location into the processor.
+   --    This procedure maps memory for the kernel. This is required to
+   --    allocate memory for the kernel prior to enabling paging.
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Initialise;
+   procedure Map_Kernel;
 
    ----------------------------------------------------------------------------
-   --  Finalise
+   --  Enable_Paging
    --
    --  Purpose:
    --    This procedure finalises the loading of the page directory structures
@@ -42,7 +41,7 @@ package x86.Memory is
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Finalise
+   procedure Enable_Paging
    with Import,
      Convention    => Assembler,
      External_Name => "__paging_load";

@@ -18,6 +18,7 @@ with x86.IRQ_Handlers;
 with x86.GDT;
 with x86.PIC;
 with x86.Memory;
+with x86.Memory.Map;
 with x86.PIT;
 with x86.Serial;
 with x86.Time_Keeping;
@@ -35,11 +36,13 @@ package body x86 is
      Boot_Info_Address : System.Address
    ) is
       --  Create multiboot info structure overlaid at boot info address.
-      Boot_Info : Multiboot_Info
+      Boot_Info : constant Multiboot_Info
       with Address => Boot_Info_Address,
         Import,
-        Convention => Ada,
+        Convention => C,
         Volatile;
+
+      Multiboot_Memory_Map_Present : Boolean;
    begin
       x86.Vga.Clear (x86.Vga.Black);
       x86.Vga.Put_String (0, 0, x86.Vga.Light_Green, x86.Vga.Black,
@@ -53,6 +56,27 @@ package body x86 is
       if Magic_Number = VALID_MAGIC_NUMBER then
          x86.Serial.Put_String (x86.Serial.COM1,
            "Detected valid Multiboot magic number" & ASCII.LF);
+
+         Detect_Memory_Map :
+            begin
+               if Boot_Info.Flags.Memory_Map_Fields_Valid then
+                  x86.Serial.Put_String (x86.Serial.COM1,
+                     "Multiboot memory map present" & ASCII.LF);
+
+                  Multiboot_Memory_Map_Present := True;
+               else
+                  x86.Serial.Put_String (x86.Serial.COM1,
+                     "Multiboot memory map not present" & ASCII.LF);
+
+                  Multiboot_Memory_Map_Present := False;
+               end if;
+            exception
+               when Constraint_Error =>
+                  x86.Serial.Put_String (x86.Serial.COM1,
+                     "Error detecting Multiboot memory map" & ASCII.LF);
+
+                  Multiboot_Memory_Map_Present := False;
+            end Detect_Memory_Map;
       else
          x86.Serial.Put_String (x86.Serial.COM1,
            "Unable to detect valid Multiboot magic number" & ASCII.LF);
@@ -105,6 +129,24 @@ package body x86 is
         "Initialising PIT" & ASCII.LF);
       x86.PIT.Initialise;
 
+      x86.Serial.Put_String (x86.Serial.COM1,
+        "Initialising Memory Map" & ASCII.LF);
+      x86.Memory.Map.Init;
+
+      Initialise_Memory_Map :
+         begin
+            if Multiboot_Memory_Map_Present then
+               x86.Serial.Put_String (x86.Serial.COM1,
+                 "Parsing Multiboot memory map" & ASCII.LF);
+
+               Parse_Multiboot_Memory_Map;
+            end if;
+         exception
+            when Constraint_Error =>
+               x86.Serial.Put_String (x86.Serial.COM1,
+                 "Error parsing Multiboot memory map" & ASCII.LF);
+         end Initialise_Memory_Map;
+
       --  Enable interrupts.
       x86.Interrupts.Set_Interrupt_Flag (True);
 
@@ -112,11 +154,14 @@ package body x86 is
         "Protected mode entered" & ASCII.LF);
 
       x86.Serial.Put_String (x86.Serial.COM1,
-        "Initialising Paging" & ASCII.LF);
-      x86.Memory.Initialise;
-      x86.Memory.Finalise;
+        "Initialising Kernel Memory Map" & ASCII.LF);
+      x86.Memory.Map_Kernel;
+
       x86.Serial.Put_String (x86.Serial.COM1,
-        "Paging Initialised" & ASCII.LF);
+        "Enabling Paging" & ASCII.LF);
+      x86.Memory.Enable_Paging;
+      x86.Serial.Put_String (x86.Serial.COM1,
+        "Paging Enabled" & ASCII.LF);
    end Initialise;
 
    ----------------------------------------------------------------------------
@@ -232,5 +277,13 @@ package body x86 is
    begin
       null;
    end Last_Chance_Handler;
+
+   ----------------------------------------------------------------------------
+   --  Parse_Multiboot_Memory_Map
+   ----------------------------------------------------------------------------
+   procedure Parse_Multiboot_Memory_Map is
+   begin
+      null;
+   end Parse_Multiboot_Memory_Map;
 
 end x86;

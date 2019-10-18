@@ -74,6 +74,17 @@ private
      External_Name => "__gnat_last_chance_handler";
 
    ----------------------------------------------------------------------------
+   --  Parse_Multiboot_Memory_Map
+   --
+   --  Purpose:
+   --    Parses the memory map passed in the multiboot info struct to correctly
+   --    configure the internal system memory map.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   procedure Parse_Multiboot_Memory_Map;
+
+   ----------------------------------------------------------------------------
    --  Protected_Mode_Init
    --
    --  Purpose:

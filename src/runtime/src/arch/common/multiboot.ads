@@ -18,12 +18,50 @@ package Multiboot is
    type Color_Info_Type is array (0 .. 5) of Unsigned_8;
 
    ----------------------------------------------------------------------------
+   --  Multiboot information flags struct.
+   --  Map of the flags passed in the boot information struct.
+   ----------------------------------------------------------------------------
+   type Multiboot_Info_Flags is
+      record
+         Memory_Fields_Valid         : Boolean;
+         Boot_Device_Field_Valid     : Boolean;
+         Cmdline_Field_Valid         : Boolean;
+         Mods_Fields_Valid           : Boolean;
+         Aout_Fields_Valid           : Boolean;
+         Elf_Fields_Valid            : Boolean;
+         Memory_Map_Fields_Valid     : Boolean;
+         Drives_Fields_Valid         : Boolean;
+         Config_Table_Valid          : Boolean;
+         Bootloader_name_Valid       : Boolean;
+         Apm_Table_Valid             : Boolean;
+         Vbe_Table_Available         : Boolean;
+         Framebuffer_Table_Available : Boolean;
+      end record
+   with Size => 32;
+   for Multiboot_Info_Flags use
+      record
+         Memory_Fields_Valid          at 0 range 0  .. 0;
+         Boot_Device_Field_Valid      at 0 range 1  .. 1;
+         Cmdline_Field_Valid          at 0 range 2  .. 2;
+         Mods_Fields_Valid            at 0 range 3  .. 3;
+         Aout_Fields_Valid            at 0 range 4  .. 4;
+         Elf_Fields_Valid             at 0 range 5  .. 5;
+         Memory_Map_Fields_Valid      at 0 range 6  .. 6;
+         Drives_Fields_Valid          at 0 range 7  .. 7;
+         Config_Table_Valid           at 0 range 8  .. 8;
+         Bootloader_name_Valid        at 0 range 9  .. 9;
+         Apm_Table_Valid              at 0 range 10 .. 10;
+         Vbe_Table_Available          at 0 range 11 .. 11;
+         Framebuffer_Table_Available  at 0 range 12 .. 12;
+      end record;
+
+   ----------------------------------------------------------------------------
    --  Multiboot information struct.
    --  As defined in the Multiboot spec in the GNU GRUB manual.
    ----------------------------------------------------------------------------
    type Multiboot_Info is
       record
-         Flags              : Unsigned_32;
+         Flags              : Multiboot_Info_Flags;
          Mem_Upper          : System.Address;
          Mem_Lower          : System.Address;
          Boot_Device        : Unsigned_32;
@@ -52,8 +90,7 @@ package Multiboot is
          Framebuffer_Type   : Boolean;
          Color_Info         : Color_Info_Type;
       end record
-   with Size => 928,
-     Volatile;
+   with Size => 928;
    for Multiboot_Info use
       record
          Flags              at 0   range 0 .. 31;

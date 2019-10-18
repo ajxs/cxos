@@ -164,7 +164,7 @@ package body x86.Memory is
    --  Implementation Notes:
    --   - Initialises every page table as being non present and non writeable.
    ----------------------------------------------------------------------------
-   procedure Initialise is
+   procedure Map_Kernel is
    begin
       --  Initialise the page table structure.
       --  Initially all tables are marked as non-present.
@@ -230,7 +230,7 @@ package body x86.Memory is
                return;
          end Initialise_Page_Directory;
 
-   end Initialise;
+   end Map_Kernel;
 
    ----------------------------------------------------------------------------
    --  Map_Page_Frame

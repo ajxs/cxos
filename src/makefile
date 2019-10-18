@@ -14,7 +14,6 @@ QEMU_FLAGS :=                 \
 	-cpu core2duo               \
 	-m 128                      \
 	-no-reboot                  \
-	-no-shutdown                \
 	-smp 1                      \
 	-usb                        \
 	-vga std
@@ -48,6 +47,9 @@ emu: ${ISO}
 		${QEMU_FLAGS}                    \
 		-drive format=raw,file=${ISO}    \
 		-serial stdio                    \
+
+bochs: ${ISO}
+	bochs -f ./src/util/bochsrc
 
 kernel: ${KERNEL_BINARY}
 

@@ -2,4 +2,5 @@ ata0-master: type=cdrom, path=build/cxos.img, status=inserted
 boot: cdrom
 com1: enabled=1, mode=term
 cpu: count=1, ips=10000000, reset_on_triple_fault=0
+display_library: x, options="gui_debug"
 megs: 256

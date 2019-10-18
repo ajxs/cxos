@@ -25,9 +25,9 @@ package body x86.Serial is
      Port : Serial_Port
    ) return System.Address is
       COM1_Address : constant System.Address := To_Address (16#3F8#);
-      COM2_Address : constant System.Address := To_Address (16#3F8#);
-      COM3_Address : constant System.Address := To_Address (16#3F8#);
-      COM4_Address : constant System.Address := To_Address (16#3F8#);
+      COM2_Address : constant System.Address := To_Address (16#2F8#);
+      COM3_Address : constant System.Address := To_Address (16#3E8#);
+      COM4_Address : constant System.Address := To_Address (16#3E8#);
    begin
       case Port is
          when COM1 =>

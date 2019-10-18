@@ -526,7 +526,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_1_Internal_Handler
+   procedure Exception_1_Internal_Handler  (
+     Saved_Registers : Exception_Stack_Frame
+   )
    with Export,
      Convention    => Assembler,
      External_Name => "__exception1_handler";
@@ -539,7 +541,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_2_Internal_Handler
+   procedure Exception_2_Internal_Handler  (
+     Saved_Registers : Exception_Stack_Frame
+   )
    with Export,
      Convention    => Assembler,
      External_Name => "__exception2_handler";
@@ -552,7 +556,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_3_Internal_Handler
+   procedure Exception_3_Internal_Handler  (
+     Saved_Registers : Exception_Stack_Frame
+   )
    with Export,
      Convention    => Assembler,
      External_Name => "__exception3_handler";
@@ -565,7 +571,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_4_Internal_Handler
+   procedure Exception_4_Internal_Handler  (
+     Saved_Registers : Exception_Stack_Frame
+   )
    with Export,
      Convention    => Assembler,
      External_Name => "__exception4_handler";
@@ -578,7 +586,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_5_Internal_Handler
+   procedure Exception_5_Internal_Handler  (
+     Saved_Registers : Exception_Stack_Frame
+   )
    with Export,
      Convention    => Assembler,
      External_Name => "__exception5_handler";
@@ -591,7 +601,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_6_Internal_Handler
+   procedure Exception_6_Internal_Handler  (
+     Saved_Registers : Exception_Stack_Frame
+   )
    with Export,
      Convention    => Assembler,
      External_Name => "__exception6_handler";
@@ -604,7 +616,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_7_Internal_Handler
+   procedure Exception_7_Internal_Handler  (
+     Saved_Registers : Exception_Stack_Frame
+   )
    with Export,
      Convention    => Assembler,
      External_Name => "__exception7_handler";
@@ -617,7 +631,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_8_Internal_Handler
+   procedure Exception_8_Internal_Handler  (
+     Saved_Registers : Exception_Stack_Frame
+   )
    with Export,
      Convention    => Assembler,
      External_Name => "__exception8_handler";
@@ -630,7 +646,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_9_Internal_Handler
+   procedure Exception_9_Internal_Handler  (
+     Saved_Registers : Exception_Stack_Frame
+   )
    with Export,
      Convention    => Assembler,
      External_Name => "__exception9_handler";
@@ -643,7 +661,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_10_Internal_Handler
+   procedure Exception_10_Internal_Handler  (
+     Saved_Registers : Exception_Stack_Frame
+   )
    with Export,
      Convention    => Assembler,
      External_Name => "__exception10_handler";
@@ -656,7 +676,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_11_Internal_Handler
+   procedure Exception_11_Internal_Handler  (
+     Saved_Registers : Exception_Stack_Frame
+   )
    with Export,
      Convention    => Assembler,
      External_Name => "__exception11_handler";
@@ -669,7 +691,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_12_Internal_Handler
+   procedure Exception_12_Internal_Handler  (
+     Saved_Registers : Exception_Stack_Frame
+   )
    with Export,
      Convention    => Assembler,
      External_Name => "__exception12_handler";
@@ -682,7 +706,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_13_Internal_Handler
+   procedure Exception_13_Internal_Handler  (
+     Saved_Registers : Exception_Stack_Frame
+   )
    with Export,
      Convention    => Assembler,
      External_Name => "__exception13_handler";
@@ -695,7 +721,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_14_Internal_Handler
+   procedure Exception_14_Internal_Handler (
+     Saved_Registers : Exception_Stack_Frame
+   )
    with Export,
      Convention    => Assembler,
      External_Name => "__exception14_handler";
@@ -708,7 +736,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_15_Internal_Handler
+   procedure Exception_15_Internal_Handler  (
+     Saved_Registers : Exception_Stack_Frame
+   )
    with Export,
      Convention    => Assembler,
      External_Name => "__exception15_handler";
@@ -721,7 +751,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_16_Internal_Handler
+   procedure Exception_16_Internal_Handler  (
+     Saved_Registers : Exception_Stack_Frame
+   )
    with Export,
      Convention    => Assembler,
      External_Name => "__exception16_handler";
@@ -734,7 +766,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_17_Internal_Handler
+   procedure Exception_17_Internal_Handler  (
+     Saved_Registers : Exception_Stack_Frame
+   )
    with Export,
      Convention    => Assembler,
      External_Name => "__exception17_handler";
@@ -747,7 +781,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_18_Internal_Handler
+   procedure Exception_18_Internal_Handler  (
+     Saved_Registers : Exception_Stack_Frame
+   )
    with Export,
      Convention    => Assembler,
      External_Name => "__exception18_handler";
@@ -760,7 +796,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_19_Internal_Handler
+   procedure Exception_19_Internal_Handler  (
+     Saved_Registers : Exception_Stack_Frame
+   )
    with Export,
      Convention    => Assembler,
      External_Name => "__exception19_handler";
@@ -773,7 +811,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_20_Internal_Handler
+   procedure Exception_20_Internal_Handler  (
+     Saved_Registers : Exception_Stack_Frame
+   )
    with Export,
      Convention    => Assembler,
      External_Name => "__exception20_handler";
@@ -786,7 +826,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_21_Internal_Handler
+   procedure Exception_21_Internal_Handler  (
+     Saved_Registers : Exception_Stack_Frame
+   )
    with Export,
      Convention    => Assembler,
      External_Name => "__exception21_handler";
@@ -799,7 +841,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_22_Internal_Handler
+   procedure Exception_22_Internal_Handler  (
+     Saved_Registers : Exception_Stack_Frame
+   )
    with Export,
      Convention    => Assembler,
      External_Name => "__exception22_handler";
@@ -812,7 +856,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_23_Internal_Handler
+   procedure Exception_23_Internal_Handler  (
+     Saved_Registers : Exception_Stack_Frame
+   )
    with Export,
      Convention    => Assembler,
      External_Name => "__exception23_handler";
@@ -825,7 +871,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_24_Internal_Handler
+   procedure Exception_24_Internal_Handler  (
+     Saved_Registers : Exception_Stack_Frame
+   )
    with Export,
      Convention    => Assembler,
      External_Name => "__exception24_handler";
@@ -838,7 +886,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_25_Internal_Handler
+   procedure Exception_25_Internal_Handler  (
+     Saved_Registers : Exception_Stack_Frame
+   )
    with Export,
      Convention    => Assembler,
      External_Name => "__exception25_handler";
@@ -851,7 +901,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_26_Internal_Handler
+   procedure Exception_26_Internal_Handler  (
+     Saved_Registers : Exception_Stack_Frame
+   )
    with Export,
      Convention    => Assembler,
      External_Name => "__exception26_handler";
@@ -864,7 +916,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_27_Internal_Handler
+   procedure Exception_27_Internal_Handler  (
+     Saved_Registers : Exception_Stack_Frame
+   )
    with Export,
      Convention    => Assembler,
      External_Name => "__exception27_handler";
@@ -877,7 +931,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_28_Internal_Handler
+   procedure Exception_28_Internal_Handler  (
+     Saved_Registers : Exception_Stack_Frame
+   )
    with Export,
      Convention    => Assembler,
      External_Name => "__exception28_handler";
@@ -890,7 +946,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_29_Internal_Handler
+   procedure Exception_29_Internal_Handler  (
+     Saved_Registers : Exception_Stack_Frame
+   )
    with Export,
      Convention    => Assembler,
      External_Name => "__exception29_handler";
@@ -903,7 +961,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_30_Internal_Handler
+   procedure Exception_30_Internal_Handler  (
+     Saved_Registers : Exception_Stack_Frame
+   )
    with Export,
      Convention    => Assembler,
      External_Name => "__exception30_handler";
@@ -916,7 +976,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Exception_31_Internal_Handler
+   procedure Exception_31_Internal_Handler  (
+     Saved_Registers : Exception_Stack_Frame
+   )
    with Export,
      Convention    => Assembler,
      External_Name => "__exception31_handler";

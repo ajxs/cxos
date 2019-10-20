@@ -12,6 +12,7 @@
 with Ada.Interrupts.Names;
 with Interfaces;
 with x86.Exceptions;
+with System.Storage_Elements;
 with x86.IDT;
 with x86.Interrupts;
 with x86.IRQ_Handlers;
@@ -27,6 +28,7 @@ with x86.Vga;
 package body x86 is
    use Ada.Interrupts.Names;
    use Interfaces;
+   use System.Storage_Elements;
 
    ----------------------------------------------------------------------------
    --  Initialise
@@ -139,7 +141,8 @@ package body x86 is
                x86.Serial.Put_String (x86.Serial.COM1,
                  "Parsing Multiboot memory map" & ASCII.LF);
 
-               Multiboot.Parse_Memory_Map (Boot_Info.Mmap_Addr,
+               Multiboot.Parse_Memory_Map (
+                 To_Address (Integer_Address (Boot_Info.Mmap_Addr)),
                  Boot_Info.Mmap_Length);
             end if;
          exception

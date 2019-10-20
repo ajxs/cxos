@@ -160,7 +160,7 @@ package Multiboot is
    --    None.
    ----------------------------------------------------------------------------
    procedure Parse_Memory_Map (
-     Memory_Map_Addr   : Unsigned_32;
+     Memory_Map_Addr   : System.Address;
      Memory_Map_Length : Unsigned_32
    );
 

@@ -2,15 +2,14 @@ set architecture i386
 target remote localhost:1234
 file src/kernel/build/cxos.elf -readnow
 
-b __paging_load
-b __exception_handler
-
+# b __paging_load
+b multiboot.adb:26
 c
+
 
 # x /1xg &idt_pointer
 # x /5xg &global_descriptor_table
 # x /3xg &interrupt_descriptor_table+(256)
-
 
 echo Page table 0:\n
 x /4xw &page_tables_start
@@ -20,9 +19,6 @@ x /4xw (&page_tables_start + 0x1000)
 
 echo Page table 2:\n
 x /4xw (&page_tables_start + 0x2000)
-
-# echo Page table 1024:\n
-# x /1024xw (&page_tables_start + (1023*4096))
 
 echo Page directory:\n
 x /4xw &page_directory_start

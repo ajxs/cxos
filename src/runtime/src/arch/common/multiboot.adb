@@ -14,8 +14,8 @@ package body Multiboot is
       package Memory_Map_Section_Ptr is new
         System.Address_To_Access_Conversions (Multiboot_Memory_Map_Section);
 
-      Bytes_Read : Unsigned_32 := 0;
-      Current_Addr : System.Address := Memory_Map_Addr;
+      Bytes_Read       : Unsigned_32 := 0;
+      Current_Addr     : System.Address := Memory_Map_Addr;
       Curr_Section_Ptr : Memory_Map_Section_Ptr.Object_Pointer :=
         Memory_Map_Section_Ptr.To_Pointer (Current_Addr);
    begin
@@ -25,6 +25,8 @@ package body Multiboot is
 
          Increment_Pointer :
             begin
+               --  The 'Size' value is not inclusive of the size variable
+               --  itself. It refers to the size of the internal structure.
                Current_Addr := To_Address (To_Integer (Current_Addr) +
                  Integer_Address (4 + Curr_Section_Ptr.all.Size));
 

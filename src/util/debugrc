@@ -6,6 +6,7 @@ file src/kernel/build/cxos.elf -readnow
 b multiboot.adb:26
 c
 
+x /1xw curr_section_ptr
 
 # x /1xg &idt_pointer
 # x /5xg &global_descriptor_table

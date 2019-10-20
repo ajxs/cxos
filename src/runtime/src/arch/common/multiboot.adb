@@ -11,26 +11,26 @@ package body Multiboot is
      Memory_Map_Addr   : System.Address;
      Memory_Map_Length : Unsigned_32
    ) is
-      package Memory_Map_Section_Ptr is new
-        System.Address_To_Access_Conversions (Multiboot_Memory_Map_Section);
+      package Mmap_Region_Ptr is new
+        System.Address_To_Access_Conversions (Multiboot_Mmap_Region);
 
-      Bytes_Read       : Unsigned_32 := 0;
-      Current_Addr     : System.Address := Memory_Map_Addr;
-      Curr_Section_Ptr : Memory_Map_Section_Ptr.Object_Pointer :=
-        Memory_Map_Section_Ptr.To_Pointer (Current_Addr);
+      Bytes_Read  : Unsigned_32    := 0;
+      Curr_Addr   : System.Address := Memory_Map_Addr;
+      Curr_Region : Mmap_Region_Ptr.Object_Pointer :=
+        Mmap_Region_Ptr.To_Pointer (Curr_Addr);
    begin
       while Bytes_Read < Memory_Map_Length loop
-         Curr_Section_Ptr :=
-           Memory_Map_Section_Ptr.To_Pointer (Current_Addr);
+         --  Reset the current region pointer.
+         Curr_Region := Mmap_Region_Ptr.To_Pointer (Curr_Addr);
 
          Increment_Pointer :
             begin
                --  The 'Size' value is not inclusive of the size variable
                --  itself. It refers to the size of the internal structure.
-               Current_Addr := To_Address (To_Integer (Current_Addr) +
-                 Integer_Address (4 + Curr_Section_Ptr.all.Size));
+               Curr_Addr := To_Address (To_Integer (Curr_Addr) +
+                 Integer_Address (4 + Curr_Region.all.Size));
 
-               Bytes_Read := Bytes_Read + 4 + Curr_Section_Ptr.all.Size;
+               Bytes_Read := Bytes_Read + 4 + Curr_Region.all.Size;
             exception
                when Constraint_Error =>
                   return;

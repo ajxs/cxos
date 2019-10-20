@@ -55,7 +55,11 @@ package Multiboot is
          Framebuffer_Table_Available  at 0 range 12 .. 12;
       end record;
 
-   type Multiboot_Memory_Map_Section is
+   ----------------------------------------------------------------------------
+   --  Multiboot Memory Map region struct.
+   --  Contains information regarding the use of a memory region.
+   ----------------------------------------------------------------------------
+   type Multiboot_Mmap_Region is
       record
          Size        : Unsigned_32;
          Base        : Unsigned_64;
@@ -63,7 +67,7 @@ package Multiboot is
          Memory_Type : Unsigned_32;
       end record
    with Size => 192;
-   for Multiboot_Memory_Map_Section use
+   for Multiboot_Mmap_Region use
       record
          Size        at 0 range 0 .. 31;
          Base        at 0 range 32 .. 95;

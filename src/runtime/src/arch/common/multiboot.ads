@@ -40,19 +40,19 @@ package Multiboot is
    with Size => 32;
    for Multiboot_Info_Flags use
       record
-         Memory_Fields_Valid          at 0 range 0  .. 0;
-         Boot_Device_Field_Valid      at 0 range 1  .. 1;
-         Cmdline_Field_Valid          at 0 range 2  .. 2;
-         Mods_Fields_Valid            at 0 range 3  .. 3;
-         Aout_Fields_Valid            at 0 range 4  .. 4;
-         Elf_Fields_Valid             at 0 range 5  .. 5;
-         Memory_Map_Fields_Valid      at 0 range 6  .. 6;
-         Drives_Fields_Valid          at 0 range 7  .. 7;
-         Config_Table_Valid           at 0 range 8  .. 8;
-         Bootloader_name_Valid        at 0 range 9  .. 9;
-         Apm_Table_Valid              at 0 range 10 .. 10;
-         Vbe_Table_Available          at 0 range 11 .. 11;
-         Framebuffer_Table_Available  at 0 range 12 .. 12;
+         Memory_Fields_Valid         at 0 range 0  .. 0;
+         Boot_Device_Field_Valid     at 0 range 1  .. 1;
+         Cmdline_Field_Valid         at 0 range 2  .. 2;
+         Mods_Fields_Valid           at 0 range 3  .. 3;
+         Aout_Fields_Valid           at 0 range 4  .. 4;
+         Elf_Fields_Valid            at 0 range 5  .. 5;
+         Memory_Map_Fields_Valid     at 0 range 6  .. 6;
+         Drives_Fields_Valid         at 0 range 7  .. 7;
+         Config_Table_Valid          at 0 range 8  .. 8;
+         Bootloader_name_Valid       at 0 range 9  .. 9;
+         Apm_Table_Valid             at 0 range 10 .. 10;
+         Vbe_Table_Available         at 0 range 11 .. 11;
+         Framebuffer_Table_Available at 0 range 12 .. 12;
       end record;
 
    ----------------------------------------------------------------------------
@@ -154,18 +154,5 @@ package Multiboot is
    --  The expected, valid Multiboot magic number value.
    ----------------------------------------------------------------------------
    VALID_MAGIC_NUMBER : constant Multiboot_Magic_Number := 16#2BADB002#;
-
-   ----------------------------------------------------------------------------
-   --  Parse_Memory_Map
-   --
-   --  Purpose:
-   --    Parses the memory map passed in the multiboot info struct.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   procedure Parse_Memory_Map (
-     Memory_Map_Addr   : System.Address;
-     Memory_Map_Length : Unsigned_32
-   );
 
 end Multiboot;

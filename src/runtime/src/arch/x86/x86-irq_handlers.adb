@@ -10,7 +10,6 @@
 -------------------------------------------------------------------------------
 
 with Ada.Interrupts.Names;
-with Interfaces;
 with System.Storage_Elements;
 with x86.PIC;
 with x86.Time_Keeping;
@@ -19,7 +18,6 @@ with x86.Serial;
 
 package body x86.IRQ_Handlers is
    use Ada.Interrupts.Names;
-   use Interfaces;
    use System.Storage_Elements;
 
    ----------------------------------------------------------------------------

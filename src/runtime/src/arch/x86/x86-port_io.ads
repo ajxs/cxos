@@ -9,7 +9,6 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Interfaces;
 with System;
 
 -------------------------------------------------------------------------------
@@ -34,7 +33,7 @@ package x86.Port_IO is
    ----------------------------------------------------------------------------
    function Inb (
      Port : System.Address
-   ) return Interfaces.Unsigned_8
+   ) return Unsigned_8
    with Volatile_Function;
 
    ----------------------------------------------------------------------------
@@ -47,6 +46,6 @@ package x86.Port_IO is
    ----------------------------------------------------------------------------
    procedure Outb (
      Port : System.Address;
-     Data : Interfaces.Unsigned_8
+     Data : Unsigned_8
    );
 end x86.Port_IO;

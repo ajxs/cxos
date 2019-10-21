@@ -9,6 +9,7 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
+with Interfaces;
 with Multiboot;
 with System;
 
@@ -23,6 +24,7 @@ with System;
 package x86 is
    pragma Preelaborate (x86);
 
+   use Interfaces;
    use Multiboot;
 
    ----------------------------------------------------------------------------
@@ -72,6 +74,20 @@ private
    ) with Export,
      Convention => C,
      External_Name => "__gnat_last_chance_handler";
+
+   ----------------------------------------------------------------------------
+   --  Parse_Multiboot_Memory_Map
+   --
+   --  Purpose:
+   --    Parses the multiboot memory map structures, mapping the specified
+   --    memory regions listed in the multiboot structure.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   procedure Parse_Multiboot_Memory_Map (
+      Memory_Map_Addr   : System.Address;
+      Memory_Map_Length : Unsigned_32
+   );
 
    ----------------------------------------------------------------------------
    --  Protected_Mode_Init

@@ -9,11 +9,9 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Interfaces;
 with System.Storage_Elements;
 
 package body x86.Memory is
-   use Interfaces;
    use System.Storage_Elements;
 
    ----------------------------------------------------------------------------

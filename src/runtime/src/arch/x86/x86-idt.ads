@@ -9,7 +9,6 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Interfaces;
 with System;
 with x86.Descriptors;
 
@@ -24,7 +23,6 @@ with x86.Descriptors;
 package x86.IDT is
    pragma Preelaborate (x86.IDT);
 
-   use Interfaces;
    use x86.Descriptors;
 
    ----------------------------------------------------------------------------

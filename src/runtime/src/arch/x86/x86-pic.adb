@@ -9,12 +9,10 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Interfaces;
 with System.Storage_Elements;
 with x86.Port_IO;
 
 package body x86.PIC is
-   use Interfaces;
    use System.Storage_Elements;
 
    ----------------------------------------------------------------------------

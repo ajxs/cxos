@@ -19,6 +19,8 @@
 package x86.Memory.Map is
    pragma Preelaborate (x86.Memory.Map);
 
+   type Memory_Map_Process_Result is private;
+
    ----------------------------------------------------------------------------
    --  Initialise
    --
@@ -29,6 +31,19 @@ package x86.Memory.Map is
    --    None.
    ----------------------------------------------------------------------------
    procedure Initialise;
+
+   ----------------------------------------------------------------------------
+   --  Allocate_Frame
+   --
+   --  Purpose:
+   --    Finds and allocates a free page frame for a process.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   function Allocate_Frame (
+     Addr : out System.Address
+   ) return Memory_Map_Process_Result
+   with Volatile_Function;
 
 private
    ----------------------------------------------------------------------------
@@ -58,14 +73,29 @@ private
    --  Set_Frame_State
    --
    --  Purpose:
-   --    This procedure initialises the system memory map.
+   --    This procedure sets the status of a memory frame at a particular
+   --    address.
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Set_Frame_State (
+   function Set_Frame_State (
      Addr  : System.Address;
      State : Boolean
-   );
+   ) return Memory_Map_Process_Result;
+
+   ----------------------------------------------------------------------------
+   --  Set_Frame_State
+   --
+   --  Purpose:
+   --    This procedure sets the status of a memory frame at a particular
+   --    index in the frame array.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   function Set_Frame_State (
+     Index : Natural;
+     State : Boolean
+   ) return Memory_Map_Process_Result;
 
    ----------------------------------------------------------------------------
    --  Get_Frame_Address

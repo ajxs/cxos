@@ -2,11 +2,17 @@ set architecture i386
 target remote localhost:1234
 file src/kernel/build/cxos.elf -readnow
 
+# define print_mmap_region
+# > x /1xw curr_section_ptr
+# > x /1xg curr_section_ptr
+# > x /1xg curr_section_ptr
+ #> x /1xw curr_section_ptr
+
 # b __paging_load
-b multiboot.adb:26
+b x86.adb:300
 c
 
-x /1xw curr_section_ptr
+# print_mmap_region
 
 # x /1xg &idt_pointer
 # x /5xg &global_descriptor_table

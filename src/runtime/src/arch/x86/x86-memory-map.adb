@@ -15,6 +15,36 @@ package body x86.Memory.Map is
    use System.Storage_Elements;
 
    ----------------------------------------------------------------------------
+   --  Allocate_Frame
+   ----------------------------------------------------------------------------
+   function Allocate_Frame (
+     Addr : out System.Address
+   ) return Memory_Map_Process_Result is
+      Process_Result : Memory_Map_Process_Result;
+      Index          : Natural;
+   begin
+      Process_Result := Find_Free_Frame (Index);
+      if Process_Result /= Success then
+         return Process_Result;
+      end if;
+
+      Process_Result := Get_Frame_Address (Index, Addr);
+      if Process_Result /= Success then
+         return Process_Result;
+      end if;
+
+      Process_Result := Set_Frame_State (Index, False);
+      if Process_Result /= Success then
+         return Process_Result;
+      end if;
+
+      return Success;
+   exception
+      when Constraint_Error =>
+         return Invalid_Address_Argument;
+   end Allocate_Frame;
+
+   ----------------------------------------------------------------------------
    --  Find_Free_Frame
    ----------------------------------------------------------------------------
    function Find_Free_Frame (
@@ -90,10 +120,10 @@ package body x86.Memory.Map is
    ----------------------------------------------------------------------------
    --  Set_Frame_State
    ----------------------------------------------------------------------------
-   procedure Set_Frame_State (
+   function Set_Frame_State (
      Addr  : System.Address;
      State : Boolean
-   ) is
+   ) return Memory_Map_Process_Result is
       Map_Idx        : Natural;
       Process_Result : Memory_Map_Process_Result;
    begin
@@ -101,11 +131,11 @@ package body x86.Memory.Map is
          begin
             Process_Result := Get_Frame_Index (Addr, Map_Idx);
             if Process_Result /= Success then
-               return;
+               return Process_Result;
             end if;
          exception
             when Constraint_Error =>
-               return;
+               return Invalid_Address_Argument;
          end Get_Address_Map_Index;
 
       Set_Frame_Use_State :
@@ -113,8 +143,26 @@ package body x86.Memory.Map is
             Memory_Map (Map_Idx) := Memory_Map_Frame_State (State);
          exception
             when Constraint_Error =>
-               return;
+               return Invalid_Address_Argument;
          end Set_Frame_Use_State;
+
+         return Success;
+   end Set_Frame_State;
+
+   ----------------------------------------------------------------------------
+   --  Set_Frame_State
+   ----------------------------------------------------------------------------
+   function Set_Frame_State (
+     Index : Natural;
+     State : Boolean
+   ) return Memory_Map_Process_Result is
+   begin
+      Memory_Map (Index) := Memory_Map_Frame_State (State);
+
+      return Success;
+   exception
+      when Constraint_Error =>
+         return Invalid_Address_Argument;
    end Set_Frame_State;
 
 end x86.Memory.Map;

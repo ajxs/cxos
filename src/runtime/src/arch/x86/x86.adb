@@ -300,11 +300,37 @@ package body x86 is
          --  Reset the current region pointer.
          Curr_Region := Mmap_Region_Ptr.To_Pointer (Curr_Addr);
 
+         x86.Serial.Put_String (x86.Serial.COM1,
+           "Parsing Mmap region" & ASCII.LF);
+
+         x86.Serial.Put_String (x86.Serial.COM1, "Memory Type: ");
+
+         Print_Memory_Region_Type :
+            begin
+               case Curr_Region.all.Memory_Type is
+                  when 1 =>
+                     x86.Serial.Put_String (x86.Serial.COM1,
+                       "Free RAM" & ASCII.LF);
+                  when 3 =>
+                     x86.Serial.Put_String (x86.Serial.COM1,
+                       "ACPI" & ASCII.LF);
+                  when 4 =>
+                     x86.Serial.Put_String (x86.Serial.COM1,
+                       "Reserved for hibernation" & ASCII.LF);
+                  when 5 =>
+                     x86.Serial.Put_String (x86.Serial.COM1,
+                       "Defective" & ASCII.LF);
+                  when others =>
+                     x86.Serial.Put_String (x86.Serial.COM1,
+                       "Reserved" & ASCII.LF);
+               end case;
+            exception
+               when Constraint_Error =>
+                  return;
+            end Print_Memory_Region_Type;
+
          Increment_Pointer :
             begin
-               x86.Serial.Put_String (x86.Serial.COM1,
-                 "Parsing Mmap region" & ASCII.LF);
-
                --  The 'Size' value is not inclusive of the size variable
                --  itself. It refers to the size of the internal structure.
                Curr_Addr := To_Address (To_Integer (Curr_Addr) +

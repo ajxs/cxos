@@ -18,7 +18,7 @@ with x86.Interrupts;
 with x86.IRQ_Handlers;
 with x86.GDT;
 with x86.PIC;
-with x86.Memory;
+with x86.Memory.Paging;
 with x86.Memory.Map;
 with x86.PIT;
 with x86.Serial;
@@ -158,11 +158,11 @@ package body x86 is
 
       x86.Serial.Put_String (x86.Serial.COM1,
         "Initialising Kernel Memory Map" & ASCII.LF);
-      x86.Memory.Map_Kernel;
+      x86.Memory.Paging.Map_Kernel;
 
       x86.Serial.Put_String (x86.Serial.COM1,
         "Enabling Paging" & ASCII.LF);
-      x86.Memory.Enable_Paging;
+      x86.Memory.Paging.Enable_Paging;
       x86.Serial.Put_String (x86.Serial.COM1,
         "Paging Enabled" & ASCII.LF);
    end Initialise;

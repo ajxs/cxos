@@ -11,7 +11,7 @@
 
 with System.Storage_Elements;
 
-package body x86.Memory is
+package body x86.Memory.Paging is
    use System.Storage_Elements;
 
    ----------------------------------------------------------------------------
@@ -309,4 +309,4 @@ package body x86.Memory is
 
       return Success;
    end Map_Page_Frame;
-end x86.Memory;
+end x86.Memory.Paging;

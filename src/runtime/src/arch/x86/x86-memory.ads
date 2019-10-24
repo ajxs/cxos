@@ -134,7 +134,7 @@ private
       end record;
 
    ----------------------------------------------------------------------------
-   --  Check_Address_Aligned
+   --  Check_Address_Page_Aligned
    --
    --  Purpose:
    --    Checks whether a provided address is 4K aligned, as required by the
@@ -142,13 +142,13 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   function Check_Address_Aligned (
+   function Check_Address_Page_Aligned (
      Addr : System.Address
    ) return Boolean
    with Pure_Function;
 
    ----------------------------------------------------------------------------
-   --  Convert_To_Aligned_Address
+   --  Convert_To_Page_Aligned_Address
    --
    --  Purpose:
    --    This function converts a System Address to the 20bit 4kb page aligned
@@ -156,7 +156,7 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   function Convert_To_Aligned_Address (
+   function Convert_To_Page_Aligned_Address (
      Addr : System.Address
    ) return Page_Aligned_Address
    with Pure_Function;

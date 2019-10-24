@@ -29,23 +29,23 @@ package body x86.Memory is
    end Allocate_Page_Frame;
 
    ----------------------------------------------------------------------------
-   --  Check_Address_Aligned
+   --  Check_Address_Page_Aligned
    ----------------------------------------------------------------------------
-   function Check_Address_Aligned (
+   function Check_Address_Page_Aligned (
      Addr : System.Address
    ) return Boolean is
    begin
       return (To_Integer (Addr) and 16#FFF#) = 0;
-   end Check_Address_Aligned;
+   end Check_Address_Page_Aligned;
 
    ----------------------------------------------------------------------------
-   --  Convert_To_Aligned_Address
+   --  Convert_To_Page_Aligned_Address
    --
    --  Implementation Notes:
    --   - Converts the address to a 32 bit unsigned integer in order to
    --     properly truncate the value to the 4kb aligned 20-bit value.
    ----------------------------------------------------------------------------
-   function Convert_To_Aligned_Address (
+   function Convert_To_Page_Aligned_Address (
      Addr : System.Address
    ) return Page_Aligned_Address is
       Address_As_Unsigned : Unsigned_32;
@@ -58,7 +58,7 @@ package body x86.Memory is
    exception
       when Constraint_Error =>
          return 0;
-   end Convert_To_Aligned_Address;
+   end Convert_To_Page_Aligned_Address;
 
    ----------------------------------------------------------------------------
    --  Convert_To_System_Address
@@ -89,7 +89,7 @@ package body x86.Memory is
       --  Ensure that the provided address is 4K aligned.
       Check_Address :
          begin
-            if not Check_Address_Aligned (Addr) then
+            if not Check_Address_Page_Aligned (Addr) then
                return Invalid_Non_Aligned_Address;
             end if;
          exception
@@ -129,7 +129,7 @@ package body x86.Memory is
       --  Ensure that the provided address is 4K aligned.
       Check_Address :
          begin
-            if not Check_Address_Aligned (Addr) then
+            if not Check_Address_Page_Aligned (Addr) then
                return Invalid_Non_Aligned_Address;
             end if;
          exception
@@ -184,7 +184,7 @@ package body x86.Memory is
                   --  Shift the address right 12 bits to fit the
                   --  20bit format.
                   Table (Idx).Page_Address :=
-                    Convert_To_Aligned_Address (Current_Address);
+                    Convert_To_Page_Aligned_Address (Current_Address);
 
                   Current_Address := To_Address (
                     To_Integer (Current_Address) + 16#1000#);
@@ -216,7 +216,7 @@ package body x86.Memory is
                Page_Directory (Idx).G             := False;
 
                Page_Directory (Idx).Table_Address :=
-                 Convert_To_Aligned_Address (Page_Tables (Idx)'Address);
+                 Convert_To_Page_Aligned_Address (Page_Tables (Idx)'Address);
             end loop;
 
             for Idx in Natural range 0 .. 31 loop
@@ -247,8 +247,8 @@ package body x86.Memory is
       --  Ensure that the provided addresses are 4K aligned.
       Check_Address :
          begin
-            if (not Check_Address_Aligned (Physical_Address)) or
-              (not Check_Address_Aligned (Virtual_Address))
+            if (not Check_Address_Page_Aligned (Physical_Address)) or
+              (not Check_Address_Page_Aligned (Virtual_Address))
             then
                return Invalid_Non_Aligned_Address;
             end if;
@@ -299,7 +299,7 @@ package body x86.Memory is
               Convention => Ada,
               Address    => Table_Addr;
          begin
-            Page_Addr := Convert_To_Aligned_Address (Physical_Address);
+            Page_Addr := Convert_To_Page_Aligned_Address (Physical_Address);
 
             Table (Table_Idx).Page_Address := Page_Addr;
          exception

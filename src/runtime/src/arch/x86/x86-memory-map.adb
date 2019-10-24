@@ -19,23 +19,23 @@ package body x86.Memory.Map is
    ----------------------------------------------------------------------------
    function Allocate_Frame (
      Addr : out System.Address
-   ) return Memory_Map_Process_Result is
-      Process_Result : Memory_Map_Process_Result;
-      Index          : Natural;
+   ) return Process_Result is
+      Result : Process_Result;
+      Index  : Natural;
    begin
-      Process_Result := Find_Free_Frame (Index);
-      if Process_Result /= Success then
-         return Process_Result;
+      Result := Find_Free_Frame (Index);
+      if Result /= Success then
+         return Result;
       end if;
 
-      Process_Result := Get_Frame_Address (Index, Addr);
-      if Process_Result /= Success then
-         return Process_Result;
+      Result := Get_Frame_Address (Index, Addr);
+      if Result /= Success then
+         return Result;
       end if;
 
-      Process_Result := Set_Frame_State (Index, False);
-      if Process_Result /= Success then
-         return Process_Result;
+      Result := Set_Frame_State (Index, False);
+      if Result /= Success then
+         return Result;
       end if;
 
       return Success;
@@ -49,14 +49,14 @@ package body x86.Memory.Map is
    ----------------------------------------------------------------------------
    function Find_Free_Frame (
      Index : out Natural
-   ) return Memory_Map_Process_Result is
+   ) return Process_Result is
    begin
       --  Loop through each frame in the map until we find one that
       --  is unallocated.
       for Current_Index in Memory_Map'Range loop
          Check_Frame :
             begin
-               if not Memory_Map (Current_Index) then
+               if Memory_Map (Current_Index) then
                   Index := Current_Index;
 
                   return Success;
@@ -77,14 +77,14 @@ package body x86.Memory.Map is
    function Get_Frame_Address (
      Index : Natural;
      Addr  : out System.Address
-   ) return Memory_Map_Process_Result is
+   ) return Process_Result is
    begin
       Addr := To_Address (Integer_Address (Index * 16#1000#));
 
       return Success;
    exception
       when Constraint_Error =>
-         return Invalid_Address_Argument;
+         return Invalid_Index_Argument;
    end Get_Frame_Address;
 
    ----------------------------------------------------------------------------
@@ -93,7 +93,7 @@ package body x86.Memory.Map is
    function Get_Frame_Index (
      Addr  : System.Address;
      Index : out Natural
-   ) return Memory_Map_Process_Result is
+   ) return Process_Result is
    begin
       Index := Natural (To_Integer (Addr) / 16#1000#);
 
@@ -123,15 +123,15 @@ package body x86.Memory.Map is
    function Set_Frame_State (
      Addr  : System.Address;
      State : Boolean
-   ) return Memory_Map_Process_Result is
-      Map_Idx        : Natural;
-      Process_Result : Memory_Map_Process_Result;
+   ) return Process_Result is
+      Map_Idx : Natural;
+      Result  : Process_Result;
    begin
       Get_Address_Map_Index :
          begin
-            Process_Result := Get_Frame_Index (Addr, Map_Idx);
-            if Process_Result /= Success then
-               return Process_Result;
+            Result := Get_Frame_Index (Addr, Map_Idx);
+            if Result /= Success then
+               return Result;
             end if;
          exception
             when Constraint_Error =>
@@ -155,14 +155,14 @@ package body x86.Memory.Map is
    function Set_Frame_State (
      Index : Natural;
      State : Boolean
-   ) return Memory_Map_Process_Result is
+   ) return Process_Result is
    begin
       Memory_Map (Index) := Memory_Map_Frame_State (State);
 
       return Success;
    exception
       when Constraint_Error =>
-         return Invalid_Address_Argument;
+         return Invalid_Index_Argument;
    end Set_Frame_State;
 
 end x86.Memory.Map;

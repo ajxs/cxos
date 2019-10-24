@@ -291,8 +291,11 @@ package body x86 is
       package Mmap_Region_Ptr is new
         System.Address_To_Access_Conversions (Multiboot.Multiboot_Mmap_Region);
 
+      --  The total number of bytes read in the Multiboot mmap region.
       Bytes_Read  : Unsigned_32    := 0;
+      --  The address of the current mmap region structure.
       Curr_Addr   : System.Address := Memory_Map_Addr;
+      --  A pointer to the current mmap region structure.
       Curr_Region : Mmap_Region_Ptr.Object_Pointer :=
         Mmap_Region_Ptr.To_Pointer (Curr_Addr);
    begin
@@ -300,13 +303,13 @@ package body x86 is
          --  Reset the current region pointer.
          Curr_Region := Mmap_Region_Ptr.To_Pointer (Curr_Addr);
 
-         x86.Serial.Put_String (x86.Serial.COM1,
-           "Parsing Mmap region" & ASCII.LF);
-
-         x86.Serial.Put_String (x86.Serial.COM1, "Memory Type: ");
-
-         Print_Memory_Region_Type :
+         --  Print information about the current mmap region.
+         Print_Memory_Region_Info :
             begin
+               x86.Serial.Put_String (x86.Serial.COM1,
+                 "Parsing Mmap region" & ASCII.LF);
+               x86.Serial.Put_String (x86.Serial.COM1, "  Memory Type: ");
+
                case Curr_Region.all.Memory_Type is
                   when 1 =>
                      x86.Serial.Put_String (x86.Serial.COM1,
@@ -324,11 +327,67 @@ package body x86 is
                      x86.Serial.Put_String (x86.Serial.COM1,
                        "Reserved" & ASCII.LF);
                end case;
+
+               x86.Serial.Put_String (x86.Serial.COM1,
+                 "  Base: __" & ASCII.LF);
+               x86.Serial.Put_String (x86.Serial.COM1,
+                 "  Limit: __" & ASCII.LF);
             exception
                when Constraint_Error =>
                   return;
-            end Print_Memory_Region_Type;
+            end Print_Memory_Region_Info;
 
+         --  Mark free memory in the kernel memory map.
+         Mark_Free_Memory :
+            declare
+               use x86.Memory.Map;
+
+               --  The number of page frames contained within this memory
+               --  region. Each frame within the region will have its status
+               --  marked accordingly in the memory map.
+               Frame_Count      : Unsigned_64;
+               --  The current memory frame having its status set.
+               Curr_Frame       : Unsigned_64;
+               --  The page aligned address of the current memory frame.
+               Curr_Frame_Addr  : Unsigned_64;
+               --  The result of the frame status set process.
+               Set_Frame_Result : x86.Memory.Map.Process_Result;
+            begin
+               Curr_Frame      := 0;
+               Curr_Frame_Addr := Curr_Region.all.Base and 16#FFFFF000#;
+               Frame_Count     := Curr_Region.all.Length / 16#1000#;
+
+               Set_Region :
+                  while Curr_Frame < Frame_Count loop
+                     --  If the memory region is marked as free, set the status
+                     --  accordingly in the memory map.
+                     case Curr_Region.all.Memory_Type is
+                        when 1 =>
+                           Set_Frame_Result := Set_Frame_State (
+                             To_Address (Integer_Address (Curr_Frame_Addr)),
+                             True);
+                           if Set_Frame_Result /= Success then
+                              x86.Serial.Put_String (x86.Serial.COM1,
+                                "Error setting frame status" & ASCII.LF);
+                              return;
+                           end if;
+                        when others =>
+                           null;
+                     end case;
+
+                     --  Increment current frame and current frame address.
+                     Curr_Frame      := Curr_Frame + 1;
+                     Curr_Frame_Addr := Curr_Frame_Addr + 16#1000#;
+                  end loop Set_Region;
+            exception
+               when Constraint_Error =>
+                  x86.Serial.Put_String (x86.Serial.COM1,
+                    "Error marking free memory" & ASCII.LF);
+                  return;
+            end Mark_Free_Memory;
+
+         --  Increment the Curr_Region pointer to point to the next mmap
+         --  structure in the sequence.
          Increment_Pointer :
             begin
                --  The 'Size' value is not inclusive of the size variable

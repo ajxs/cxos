@@ -19,14 +19,24 @@
 package x86.Memory.Map is
    pragma Preelaborate (x86.Memory.Map);
 
-   type Memory_Map_Process_Result is private;
+   ----------------------------------------------------------------------------
+   --  Memory Map Process Result
+   --  Used for storing and returning the result of an internal memory map
+   --  procedure.
+   ----------------------------------------------------------------------------
+   type Process_Result is (
+     Invalid_Address_Argument,
+     Invalid_Index_Argument,
+     No_Free_Frames,
+     Success
+   );
 
    ----------------------------------------------------------------------------
    --  Initialise
    --
    --  Purpose:
    --    This procedure initialises the system memory map.
-   --    Every page frame is initialised as being non-allocated.
+   --    Every page frame is initialised as being allocated and non-free.
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
@@ -42,32 +52,8 @@ package x86.Memory.Map is
    ----------------------------------------------------------------------------
    function Allocate_Frame (
      Addr : out System.Address
-   ) return Memory_Map_Process_Result
+   ) return Process_Result
    with Volatile_Function;
-
-private
-   ----------------------------------------------------------------------------
-   --  Memory Map Process Result
-   --  Used for storing and returning the result of an internal memory map
-   --  procedure.
-   ----------------------------------------------------------------------------
-   type Memory_Map_Process_Result is (
-     Invalid_Address_Argument,
-     No_Free_Frames,
-     Success
-   );
-
-   ----------------------------------------------------------------------------
-   --  Find_Free_Frame
-   --
-   --  Purpose:
-   --    This function returns the index of the first free frame.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   function Find_Free_Frame (
-     Index : out Natural
-   ) return Memory_Map_Process_Result;
 
    ----------------------------------------------------------------------------
    --  Set_Frame_State
@@ -81,7 +67,20 @@ private
    function Set_Frame_State (
      Addr  : System.Address;
      State : Boolean
-   ) return Memory_Map_Process_Result;
+   ) return Process_Result;
+
+private
+   ----------------------------------------------------------------------------
+   --  Find_Free_Frame
+   --
+   --  Purpose:
+   --    This function returns the index of the first free frame.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   function Find_Free_Frame (
+     Index : out Natural
+   ) return Process_Result;
 
    ----------------------------------------------------------------------------
    --  Set_Frame_State
@@ -95,7 +94,7 @@ private
    function Set_Frame_State (
      Index : Natural;
      State : Boolean
-   ) return Memory_Map_Process_Result;
+   ) return Process_Result;
 
    ----------------------------------------------------------------------------
    --  Get_Frame_Address
@@ -109,7 +108,7 @@ private
    function Get_Frame_Address (
      Index : Natural;
      Addr  : out System.Address
-   ) return Memory_Map_Process_Result
+   ) return Process_Result
    with Pure_Function;
 
    ----------------------------------------------------------------------------
@@ -124,7 +123,7 @@ private
    function Get_Frame_Index (
      Addr  : System.Address;
      Index : out Natural
-   ) return Memory_Map_Process_Result
+   ) return Process_Result
    with Pure_Function;
 
    ----------------------------------------------------------------------------

@@ -9,8 +9,9 @@ file src/kernel/build/cxos.elf -readnow
  #> x /1xw curr_section_ptr
 
 # b __paging_load
-b x86.adb:344
-b x86-memory-map.adb:123
+# b x86.adb:344
+# b x86-memory-map.adb:123
+b x86.adb:323
 c
 
 # print_mmap_region

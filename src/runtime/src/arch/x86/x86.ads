@@ -76,6 +76,17 @@ private
      External_Name => "__gnat_last_chance_handler";
 
    ----------------------------------------------------------------------------
+   --  Mark_Kernel_Memory
+   --
+   --  Purpose:
+   --    This procedure marks the memory used by the kernel as being allocated
+   --    and non-free in the memory map.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   procedure Mark_Kernel_Memory;
+
+   ----------------------------------------------------------------------------
    --  Parse_Multiboot_Memory_Map
    --
    --  Purpose:

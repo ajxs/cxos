@@ -14,8 +14,8 @@ SECTIONS {
   . = 1M;
 
   .text BLOCK(4K) : ALIGN(4K) {
-    *(.multiboot)
     kernel_start = .;
+    *(.multiboot)
     *(.text)
     kernel_end = .;
   }

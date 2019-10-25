@@ -81,6 +81,7 @@ private
    --  Purpose:
    --    This procedure marks the memory used by the kernel as being allocated
    --    and non-free in the memory map.
+   --    This also marks all memory below 1M as being occupied.
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------

@@ -284,7 +284,7 @@ package body x86 is
    end Last_Chance_Handler;
 
    ----------------------------------------------------------------------------
-   --  Mark_Free_Memory
+   --  Mark_Kernel_Memory
    ----------------------------------------------------------------------------
    procedure Mark_Kernel_Memory is
       use x86.Memory.Map;
@@ -294,28 +294,29 @@ package body x86 is
       --  The number of page frames contained within the relevant
       --  region. Each frame will be marked as used.
       Frame_Count      : Unsigned_32;
-      --  The current memory frame having its status set.
-      Curr_Frame       : Unsigned_32;
       --  The page aligned address of the current memory frame.
       Curr_Frame_Addr  : Unsigned_32;
       --  The result of the frame status set process.
       Set_Frame_Result : x86.Memory.Map.Process_Result;
    begin
+      --  Mark all memory below 1M as being used.
       Mark_Low_Memory :
          begin
-            Curr_Frame      := 0;
             Curr_Frame_Addr := 0;
             Frame_Count     := 256;
 
-            while Curr_Frame < Frame_Count loop
+            for I in 0 .. Frame_Count loop
                Set_Frame_Result := Set_Frame_State (
                  To_Address (Integer_Address (Curr_Frame_Addr)), False);
 
-               Curr_Frame      := Curr_Frame + 1;
                Curr_Frame_Addr := Curr_Frame_Addr + 16#1000#;
             end loop;
+         exception
+            when Constraint_Error =>
+               return;
          end Mark_Low_Memory;
 
+      --  Mark the kernel code segment memory as being used.
       Mark_Kernel_Region :
          declare
             --  The start of the kernel code segment.
@@ -334,14 +335,13 @@ package body x86 is
               To_Integer (Kernel_End'Address) -
               To_Integer (Kernel_Start'Address));
 
-            Curr_Frame      := 0;
             Frame_Count     := 1 + (Kernel_Length / 16#1000#);
             --  Set the initial frame to be the 4kb page aligned kernel_start
             --  address.
             Curr_Frame_Addr :=
               Unsigned_32 (To_Integer (Kernel_Start'Address)) and 16#FFFFF000#;
 
-            while Curr_Frame < Frame_Count loop
+            for I in 0 .. Frame_Count loop
                Set_Frame_Result := Set_Frame_State (
                  To_Address (Integer_Address (Curr_Frame_Addr)), False);
                if Set_Frame_Result /= Success then
@@ -349,13 +349,12 @@ package body x86 is
                     "Error setting frame status" & ASCII.LF);
                end if;
 
-               Curr_Frame      := Curr_Frame + 1;
                Curr_Frame_Addr := Curr_Frame_Addr + 16#1000#;
             end loop;
+         exception
+            when Constraint_Error =>
+               return;
          end Mark_Kernel_Region;
-   exception
-      when Constraint_Error =>
-         return;
    end Mark_Kernel_Memory;
 
    ----------------------------------------------------------------------------
@@ -423,19 +422,16 @@ package body x86 is
                --  region. Each frame within the region will have its status
                --  marked accordingly in the memory map.
                Frame_Count      : Unsigned_64;
-               --  The current memory frame having its status set.
-               Curr_Frame       : Unsigned_64;
                --  The page aligned address of the current memory frame.
                Curr_Frame_Addr  : Unsigned_64;
                --  The result of the frame status set process.
                Set_Frame_Result : x86.Memory.Map.Process_Result;
             begin
-               Curr_Frame      := 0;
                Curr_Frame_Addr := Curr_Region.all.Base and 16#FFFFF000#;
                Frame_Count     := Curr_Region.all.Length / 16#1000#;
 
                Set_Region :
-                  while Curr_Frame < Frame_Count loop
+                  for I in 0 .. Frame_Count loop
                      --  If the memory region is marked as free, set the status
                      --  accordingly in the memory map.
                      case Curr_Region.all.Memory_Type is
@@ -452,8 +448,7 @@ package body x86 is
                            null;
                      end case;
 
-                     --  Increment current frame and current frame address.
-                     Curr_Frame      := Curr_Frame + 1;
+                     --  Increment current frame address.
                      Curr_Frame_Addr := Curr_Frame_Addr + 16#1000#;
                   end loop Set_Region;
             exception

@@ -76,12 +76,22 @@ private
      External_Name => "__gnat_last_chance_handler";
 
    ----------------------------------------------------------------------------
+   --  Mark_Low_Memory
+   --
+   --  Purpose:
+   --    This procedure marks all memory below 1M as being non-free in the
+   --    kernel memory map.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   procedure Mark_Low_Memory;
+
+   ----------------------------------------------------------------------------
    --  Mark_Kernel_Memory
    --
    --  Purpose:
    --    This procedure marks the memory used by the kernel as being allocated
    --    and non-free in the memory map.
-   --    This also marks all memory below 1M as being occupied.
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------

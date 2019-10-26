@@ -145,6 +145,9 @@ package body x86 is
                  Boot_Info.Mmap_Length);
             end if;
 
+            --  Mark memory below 1MB as used.
+            Mark_Low_Memory;
+            --  Mark kernel code segment as being used.
             Mark_Kernel_Memory;
          exception
             when Constraint_Error =>
@@ -289,7 +292,7 @@ package body x86 is
    procedure Mark_Kernel_Memory is
       use x86.Memory.Map;
 
-      --  The length in bytes of the kernel.
+      --  The length of the kernel code segment in bytes.
       Kernel_Length    : Unsigned_32;
       --  The number of page frames contained within the relevant
       --  region. Each frame will be marked as used.
@@ -298,64 +301,71 @@ package body x86 is
       Curr_Frame_Addr  : Unsigned_32;
       --  The result of the frame status set process.
       Set_Frame_Result : x86.Memory.Map.Process_Result;
+
+      --  The start of the kernel code segment.
+      Kernel_Start     : constant Unsigned_32
+      with Import,
+        Convention    => Assembler,
+        External_Name => "kernel_start";
+
+      --  The end of the kernel code segment.
+      Kernel_End       : constant Unsigned_32
+      with Import,
+        Convention    => Assembler,
+        External_Name => "kernel_end";
    begin
-      --  Mark all memory below 1M as being used.
-      Mark_Low_Memory :
-         begin
-            Curr_Frame_Addr := 0;
-            Frame_Count     := 256;
+      Kernel_Length   := Unsigned_32 (
+        To_Integer (Kernel_End'Address) -
+        To_Integer (Kernel_Start'Address));
 
-            for I in 0 .. Frame_Count loop
-               Set_Frame_Result := Set_Frame_State (
-                 To_Address (Integer_Address (Curr_Frame_Addr)), False);
+      Frame_Count     := 1 + (Kernel_Length / 16#1000#);
+      --  Set the initial frame to be the 4kb page aligned kernel_start
+      --  address.
+      Curr_Frame_Addr :=
+        Unsigned_32 (To_Integer (Kernel_Start'Address)) and 16#FFFFF000#;
 
-               Curr_Frame_Addr := Curr_Frame_Addr + 16#1000#;
-            end loop;
-         exception
-            when Constraint_Error =>
-               return;
-         end Mark_Low_Memory;
+      for I in 0 .. Frame_Count loop
+         Set_Frame_Result := Set_Frame_State (
+           To_Address (Integer_Address (Curr_Frame_Addr)), False);
 
-      --  Mark the kernel code segment memory as being used.
-      Mark_Kernel_Region :
-         declare
-            --  The start of the kernel code segment.
-            Kernel_Start : Unsigned_32
-            with Import,
-              Convention    => Assembler,
-              External_Name => "kernel_start";
+         if Set_Frame_Result /= Success then
+            x86.Serial.Put_String (x86.Serial.COM1,
+              "Error setting frame status" & ASCII.LF);
+         end if;
 
-            --  The end of the kernel code segment.
-            Kernel_End : Unsigned_32
-            with Import,
-              Convention    => Assembler,
-              External_Name => "kernel_end";
-         begin
-            Kernel_Length := Unsigned_32 (
-              To_Integer (Kernel_End'Address) -
-              To_Integer (Kernel_Start'Address));
-
-            Frame_Count     := 1 + (Kernel_Length / 16#1000#);
-            --  Set the initial frame to be the 4kb page aligned kernel_start
-            --  address.
-            Curr_Frame_Addr :=
-              Unsigned_32 (To_Integer (Kernel_Start'Address)) and 16#FFFFF000#;
-
-            for I in 0 .. Frame_Count loop
-               Set_Frame_Result := Set_Frame_State (
-                 To_Address (Integer_Address (Curr_Frame_Addr)), False);
-               if Set_Frame_Result /= Success then
-                  x86.Serial.Put_String (x86.Serial.COM1,
-                    "Error setting frame status" & ASCII.LF);
-               end if;
-
-               Curr_Frame_Addr := Curr_Frame_Addr + 16#1000#;
-            end loop;
-         exception
-            when Constraint_Error =>
-               return;
-         end Mark_Kernel_Region;
+         Curr_Frame_Addr := Curr_Frame_Addr + 16#1000#;
+      end loop;
+   exception
+      when Constraint_Error =>
+         return;
    end Mark_Kernel_Memory;
+
+   ----------------------------------------------------------------------------
+   --  Mark_Low_Memory
+   ----------------------------------------------------------------------------
+   procedure Mark_Low_Memory is
+      use x86.Memory.Map;
+
+      --  The page aligned address of the current memory frame.
+      Curr_Frame_Addr  : Unsigned_32 := 0;
+      --  The result of the frame status set process.
+      Set_Frame_Result : x86.Memory.Map.Process_Result;
+   begin
+      for I in 0 .. 256 loop
+         Set_Frame_Result := Set_Frame_State (
+           To_Address (Integer_Address (Curr_Frame_Addr)), False);
+
+         if Set_Frame_Result /= Success then
+            x86.Serial.Put_String (x86.Serial.COM1,
+              "Error setting frame status" & ASCII.LF);
+         end if;
+
+         Curr_Frame_Addr := Curr_Frame_Addr + 16#1000#;
+      end loop;
+   exception
+      when Constraint_Error =>
+         return;
+   end Mark_Low_Memory;
 
    ----------------------------------------------------------------------------
    --  Parse_Multiboot_Memory_Map

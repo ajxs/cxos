@@ -118,6 +118,47 @@ package body x86.Memory.Map is
    end Initialise;
 
    ----------------------------------------------------------------------------
+   --  Mark_Memory_Range
+   ----------------------------------------------------------------------------
+   function Mark_Memory_Range (
+     Base   : System.Address;
+     Length : Unsigned_32;
+     Status : Boolean
+   ) return Process_Result is
+      --  The page aligned address of the current memory frame.
+      Curr_Frame_Addr  : Unsigned_32;
+      --  The number of frames within this memory region.
+      Frame_Count      : Unsigned_32;
+      --  The result of the frame status set process.
+      Set_Frame_Result : Process_Result;
+   begin
+      --  Calculate the amount of frames within this memory range.
+      Frame_Count := 1 + (Length / 16#1000#);
+
+      --  Set the initial frame address to a page aligned base address.
+      Curr_Frame_Addr :=
+        Unsigned_32 (To_Integer (Base)) and 16#FFFFF000#;
+
+      --  Iterate over each frame in this range, setting its individual status.
+      for I in 0 .. Frame_Count loop
+         Set_Frame_Result := Set_Frame_State (
+           To_Address (Integer_Address (Curr_Frame_Addr)), Status);
+
+         if Set_Frame_Result /= Success then
+            return Set_Frame_Result;
+         end if;
+
+         --  Increment the current frame address by the size of a single frame.
+         Curr_Frame_Addr := Curr_Frame_Addr + 16#1000#;
+      end loop;
+
+      return Success;
+   exception
+      when Constraint_Error =>
+         return Invalid_Address_Argument;
+   end Mark_Memory_Range;
+
+   ----------------------------------------------------------------------------
    --  Set_Frame_State
    ----------------------------------------------------------------------------
    function Set_Frame_State (

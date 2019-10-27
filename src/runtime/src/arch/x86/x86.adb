@@ -294,20 +294,13 @@ package body x86 is
 
       --  The length of the kernel code segment in bytes.
       Kernel_Length    : Unsigned_32;
-      --  The number of page frames contained within the relevant
-      --  region. Each frame will be marked as used.
-      Frame_Count      : Unsigned_32;
-      --  The page aligned address of the current memory frame.
-      Curr_Frame_Addr  : Unsigned_32;
       --  The result of the frame status set process.
-      Set_Frame_Result : x86.Memory.Map.Process_Result;
-
+      Result : x86.Memory.Map.Process_Result;
       --  The start of the kernel code segment.
       Kernel_Start     : constant Unsigned_32
       with Import,
         Convention    => Assembler,
         External_Name => "kernel_start";
-
       --  The end of the kernel code segment.
       Kernel_End       : constant Unsigned_32
       with Import,
@@ -318,23 +311,14 @@ package body x86 is
         To_Integer (Kernel_End'Address) -
         To_Integer (Kernel_Start'Address));
 
-      Frame_Count     := 1 + (Kernel_Length / 16#1000#);
-      --  Set the initial frame to be the 4kb page aligned kernel_start
-      --  address.
-      Curr_Frame_Addr :=
-        Unsigned_32 (To_Integer (Kernel_Start'Address)) and 16#FFFFF000#;
+      Result := x86.Memory.Map.Mark_Memory_Range (
+        Kernel_Start'Address, Kernel_Length, False);
 
-      for I in 0 .. Frame_Count loop
-         Set_Frame_Result := Set_Frame_State (
-           To_Address (Integer_Address (Curr_Frame_Addr)), False);
+      if Result /= Success then
+         x86.Serial.Put_String (x86.Serial.COM1,
+           "Error marking kernel code segment" & ASCII.LF);
+      end if;
 
-         if Set_Frame_Result /= Success then
-            x86.Serial.Put_String (x86.Serial.COM1,
-              "Error setting frame status" & ASCII.LF);
-         end if;
-
-         Curr_Frame_Addr := Curr_Frame_Addr + 16#1000#;
-      end loop;
    exception
       when Constraint_Error =>
          return;
@@ -346,22 +330,17 @@ package body x86 is
    procedure Mark_Low_Memory is
       use x86.Memory.Map;
 
-      --  The page aligned address of the current memory frame.
-      Curr_Frame_Addr  : Unsigned_32 := 0;
-      --  The result of the frame status set process.
-      Set_Frame_Result : x86.Memory.Map.Process_Result;
+      --  The result of the process.
+      Result : x86.Memory.Map.Process_Result;
    begin
-      for I in 0 .. 256 loop
-         Set_Frame_Result := Set_Frame_State (
-           To_Address (Integer_Address (Curr_Frame_Addr)), False);
+      Result := x86.Memory.Map.Mark_Memory_Range (To_Address (0),
+        16#100000#, False);
 
-         if Set_Frame_Result /= Success then
-            x86.Serial.Put_String (x86.Serial.COM1,
-              "Error setting frame status" & ASCII.LF);
-         end if;
-
-         Curr_Frame_Addr := Curr_Frame_Addr + 16#1000#;
-      end loop;
+      if Result /= Success then
+         x86.Serial.Put_String (x86.Serial.COM1,
+           "Error setting memory range" & ASCII.LF);
+         return;
+      end if;
    exception
       when Constraint_Error =>
          return;
@@ -394,7 +373,7 @@ package body x86 is
             begin
                x86.Serial.Put_String (x86.Serial.COM1,
                  "Parsing Mmap region" & ASCII.LF);
-               x86.Serial.Put_String (x86.Serial.COM1, "  Memory Type: ");
+               x86.Serial.Put_String (x86.Serial.COM1, "  Type:  ");
 
                case Curr_Region.all.Memory_Type is
                   when 1 =>
@@ -415,7 +394,7 @@ package body x86 is
                end case;
 
                x86.Serial.Put_String (x86.Serial.COM1,
-                 "  Base: __" & ASCII.LF);
+                 "  Base:  __" & ASCII.LF);
                x86.Serial.Put_String (x86.Serial.COM1,
                  "  Limit: __" & ASCII.LF);
             exception
@@ -428,48 +407,30 @@ package body x86 is
             declare
                use x86.Memory.Map;
 
-               --  The number of page frames contained within this memory
-               --  region. Each frame within the region will have its status
-               --  marked accordingly in the memory map.
-               Frame_Count      : Unsigned_64;
-               --  The page aligned address of the current memory frame.
-               Curr_Frame_Addr  : Unsigned_64;
                --  The result of the frame status set process.
-               Set_Frame_Result : x86.Memory.Map.Process_Result;
+               Result : x86.Memory.Map.Process_Result;
             begin
-               Curr_Frame_Addr := Curr_Region.all.Base and 16#FFFFF000#;
-               Frame_Count     := Curr_Region.all.Length / 16#1000#;
-
-               Set_Region :
-                  for I in 0 .. Frame_Count loop
-                     --  If the memory region is marked as free, set the status
-                     --  accordingly in the memory map.
-                     case Curr_Region.all.Memory_Type is
-                        when 1 =>
-                           Set_Frame_Result := Set_Frame_State (
-                             To_Address (Integer_Address (Curr_Frame_Addr)),
-                             True);
-                           if Set_Frame_Result /= Success then
-                              x86.Serial.Put_String (x86.Serial.COM1,
-                                "Error setting frame status" & ASCII.LF);
-                              return;
-                           end if;
-                        when others =>
-                           null;
-                     end case;
-
-                     --  Increment current frame address.
-                     Curr_Frame_Addr := Curr_Frame_Addr + 16#1000#;
-                  end loop Set_Region;
+               --  If the memory region is marked as free, set the status
+               --  accordingly in the memory map.
+               case Curr_Region.all.Memory_Type is
+                  when 1 =>
+                     Result := x86.Memory.Map.Mark_Memory_Range (
+                       To_Address (Integer_Address (Curr_Region.all.Base)),
+                       Unsigned_32 (Curr_Region.all.Length), True);
+                     if Result /= Success then
+                        x86.Serial.Put_String (x86.Serial.COM1,
+                          "Error setting frame status" & ASCII.LF);
+                        return;
+                     end if;
+                  when others =>
+                     null;
+               end case;
             exception
                when Constraint_Error =>
                   x86.Serial.Put_String (x86.Serial.COM1,
                     "Error marking free memory" & ASCII.LF);
                   return;
             end Mark_Free_Memory;
-
-         --  Increment the Curr_Region pointer to point to the next mmap
-         --  structure in the sequence.
          Increment_Pointer :
             begin
                --  The 'Size' value is not inclusive of the size variable

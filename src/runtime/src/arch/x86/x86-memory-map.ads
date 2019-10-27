@@ -56,17 +56,17 @@ package x86.Memory.Map is
    with Volatile_Function;
 
    ----------------------------------------------------------------------------
-   --  Set_Frame_State
+   --  Mark_Memory_Range
    --
    --  Purpose:
-   --    This procedure sets the status of a memory frame at a particular
-   --    address.
+   --    This function marks a memory range as being either allocated or free.
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   function Set_Frame_State (
-     Addr  : System.Address;
-     State : Boolean
+   function Mark_Memory_Range (
+     Base   : System.Address;
+     Length : Unsigned_32;
+     Status : Boolean
    ) return Process_Result;
 
 private
@@ -80,6 +80,20 @@ private
    ----------------------------------------------------------------------------
    function Find_Free_Frame (
      Index : out Natural
+   ) return Process_Result;
+
+   ----------------------------------------------------------------------------
+   --  Set_Frame_State
+   --
+   --  Purpose:
+   --    This procedure sets the status of a memory frame at a particular
+   --    address.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   function Set_Frame_State (
+     Addr  : System.Address;
+     State : Boolean
    ) return Process_Result;
 
    ----------------------------------------------------------------------------

@@ -10,6 +10,7 @@
 -------------------------------------------------------------------------------
 
 with System.Storage_Elements;
+with x86.Memory.Map;
 
 package body x86.Memory.Paging is
    use System.Storage_Elements;
@@ -20,7 +21,7 @@ package body x86.Memory.Paging is
    function Allocate_Page_Frame (
      Virtual_Address : System.Address;
      Frame_Address   : out Page_Aligned_Address
-   ) return Paging_Process_Result is
+   ) return Process_Result is
    begin
       pragma Unreferenced (Virtual_Address);
       pragma Unreferenced (Frame_Address);
@@ -83,7 +84,7 @@ package body x86.Memory.Paging is
    function Get_Page_Directory_Index (
      Addr  : System.Address;
      Index : out Natural
-   ) return Paging_Process_Result is
+   ) return Process_Result is
       Addr_As_Uint : Unsigned_32;
    begin
       --  Ensure that the provided address is 4K aligned.
@@ -123,7 +124,7 @@ package body x86.Memory.Paging is
    function Get_Page_Table_Index (
      Addr  : System.Address;
      Index : out Natural
-   ) return Paging_Process_Result is
+   ) return Process_Result is
       Addr_As_Uint : Unsigned_32;
    begin
       --  Ensure that the provided address is 4K aligned.
@@ -157,7 +158,90 @@ package body x86.Memory.Paging is
    end Get_Page_Table_Index;
 
    ----------------------------------------------------------------------------
-   --  Initialise
+   --  Initialise_Kernel_Page_Directory
+   ----------------------------------------------------------------------------
+   procedure Initialise_Kernel_Page_Directory is
+      use x86.Memory.Map;
+
+      --  The address of the kernel page directory.
+      --  This address will be fetched by allocating a free page frame.
+      Kernel_Page_Directory_Addr : System.Address;
+      --  The result of the frame allocation operation.
+      Result                     : x86.Memory.Map.Process_Result;
+   begin
+      --  Allocate the Kernel page directory frame.
+      Result := x86.Memory.Map.Allocate_Frame (Kernel_Page_Directory_Addr);
+      if Result /= Success then
+         return;
+      end if;
+
+      --  Create a pointer to the newly allocated page directory.
+      Kernel_Page_Directory_Ptr := Page_Directory_Access_Conversion
+        .To_Pointer (Kernel_Page_Directory_Addr);
+      --  Initialise the kernel page directory.
+      Initialise_Page_Directory_Access (Kernel_Page_Directory_Ptr);
+
+   exception
+      when Constraint_Error =>
+         return;
+   end Initialise_Kernel_Page_Directory;
+
+   ----------------------------------------------------------------------------
+   --  Initialise_Page_Directory_Access
+   ----------------------------------------------------------------------------
+   procedure Initialise_Page_Directory_Access (
+     Page_Dir : Page_Directory_Access
+   ) is
+   begin
+      --  Iterate over all 1024 directory entries.
+      for Idx in 0 .. 1023 loop
+         --  Initialise the individual entry.
+         Initialise_Entry :
+            begin
+               Page_Dir.all (Idx).Present    := False;
+               Page_Dir.all (Idx).Read_Write := True;
+               Page_Dir.all (Idx).U_S        := False;
+               Page_Dir.all (Idx).PWT        := False;
+               Page_Dir.all (Idx).PCD        := False;
+               Page_Dir.all (Idx).A          := False;
+               Page_Dir.all (Idx).PS         := False;
+               Page_Dir.all (Idx).G          := False;
+            exception
+               when Constraint_Error =>
+                  return;
+            end Initialise_Entry;
+      end loop;
+   end Initialise_Page_Directory_Access;
+
+   ----------------------------------------------------------------------------
+   --  Initialise_Page_Table
+   ----------------------------------------------------------------------------
+   function Initialise_Page_Table (
+     Table : in out Page_Table
+   ) return Process_Result is
+   begin
+      for Idx in 0 .. 1023 loop
+         Initialise_Entry :
+            begin
+               Table (Idx).Present      := False;
+               Table (Idx).Read_Write   := True;
+               Table (Idx).U_S          := False;
+               Table (Idx).PWT          := False;
+               Table (Idx).PCD          := False;
+               Table (Idx).A            := False;
+               Table (Idx).Page_Address :=
+                 Convert_To_Page_Aligned_Address (System.Null_Address);
+            exception
+               when Constraint_Error =>
+                  return Invalid_Value;
+            end Initialise_Entry;
+      end loop;
+
+      return Success;
+   end Initialise_Page_Table;
+
+   ----------------------------------------------------------------------------
+   --  Map_Kernel
    --
    --  Implementation Notes:
    --   - Initialises every page table as being non present and non writeable.
@@ -203,7 +287,7 @@ package body x86.Memory.Paging is
 
       --  Initialises all of the page directory entries.
       --  This correctly points each entry at the relevant page table.
-      Initialise_Page_Directory :
+      Init_Page_Directory :
          begin
             for Idx in Page_Directory'Range loop
                Page_Directory (Idx).Present       := False;
@@ -226,7 +310,7 @@ package body x86.Memory.Paging is
          exception
             when Constraint_Error =>
                return;
-         end Initialise_Page_Directory;
+         end Init_Page_Directory;
 
    end Map_Kernel;
 
@@ -234,13 +318,13 @@ package body x86.Memory.Paging is
    --  Map_Page_Frame
    ----------------------------------------------------------------------------
    function Map_Page_Frame (
-     Directory        : Page_Directory_Array;
+     Directory        : in out Page_Directory_Array;
      Physical_Address : System.Address;
      Virtual_Address  : System.Address
-   ) return Paging_Process_Result is
+   ) return Process_Result is
       Directory_Idx  : Natural;
       Table_Idx      : Natural;
-      Process_Result : Paging_Process_Result;
+      Result         : Process_Result;
       Table_Addr     : System.Address;
       Page_Addr      : Page_Aligned_Address;
    begin
@@ -260,16 +344,15 @@ package body x86.Memory.Paging is
       --  Get the indexes into the page directory and page table.
       Get_Indexes :
          begin
-            Process_Result := Get_Page_Directory_Index (Virtual_Address,
+            Result := Get_Page_Directory_Index (Virtual_Address,
               Directory_Idx);
-            if Process_Result /= Success then
-               return Process_Result;
+            if Result /= Success then
+               return Result;
             end if;
 
-            Process_Result := Get_Page_Table_Index (Virtual_Address,
-              Table_Idx);
-            if Process_Result /= Success then
-               return Process_Result;
+            Result := Get_Page_Table_Index (Virtual_Address, Table_Idx);
+            if Result /= Success then
+               return Result;
             end if;
          exception
             when Constraint_Error =>
@@ -277,12 +360,25 @@ package body x86.Memory.Paging is
          end Get_Indexes;
 
       --  Get the address of the page table.
-      --  If the relevant page table does not exist, the function is
-      --  aborted here with the appropriate return value.
       Get_Table_Address :
+         declare
+            use x86.Memory.Map;
+
+            Allocate_Result : x86.Memory.Map.Process_Result;
+            Allocated_Addr  : System.Address;
          begin
             if not Directory (Directory_Idx).Present then
-               return Table_Not_Allocated;
+               --  Allocate the Kernel page directory frame.
+               Allocate_Result := x86.Memory.Map
+                 .Allocate_Frame (Allocated_Addr);
+               if Allocate_Result /= Success then
+                  return Invalid_Value;
+               end if;
+
+               Directory (Directory_Idx).Table_Address :=
+                 Convert_To_Page_Aligned_Address (Allocated_Addr);
+
+               Directory (Directory_Idx).Present := True;
             end if;
 
             Table_Addr := Convert_To_System_Address (

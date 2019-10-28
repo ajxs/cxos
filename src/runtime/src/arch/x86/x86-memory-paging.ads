@@ -10,6 +10,7 @@
 -------------------------------------------------------------------------------
 
 with System;
+with System.Address_To_Access_Conversions;
 
 -------------------------------------------------------------------------------
 --  SYSTEM.X86.MEMORY.PAGING
@@ -20,6 +21,17 @@ with System;
 -------------------------------------------------------------------------------
 package x86.Memory.Paging is
    pragma Preelaborate (x86.Memory.Paging);
+
+   ----------------------------------------------------------------------------
+   --  Initialise_Kernel_Page_Directory
+   --
+   --  Purpose:
+   --    This procedure initialises the kernel's main page directory.
+   --    This populates the package-visible 'Kernel_Page_Directory' pointer.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   procedure Initialise_Kernel_Page_Directory;
 
    ----------------------------------------------------------------------------
    --  Map_Kernel
@@ -52,12 +64,13 @@ private
    --  Used for storing and returning the result of an internal paging
    --  procedure.
    ----------------------------------------------------------------------------
-   type Paging_Process_Result is (
+   type Process_Result is (
      Frame_Allocation_Error,
      Frame_Not_Allocated,
      Invalid_Argument,
      Invalid_Non_Aligned_Address,
      Invalid_Table_Index,
+     Invalid_Value,
      Success,
      Table_Not_Allocated
    );
@@ -187,7 +200,7 @@ private
    function Get_Page_Directory_Index (
      Addr  : System.Address;
      Index : out Natural
-   ) return Paging_Process_Result
+   ) return Process_Result
    with Pure_Function;
 
    ----------------------------------------------------------------------------
@@ -202,7 +215,7 @@ private
    function Get_Page_Table_Index (
      Addr  : System.Address;
      Index : out Natural
-   ) return Paging_Process_Result
+   ) return Process_Result
    with Pure_Function;
 
    ----------------------------------------------------------------------------
@@ -227,6 +240,38 @@ private
      of Page_Directory_Entry;
 
    ----------------------------------------------------------------------------
+   --  Access conversion package instance to create pointers to individual
+   --  page table instances.
+   ----------------------------------------------------------------------------
+   package Page_Table_Access_Conversion is new
+     System.Address_To_Access_Conversions (Page_Table);
+
+   ----------------------------------------------------------------------------
+   --  Page Table Access type.
+   ----------------------------------------------------------------------------
+   subtype Page_Table_Access is
+     Page_Table_Access_Conversion.Object_Pointer;
+
+   ----------------------------------------------------------------------------
+   --  Access conversion package instance to create pointers to individual
+   --  page table instances.
+   ----------------------------------------------------------------------------
+   package Page_Directory_Access_Conversion is new
+     System.Address_To_Access_Conversions (Page_Directory_Array);
+
+   ----------------------------------------------------------------------------
+   --  Page Directory Access type.
+   ----------------------------------------------------------------------------
+   subtype Page_Directory_Access is
+     Page_Directory_Access_Conversion.Object_Pointer;
+
+   ----------------------------------------------------------------------------
+   --  Kernel Page Directory Pointer
+   --  Pointer to the page directory structure used for the kernel.
+   ----------------------------------------------------------------------------
+   Kernel_Page_Directory_Ptr : Page_Directory_Access;
+
+   ----------------------------------------------------------------------------
    --  Allocate_Page_Frame
    --
    --  Purpose:
@@ -237,7 +282,7 @@ private
    function Allocate_Page_Frame (
      Virtual_Address : System.Address;
      Frame_Address   : out Page_Aligned_Address
-   ) return Paging_Process_Result
+   ) return Process_Result
    with Volatile_Function;
 
    ----------------------------------------------------------------------------
@@ -250,10 +295,10 @@ private
    --    None.
    ----------------------------------------------------------------------------
    function Map_Page_Frame (
-     Directory        : Page_Directory_Array;
+     Directory        : in out Page_Directory_Array;
      Physical_Address : System.Address;
      Virtual_Address  : System.Address
-   ) return Paging_Process_Result
+   ) return Process_Result
    with Volatile_Function;
 
    ----------------------------------------------------------------------------
@@ -286,5 +331,31 @@ private
      Convention    => Assembler,
      External_Name => "kernel_page_directory",
      Volatile;
+
+   ----------------------------------------------------------------------------
+   --  Initialise_Page_Directory_Access
+   --
+   --  Purpose:
+   --    This initialises an individual Page Directory Pointer.
+   --    It will initialise every entry in the directory as being non-present.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   procedure Initialise_Page_Directory_Access (
+     Page_Dir : Page_Directory_Access
+   );
+
+   ----------------------------------------------------------------------------
+   --  Initialise_Page_Table
+   --
+   --  Purpose:
+   --    This initialises an individual Page Table.
+   --    The Table will be initialised with all entries marked as non-present.
+   --  Excecptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   function Initialise_Page_Table (
+     Table : in out Page_Table
+   ) return Process_Result;
 
 end x86.Memory.Paging;

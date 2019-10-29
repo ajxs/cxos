@@ -322,6 +322,12 @@ private
      External_Name => "page_tables_start",
      Volatile;
 
+   Kernel_Page_Directory_Addr : System.Address
+   with Export,
+     Convention    => Assembler,
+     External_Name => "kernel_page_directory_addr",
+     Volatile;
+
    ----------------------------------------------------------------------------
    --  The Kernel page directory.
    --  Used for identity mapping the kernel after boot.
@@ -333,17 +339,17 @@ private
      Volatile;
 
    ----------------------------------------------------------------------------
-   --  Initialise_Page_Directory_Access
+   --  Initialise_Page_Directory
    --
    --  Purpose:
-   --    This initialises an individual Page Directory Pointer.
+   --    This initialises an individual Page Directory.
    --    It will initialise every entry in the directory as being non-present.
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Initialise_Page_Directory_Access (
-     Page_Dir : Page_Directory_Access
-   );
+   function Initialise_Page_Directory (
+     Page_Dir : in out Page_Directory_Array
+   ) return Process_Result;
 
    ----------------------------------------------------------------------------
    --  Initialise_Page_Table

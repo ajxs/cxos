@@ -17,7 +17,6 @@ SECTIONS {
     kernel_start = .;
     *(.multiboot)
     *(.text)
-    kernel_end = .;
   }
 
   .rodata ALIGN (0x1000) : {
@@ -34,16 +33,6 @@ SECTIONS {
     *(.bss)
     ebss = .;
 
-    /* Reserve space for Page Table entries. */
-    . = ALIGN(4K);
-    page_tables_start = .;
-    . += (1024*1024*4);
-    page_tables_end = .;
-
-    /* Reserve space for Page Directory. */
-    . = ALIGN(4K);
-    page_directory_start = .;
-    . += (1024*4);
-    page_directory_end = .;
+    kernel_end = .;
   }
 }

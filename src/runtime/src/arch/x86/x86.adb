@@ -163,7 +163,7 @@ package body x86 is
 
       x86.Serial.Put_String (x86.Serial.COM1,
         "Initialising Kernel Memory Map" & ASCII.LF);
-      x86.Memory.Paging.Map_Kernel;
+      --  x86.Memory.Paging.Map_Kernel;
 
       x86.Memory.Paging.Initialise_Kernel_Page_Directory;
 

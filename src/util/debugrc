@@ -8,11 +8,13 @@ file src/kernel/build/cxos.elf -readnow
 # > x /1xg curr_section_ptr
  #> x /1xw curr_section_ptr
 
-# b __paging_load
-# b x86.adb:344
-# b x86-memory-map.adb:123
-# b x86.adb:323
+# b set_frame_state
+b __paging_load
 b initialise_kernel_page_directory
+# b allocate_frame
+# b initialise_page_table
+# b x86-memory-paging.adb:426
+# b x86-memory-paging.adb:443
 c
 
 # print_mmap_region
@@ -20,15 +22,3 @@ c
 # x /1xg &idt_pointer
 # x /5xg &global_descriptor_table
 # x /3xg &interrupt_descriptor_table+(256)
-
-echo Page table 0:\n
-x /4xw &page_tables_start
-
-echo Page table 1:\n
-x /4xw (&page_tables_start + 0x1000)
-
-echo Page table 2:\n
-x /4xw (&page_tables_start + 0x2000)
-
-echo Page directory:\n
-x /4xw &page_directory_start

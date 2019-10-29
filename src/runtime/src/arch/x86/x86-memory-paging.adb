@@ -163,55 +163,96 @@ package body x86.Memory.Paging is
    procedure Initialise_Kernel_Page_Directory is
       use x86.Memory.Map;
 
-      --  The address of the kernel page directory.
-      --  This address will be fetched by allocating a free page frame.
-      Kernel_Page_Directory_Addr : System.Address;
       --  The result of the frame allocation operation.
-      Result                     : x86.Memory.Map.Process_Result;
+      Allocate_Result : x86.Memory.Map.Process_Result;
    begin
       --  Allocate the Kernel page directory frame.
-      Result := x86.Memory.Map.Allocate_Frame (Kernel_Page_Directory_Addr);
-      if Result /= Success then
+      --  This populates the Kernel page directory address with the address
+      --  of the newly allocated frame.
+      Allocate_Result := x86.Memory.Map.Allocate_Frame (
+        Kernel_Page_Directory_Addr);
+      if Allocate_Result /= Success then
          return;
       end if;
 
-      --  Create a pointer to the newly allocated page directory.
-      Kernel_Page_Directory_Ptr := Page_Directory_Access_Conversion
-        .To_Pointer (Kernel_Page_Directory_Addr);
-      --  Initialise the kernel page directory.
-      Initialise_Page_Directory_Access (Kernel_Page_Directory_Ptr);
+      Init_Directory :
+         declare
+            --  The Kernel Page Directory.
+            Kernel_Page_Directory_Import : Page_Directory_Array
+            with Import,
+              Convention => Ada,
+              Address    => Kernel_Page_Directory_Addr;
 
-   exception
-      when Constraint_Error =>
-         return;
+            --  Process result of internal processes.
+            Result : Process_Result;
+         begin
+            --  Initialise the page directory.
+            Init_Page_Dir :
+               begin
+                  Result := Initialise_Page_Directory (
+                    Kernel_Page_Directory_Import);
+                  if Result /= Success then
+                     return;
+                  end if;
+               exception
+                  when Constraint_Error =>
+                     return;
+               end Init_Page_Dir;
+
+            --  Identity map the kernel.
+            Identity_Map_Directory :
+               declare
+                  --  The current address being mapped.
+                  Current_Addr : Integer_Address := 0;
+               begin
+                  for I in 0 .. 1023 loop
+                     Result := Map_Page_Frame (
+                       Kernel_Page_Directory_Import,
+                       To_Address (Current_Addr), To_Address (Current_Addr));
+                     if Result /= Success then
+                        return;
+                     end if;
+
+                     --  Increment the counter by one page frame in size.
+                     Current_Addr := Current_Addr + 16#1000#;
+                  end loop;
+               exception
+                  when Constraint_Error =>
+                     return;
+               end Identity_Map_Directory;
+         end Init_Directory;
    end Initialise_Kernel_Page_Directory;
 
    ----------------------------------------------------------------------------
-   --  Initialise_Page_Directory_Access
+   --  Initialise_Page_Directory
    ----------------------------------------------------------------------------
-   procedure Initialise_Page_Directory_Access (
-     Page_Dir : Page_Directory_Access
-   ) is
+   function Initialise_Page_Directory (
+     Page_Dir : in out Page_Directory_Array
+   ) return Process_Result is
    begin
       --  Iterate over all 1024 directory entries.
       for Idx in 0 .. 1023 loop
          --  Initialise the individual entry.
          Initialise_Entry :
             begin
-               Page_Dir.all (Idx).Present    := False;
-               Page_Dir.all (Idx).Read_Write := True;
-               Page_Dir.all (Idx).U_S        := False;
-               Page_Dir.all (Idx).PWT        := False;
-               Page_Dir.all (Idx).PCD        := False;
-               Page_Dir.all (Idx).A          := False;
-               Page_Dir.all (Idx).PS         := False;
-               Page_Dir.all (Idx).G          := False;
+               Page_Dir (Idx).Present       := False;
+               Page_Dir (Idx).Read_Write    := True;
+               Page_Dir (Idx).U_S           := False;
+               Page_Dir (Idx).PWT           := False;
+               Page_Dir (Idx).PCD           := False;
+               Page_Dir (Idx).A             := False;
+               Page_Dir (Idx).PS            := False;
+               Page_Dir (Idx).G             := False;
+               Page_Dir (Idx).Table_Address :=
+                 Convert_To_Page_Aligned_Address (System.Null_Address);
             exception
                when Constraint_Error =>
-                  return;
+                  return Invalid_Value;
             end Initialise_Entry;
       end loop;
-   end Initialise_Page_Directory_Access;
+
+      return Success;
+   end Initialise_Page_Directory;
 
    ----------------------------------------------------------------------------
    --  Initialise_Page_Table
@@ -364,20 +405,44 @@ package body x86.Memory.Paging is
          declare
             use x86.Memory.Map;
 
+            --  The process result of allocating a new page frame, if needed.
             Allocate_Result : x86.Memory.Map.Process_Result;
+            --  The address of the newly allocated page frame, if applicable.
             Allocated_Addr  : System.Address;
          begin
+            --  If there is no entry currently at this index in the page
+            --  directory, allocate a new frame for to hold this page table,
+            --  then allocate and initialise the new page table.
             if not Directory (Directory_Idx).Present then
-               --  Allocate the Kernel page directory frame.
-               Allocate_Result := x86.Memory.Map
-                 .Allocate_Frame (Allocated_Addr);
+               --  Allocate a page frame for the new page table.
+               Allocate_Result := x86.Memory.Map.Allocate_Frame (
+                 Allocated_Addr);
                if Allocate_Result /= Success then
                   return Invalid_Value;
                end if;
 
+               --  Initialise the newly allocated page table.
+               Init_Table :
+                  declare
+                     --  The process result of the initialisation.
+                     Init_Result : Process_Result;
+                     --  The newly allocated page table.
+                     Table       : Page_Table
+                     with Import,
+                       Convention => Ada,
+                       Address    => Allocated_Addr;
+                  begin
+                     --  Initialise the new page table.
+                     Init_Result := Initialise_Page_Table (Table);
+                     if Init_Result /= Success then
+                        return Init_Result;
+                     end if;
+                  end Init_Table;
+
+               --  Set the address at the applicable index into the page
+               --  directory to point to this page table.
                Directory (Directory_Idx).Table_Address :=
                  Convert_To_Page_Aligned_Address (Allocated_Addr);
-
                Directory (Directory_Idx).Present := True;
             end if;
 
@@ -390,6 +455,7 @@ package body x86.Memory.Paging is
 
       Map_Entry :
          declare
+            --  The page table to map the entry in.
             Table : Page_Table
             with Import,
               Convention => Ada,
@@ -398,6 +464,7 @@ package body x86.Memory.Paging is
             Page_Addr := Convert_To_Page_Aligned_Address (Physical_Address);
 
             Table (Table_Idx).Page_Address := Page_Addr;
+            Table (Table_Idx).Present      := True;
          exception
             when Constraint_Error =>
                return Invalid_Table_Index;

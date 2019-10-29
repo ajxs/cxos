@@ -20,7 +20,8 @@
 .type __paging_load, @function
 __paging_load:
 	# Store address of page directory in eax, move to CR3.
-	leal page_directory_start, %eax
+	# leal page_directory_start, %eax
+	mov (kernel_page_directory_addr), %eax
 	movl %eax, %cr3
 
 	# Enable paging bit in CR0.

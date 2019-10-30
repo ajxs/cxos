@@ -19,7 +19,7 @@ package body x86.Memory.Paging is
    --  Allocate_Page_Frame
    ----------------------------------------------------------------------------
    function Allocate_Page_Frame (
-     Virtual_Address : System.Address;
+     Virtual_Address :     System.Address;
      Frame_Address   : out Page_Aligned_Address
    ) return Process_Result is
    begin
@@ -82,7 +82,7 @@ package body x86.Memory.Paging is
    --  Get_Page_Directory_Index
    ----------------------------------------------------------------------------
    function Get_Page_Directory_Index (
-     Addr  : System.Address;
+     Addr  :     System.Address;
      Index : out Natural
    ) return Process_Result is
       Addr_As_Uint : Unsigned_32;
@@ -122,7 +122,7 @@ package body x86.Memory.Paging is
    --  Get_Page_Table_Index
    ----------------------------------------------------------------------------
    function Get_Page_Table_Index (
-     Addr  : System.Address;
+     Addr  :     System.Address;
      Index : out Natural
    ) return Process_Result is
       Addr_As_Uint : Unsigned_32;
@@ -178,7 +178,7 @@ package body x86.Memory.Paging is
       Init_Directory :
          declare
             --  The Kernel Page Directory.
-            Kernel_Page_Directory_Import : Page_Directory_Array
+            Kernel_Page_Directory : Page_Directory
             with Import,
               Convention => Ada,
               Address    => Kernel_Page_Directory_Addr;
@@ -189,8 +189,7 @@ package body x86.Memory.Paging is
             --  Initialise the page directory.
             Init_Page_Dir :
                begin
-                  Result := Initialise_Page_Directory (
-                    Kernel_Page_Directory_Import);
+                  Result := Initialise_Page_Directory (Kernel_Page_Directory);
                   if Result /= Success then
                      return;
                   end if;
@@ -206,8 +205,7 @@ package body x86.Memory.Paging is
                   Current_Addr : Integer_Address := 0;
                begin
                   for I in 0 .. 1023 loop
-                     Result := Map_Page_Frame (
-                       Kernel_Page_Directory_Import,
+                     Result := Map_Page_Frame (Kernel_Page_Directory,
                        To_Address (Current_Addr), To_Address (Current_Addr));
                      if Result /= Success then
                         return;
@@ -227,7 +225,7 @@ package body x86.Memory.Paging is
    --  Initialise_Page_Directory
    ----------------------------------------------------------------------------
    function Initialise_Page_Directory (
-     Page_Dir : in out Page_Directory_Array
+     Page_Dir : in out Page_Directory
    ) return Process_Result is
    begin
       --  Iterate over all 1024 directory entries.
@@ -282,98 +280,26 @@ package body x86.Memory.Paging is
    end Initialise_Page_Table;
 
    ----------------------------------------------------------------------------
-   --  Map_Kernel
-   --
-   --  Implementation Notes:
-   --   - Initialises every page table as being non present and non writeable.
-   ----------------------------------------------------------------------------
-   procedure Map_Kernel is
-   begin
-      --  Initialise the page table structure.
-      --  Initially all tables are marked as non-present.
-      Initialise_Page_Tables :
-         declare
-            Current_Address : System.Address := To_Address (0);
-         begin
-            --  Initialise each table in the page table structure.
-            for Table of Page_Tables loop
-               --  Initialise each entry in this page table.
-               for Idx in Table'Range loop
-                  Table (Idx).Present      := False;
-                  Table (Idx).Read_Write   := True;
-                  Table (Idx).U_S          := False;
-                  Table (Idx).PWT          := False;
-                  Table (Idx).PCD          := False;
-                  Table (Idx).A            := False;
-
-                  --  Shift the address right 12 bits to fit the
-                  --  20bit format.
-                  Table (Idx).Page_Address :=
-                    Convert_To_Page_Aligned_Address (Current_Address);
-
-                  Current_Address := To_Address (
-                    To_Integer (Current_Address) + 16#1000#);
-               end loop;
-            end loop;
-
-            for Idx in Natural range 0 .. 31 loop
-               for J in Natural range 0 .. 1023 loop
-                  Page_Tables (Idx)(J).Present := True;
-               end loop;
-            end loop;
-         exception
-            when Constraint_Error =>
-               return;
-         end Initialise_Page_Tables;
-
-      --  Initialises all of the page directory entries.
-      --  This correctly points each entry at the relevant page table.
-      Init_Page_Directory :
-         begin
-            for Idx in Page_Directory'Range loop
-               Page_Directory (Idx).Present       := False;
-               Page_Directory (Idx).Read_Write    := True;
-               Page_Directory (Idx).U_S           := False;
-               Page_Directory (Idx).PWT           := False;
-               Page_Directory (Idx).PCD           := False;
-               Page_Directory (Idx).A             := False;
-               Page_Directory (Idx).PS            := False;
-               Page_Directory (Idx).G             := False;
-
-               Page_Directory (Idx).Table_Address :=
-                 Convert_To_Page_Aligned_Address (Page_Tables (Idx)'Address);
-            end loop;
-
-            for Idx in Natural range 0 .. 31 loop
-               Page_Directory (Idx).Present := True;
-            end loop;
-
-         exception
-            when Constraint_Error =>
-               return;
-         end Init_Page_Directory;
-
-   end Map_Kernel;
-
-   ----------------------------------------------------------------------------
    --  Map_Page_Frame
    ----------------------------------------------------------------------------
    function Map_Page_Frame (
-     Directory        : in out Page_Directory_Array;
-     Physical_Address : System.Address;
-     Virtual_Address  : System.Address
+     Directory     : in out Page_Directory;
+     Physical_Addr :        System.Address;
+     Virtual_Addr  :        System.Address
    ) return Process_Result is
-      Directory_Idx  : Natural;
-      Table_Idx      : Natural;
-      Result         : Process_Result;
-      Table_Addr     : System.Address;
-      Page_Addr      : Page_Aligned_Address;
+      --  Index variables used when mapping  the page directory and table.
+      Directory_Idx : Natural;
+      Table_Idx     : Natural;
+      --  Result variable for internal processes.
+      Result        : Process_Result;
+      --  Address variables used during the mapping process.
+      Table_Addr    : System.Address;
    begin
       --  Ensure that the provided addresses are 4K aligned.
       Check_Address :
          begin
-            if (not Check_Address_Page_Aligned (Physical_Address)) or
-              (not Check_Address_Page_Aligned (Virtual_Address))
+            if (not Check_Address_Page_Aligned (Physical_Addr)) or
+              (not Check_Address_Page_Aligned (Virtual_Addr))
             then
                return Invalid_Non_Aligned_Address;
             end if;
@@ -385,13 +311,12 @@ package body x86.Memory.Paging is
       --  Get the indexes into the page directory and page table.
       Get_Indexes :
          begin
-            Result := Get_Page_Directory_Index (Virtual_Address,
-              Directory_Idx);
+            Result := Get_Page_Directory_Index (Virtual_Addr, Directory_Idx);
             if Result /= Success then
                return Result;
             end if;
 
-            Result := Get_Page_Table_Index (Virtual_Address, Table_Idx);
+            Result := Get_Page_Table_Index (Virtual_Addr, Table_Idx);
             if Result /= Success then
                return Result;
             end if;
@@ -461,9 +386,8 @@ package body x86.Memory.Paging is
               Convention => Ada,
               Address    => Table_Addr;
          begin
-            Page_Addr := Convert_To_Page_Aligned_Address (Physical_Address);
-
-            Table (Table_Idx).Page_Address := Page_Addr;
+            Table (Table_Idx).Page_Address :=
+              Convert_To_Page_Aligned_Address (Physical_Addr);
             Table (Table_Idx).Present      := True;
          exception
             when Constraint_Error =>

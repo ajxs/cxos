@@ -123,6 +123,11 @@ package body x86 is
       Protected_Mode_Init;
 
       x86.Serial.Put_String (x86.Serial.COM1,
+        "Protected mode entered" & ASCII.LF);
+
+      --  Initialise system timer and PIT before re-enabling interrupt
+      --  generation.
+      x86.Serial.Put_String (x86.Serial.COM1,
         "Initialising system timer" & ASCII.LF);
       x86.Time_Keeping.Initialise;
 
@@ -130,6 +135,10 @@ package body x86 is
         "Initialising PIT" & ASCII.LF);
       x86.PIT.Initialise;
 
+      --  Enable interrupts.
+      x86.Interrupts.Set_Interrupt_Flag (True);
+
+      --  Initialise the system memory map.
       Initialise_Memory_Map :
          begin
             x86.Serial.Put_String (x86.Serial.COM1,
@@ -145,6 +154,8 @@ package body x86 is
                  Boot_Info.Mmap_Length);
             end if;
 
+            x86.Serial.Put_String (x86.Serial.COM1,
+              "Mapping kernel memory" & ASCII.LF);
             --  Mark memory below 1MB as used.
             Mark_Low_Memory;
             --  Mark kernel code segment as being used.
@@ -155,16 +166,9 @@ package body x86 is
                  "Error parsing Multiboot memory map" & ASCII.LF);
          end Initialise_Memory_Map;
 
-      --  Enable interrupts.
-      x86.Interrupts.Set_Interrupt_Flag (True);
-
+      --  Initialise the paging memory structures.
       x86.Serial.Put_String (x86.Serial.COM1,
-        "Protected mode entered" & ASCII.LF);
-
-      x86.Serial.Put_String (x86.Serial.COM1,
-        "Initialising Kernel Memory Map" & ASCII.LF);
-      --  x86.Memory.Paging.Map_Kernel;
-
+        "Initialising kernel page directory" & ASCII.LF);
       x86.Memory.Paging.Initialise_Kernel_Page_Directory;
 
       x86.Serial.Put_String (x86.Serial.COM1,

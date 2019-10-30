@@ -10,7 +10,6 @@
 -------------------------------------------------------------------------------
 
 with System;
-with System.Address_To_Access_Conversions;
 
 -------------------------------------------------------------------------------
 --  SYSTEM.X86.MEMORY.PAGING
@@ -27,29 +26,19 @@ package x86.Memory.Paging is
    --
    --  Purpose:
    --    This procedure initialises the kernel's main page directory.
-   --    This populates the package-visible 'Kernel_Page_Directory' pointer.
+   --    This populates the package-visible 'Kernel_Page_Directory_Addr'
+   --    variable.
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
    procedure Initialise_Kernel_Page_Directory;
 
    ----------------------------------------------------------------------------
-   --  Map_Kernel
-   --
-   --  Purpose:
-   --    This procedure maps memory for the kernel. This is required to
-   --    allocate memory for the kernel prior to enabling paging.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   procedure Map_Kernel;
-
-   ----------------------------------------------------------------------------
    --  Enable_Paging
    --
    --  Purpose:
-   --    This procedure finalises the loading of the page directory structures
-   --    into the processor's control registers.
+   --    This procedure enables paging on the processor and loads the initial
+   --    kernel page directory address into the processor's control registers.
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
@@ -198,7 +187,7 @@ private
    --    None.
    ----------------------------------------------------------------------------
    function Get_Page_Directory_Index (
-     Addr  : System.Address;
+     Addr  :     System.Address;
      Index : out Natural
    ) return Process_Result
    with Pure_Function;
@@ -213,7 +202,7 @@ private
    --    None.
    ----------------------------------------------------------------------------
    function Get_Page_Table_Index (
-     Addr  : System.Address;
+     Addr  :     System.Address;
      Index : out Natural
    ) return Process_Result
    with Pure_Function;
@@ -225,51 +214,11 @@ private
    type Page_Table is array (Natural range 0 .. 1023) of Page_Frame;
 
    ----------------------------------------------------------------------------
-   --  Page Table array type.
-   --  This is an array of 1024 indiviudal Page Tables. This is used to
-   --  interface with the externally declared block of memory reserved for
-   --  implementing the page tables.
+   --  Page Directory.
+   --  This type represents a a page directory, an array of individual entries.
    ----------------------------------------------------------------------------
-   type Page_Table_Array is array (Natural range 0 .. 1023) of Page_Table;
-
-   ----------------------------------------------------------------------------
-   --  Page Directory array.
-   --  This is used to implement the main page table directory.
-   ----------------------------------------------------------------------------
-   type Page_Directory_Array is array (Natural range 0 .. 1023)
+   type Page_Directory is array (Natural range 0 .. 1023)
      of Page_Directory_Entry;
-
-   ----------------------------------------------------------------------------
-   --  Access conversion package instance to create pointers to individual
-   --  page table instances.
-   ----------------------------------------------------------------------------
-   package Page_Table_Access_Conversion is new
-     System.Address_To_Access_Conversions (Page_Table);
-
-   ----------------------------------------------------------------------------
-   --  Page Table Access type.
-   ----------------------------------------------------------------------------
-   subtype Page_Table_Access is
-     Page_Table_Access_Conversion.Object_Pointer;
-
-   ----------------------------------------------------------------------------
-   --  Access conversion package instance to create pointers to individual
-   --  page table instances.
-   ----------------------------------------------------------------------------
-   package Page_Directory_Access_Conversion is new
-     System.Address_To_Access_Conversions (Page_Directory_Array);
-
-   ----------------------------------------------------------------------------
-   --  Page Directory Access type.
-   ----------------------------------------------------------------------------
-   subtype Page_Directory_Access is
-     Page_Directory_Access_Conversion.Object_Pointer;
-
-   ----------------------------------------------------------------------------
-   --  Kernel Page Directory Pointer
-   --  Pointer to the page directory structure used for the kernel.
-   ----------------------------------------------------------------------------
-   Kernel_Page_Directory_Ptr : Page_Directory_Access;
 
    ----------------------------------------------------------------------------
    --  Allocate_Page_Frame
@@ -280,7 +229,7 @@ private
    --    None.
    ----------------------------------------------------------------------------
    function Allocate_Page_Frame (
-     Virtual_Address : System.Address;
+     Virtual_Address :     System.Address;
      Frame_Address   : out Page_Aligned_Address
    ) return Process_Result
    with Volatile_Function;
@@ -295,47 +244,20 @@ private
    --    None.
    ----------------------------------------------------------------------------
    function Map_Page_Frame (
-     Directory        : in out Page_Directory_Array;
-     Physical_Address : System.Address;
-     Virtual_Address  : System.Address
+     Directory     : in out Page_Directory;
+     Physical_Addr :        System.Address;
+     Virtual_Addr  :        System.Address
    ) return Process_Result
    with Volatile_Function;
 
    ----------------------------------------------------------------------------
-   --  System Page Directory.
-   --  This is the main directory containing all of the page tables.
+   --  Kernel Page Directory Address.
+   --  This contains the physical address of the kernel page directory.
    ----------------------------------------------------------------------------
-   Page_Directory : Page_Directory_Array
-   with Import,
-     Convention    => Assembler,
-     External_Name => "page_directory_start",
-     Volatile;
-
-   ----------------------------------------------------------------------------
-   --  The System's Page Tables.
-   --  This is implemented by reserving space in the linker script, which we
-   --  treat as an array of 1024 page tables.
-   ----------------------------------------------------------------------------
-   Page_Tables : Page_Table_Array
-   with Import,
-     Convention    => Assembler,
-     External_Name => "page_tables_start",
-     Volatile;
-
    Kernel_Page_Directory_Addr : System.Address
    with Export,
      Convention    => Assembler,
      External_Name => "kernel_page_directory_addr",
-     Volatile;
-
-   ----------------------------------------------------------------------------
-   --  The Kernel page directory.
-   --  Used for identity mapping the kernel after boot.
-   ----------------------------------------------------------------------------
-   Kernel_Page_Directory : Page_Directory_Array
-   with Export,
-     Convention    => Assembler,
-     External_Name => "kernel_page_directory",
      Volatile;
 
    ----------------------------------------------------------------------------
@@ -348,7 +270,7 @@ private
    --    None.
    ----------------------------------------------------------------------------
    function Initialise_Page_Directory (
-     Page_Dir : in out Page_Directory_Array
+     Page_Dir : in out Page_Directory
    ) return Process_Result;
 
    ----------------------------------------------------------------------------

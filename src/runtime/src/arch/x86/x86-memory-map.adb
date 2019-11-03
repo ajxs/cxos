@@ -33,7 +33,7 @@ package body x86.Memory.Map is
          return Result;
       end if;
 
-      Result := Set_Frame_State (Index, False);
+      Result := Set_Frame_State (Index, Allocated);
       if Result /= Success then
          return Result;
       end if;
@@ -56,7 +56,7 @@ package body x86.Memory.Map is
       for Current_Index in Memory_Map'Range loop
          Check_Frame :
             begin
-               if Memory_Map (Current_Index) then
+               if Memory_Map (Current_Index) = Unallocated then
                   Index := Current_Index;
 
                   return Success;
@@ -113,7 +113,7 @@ package body x86.Memory.Map is
    procedure Initialise is
    begin
       for Frame of Memory_Map loop
-         Frame := False;
+         Frame := Allocated;
       end loop;
    end Initialise;
 
@@ -123,7 +123,7 @@ package body x86.Memory.Map is
    function Mark_Memory_Range (
      Base   : System.Address;
      Length : Unsigned_32;
-     Status : Boolean
+     Status : Memory_Map_Frame_State
    ) return Process_Result is
       --  The page aligned address of the current memory frame.
       Curr_Frame_Addr  : Unsigned_32;
@@ -163,7 +163,7 @@ package body x86.Memory.Map is
    ----------------------------------------------------------------------------
    function Set_Frame_State (
      Addr  : System.Address;
-     State : Boolean
+     State : Memory_Map_Frame_State
    ) return Process_Result is
       Map_Idx : Natural;
       Result  : Process_Result;
@@ -181,7 +181,7 @@ package body x86.Memory.Map is
 
       Set_Frame_Use_State :
          begin
-            Memory_Map (Map_Idx) := Memory_Map_Frame_State (State);
+            Memory_Map (Map_Idx) := State;
          exception
             when Constraint_Error =>
                return Invalid_Address_Argument;
@@ -195,10 +195,10 @@ package body x86.Memory.Map is
    ----------------------------------------------------------------------------
    function Set_Frame_State (
      Index : Natural;
-     State : Boolean
+     State : Memory_Map_Frame_State
    ) return Process_Result is
    begin
-      Memory_Map (Index) := Memory_Map_Frame_State (State);
+      Memory_Map (Index) := State;
 
       return Success;
    exception

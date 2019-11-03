@@ -9,13 +9,11 @@ file src/kernel/build/cxos.elf -readnow
  #> x /1xw curr_section_ptr
 
 # b set_frame_state
-b __paging_load
+# b __paging_load
 b initialise_kernel_page_directory
-# b allocate_frame
-# b initialise_page_table
-# b x86-memory-paging.adb:426
-# b x86-memory-paging.adb:443
+b mark_kernel_memory
 c
+x /32tg &memory_map
 
 # print_mmap_region
 

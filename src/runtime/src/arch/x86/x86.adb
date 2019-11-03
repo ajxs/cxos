@@ -318,7 +318,7 @@ package body x86 is
         To_Integer (Kernel_Start'Address));
 
       Result := x86.Memory.Map.Mark_Memory_Range (
-        Kernel_Start'Address, Kernel_Length, False);
+        Kernel_Start'Address, Kernel_Length, Allocated);
 
       if Result /= Success then
          x86.Serial.Put_String (x86.Serial.COM1,
@@ -340,7 +340,7 @@ package body x86 is
       Result : x86.Memory.Map.Process_Result;
    begin
       Result := x86.Memory.Map.Mark_Memory_Range (To_Address (0),
-        16#100000#, False);
+        16#100000#, Allocated);
 
       if Result /= Success then
          x86.Serial.Put_String (x86.Serial.COM1,
@@ -422,7 +422,7 @@ package body x86 is
                   when 1 =>
                      Result := x86.Memory.Map.Mark_Memory_Range (
                        To_Address (Integer_Address (Curr_Region.all.Base)),
-                       Unsigned_32 (Curr_Region.all.Length), True);
+                       Unsigned_32 (Curr_Region.all.Length), Unallocated);
                      if Result /= Success then
                         x86.Serial.Put_String (x86.Serial.COM1,
                           "Error setting frame status" & ASCII.LF);

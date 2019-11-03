@@ -32,6 +32,20 @@ package x86.Memory.Map is
    );
 
    ----------------------------------------------------------------------------
+   --  Memory Map Frame type.
+   --  Represents the presence of an individual page frame in memory.
+   ----------------------------------------------------------------------------
+   type Memory_Map_Frame_State is (
+     Allocated,
+     Unallocated
+   )
+   with Size => 1;
+   for Memory_Map_Frame_State use (
+     Allocated   => 0,
+     Unallocated => 1
+   );
+
+   ----------------------------------------------------------------------------
    --  Initialise
    --
    --  Purpose:
@@ -66,7 +80,7 @@ package x86.Memory.Map is
    function Mark_Memory_Range (
      Base   : System.Address;
      Length : Unsigned_32;
-     Status : Boolean
+     Status : Memory_Map_Frame_State
    ) return Process_Result;
 
 private
@@ -93,7 +107,7 @@ private
    ----------------------------------------------------------------------------
    function Set_Frame_State (
      Addr  : System.Address;
-     State : Boolean
+     State : Memory_Map_Frame_State
    ) return Process_Result;
 
    ----------------------------------------------------------------------------
@@ -107,7 +121,7 @@ private
    ----------------------------------------------------------------------------
    function Set_Frame_State (
      Index : Natural;
-     State : Boolean
+     State : Memory_Map_Frame_State
    ) return Process_Result;
 
    ----------------------------------------------------------------------------
@@ -141,18 +155,12 @@ private
    with Pure_Function;
 
    ----------------------------------------------------------------------------
-   --  Memory Map Frame type.
-   --  Represents the presence of an individual page frame in memory.
-   ----------------------------------------------------------------------------
-   type Memory_Map_Frame_State is new Boolean
-   with Size => 1;
-
-   ----------------------------------------------------------------------------
    --  Memory Map Array type.
    --  Represents all page frames across the full linear address space.
    ----------------------------------------------------------------------------
    type Memory_Map_Array is array (Natural range 0 .. 16#100000#)
-     of Memory_Map_Frame_State;
+     of Memory_Map_Frame_State
+   with Pack;
 
    ----------------------------------------------------------------------------
    --  The system memory map.

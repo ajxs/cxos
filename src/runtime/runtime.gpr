@@ -1,3 +1,14 @@
+-------------------------------------------------------------------------------
+--  Copyright (c) 2019, CXOS.
+--  This program is free software; you can redistribute it and/or modify it
+--  under the terms of the GNU General Public License as published by the
+--  Free Software Foundation; either version 3 of the License, or
+--  (at your option) any later version.
+--
+--  Authors:
+--     Anthony <ajxs [at] panoptic.online>
+-------------------------------------------------------------------------------
+
 library project Runtime is
    for Create_Missing_Dirs use "True";
    for Source_Dirs use ("build/adainclude");
@@ -10,15 +21,14 @@ library project Runtime is
 
    package Builder is
       for Global_Configuration_Pragmas use "runtime.adc";
-      for Switches ("Ada") use (
-        "-nostdlib",
-        "-nostdinc"
+      for Switches ("Others") use (
+        "-nostdlib"
       );
    end Builder;
 
    package Compiler is
       for Default_Switches ("Ada") use (
-        "-O0",
+        "-O2",
         "-ffunction-sections",
         "-fdata-sections",
         "-fno-omit-frame-pointer",
@@ -32,6 +42,10 @@ library project Runtime is
       );
 
       for Default_Switches ("Asm_Cpp") use (
+        "-ggdb"
+      );
+
+      for Default_Switches ("Others") use (
         "-ggdb"
       );
    end Compiler;

@@ -51,8 +51,8 @@ init_boot_page_directory:
 map_kernel_pages:
 	# If we're below the start of the kernel, increment the frame address
 	# without mapping that frame.
-	cmpl $(kernel_start - 0xC0000000), %esi
-	jl increment_frame_address
+	# cmpl $(kernel_start - 0xC0000000), %esi
+	# jl increment_frame_address
 	# If the current frame address is above the end of the kernel, skip to mapping
 	# the last frame to the VGA buffer.
 	cmpl $(kernel_end - 0xC0000000), %esi

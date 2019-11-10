@@ -39,6 +39,8 @@ SECTIONS {
     . = ALIGN (4K);
     boot_page_directory = .;
     . += 0x1000;
+    boot_low_memory_page_table = .;
+    . += 0x1000;
     boot_page_table = .;
     . += 0x1000;
 

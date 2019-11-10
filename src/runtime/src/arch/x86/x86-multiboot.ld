@@ -13,26 +13,25 @@ ENTRY (_start)
 SECTIONS {
   . = 1M;
 
+  kernel_start = .;
   .text BLOCK(4K) : ALIGN(4K) {
-    kernel_start = .;
     *(.multiboot)
-    *(.text)
+    *(.text*)
   }
 
   .rodata ALIGN (0x1000) : {
-    *(.rodata)
+    *(.rodata*)
   }
 
   .data ALIGN (0x1000) : {
-    *(.data)
+    *(.data*)
   }
 
   .bss : {
     sbss = .;
     *(COMMON)
-    *(.bss)
+    *(.bss*)
     ebss = .;
-
-    kernel_end = .;
   }
+  kernel_end = .;
 }

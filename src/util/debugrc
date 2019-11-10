@@ -2,21 +2,17 @@ set architecture i386
 target remote localhost:1234
 file src/kernel/build/cxos.elf -readnow
 
-# define print_mmap_region
-# > x /1xw curr_section_ptr
-# > x /1xg curr_section_ptr
-# > x /1xg curr_section_ptr
- #> x /1xw curr_section_ptr
-
 # b set_frame_state
-# b __paging_load
-b initialise_kernel_page_directory
-b mark_kernel_memory
-c
-x /32tg &memory_map
+# b initialise_kernel_page_directory
+# b mark_kernel_memory
+# b _start
+# b higher_half_jump
+# b x86-multiboot-start.S:134
+b __system_init
+# x /32tg &memory_map
 
 # print_mmap_region
 
 # x /1xg &idt_pointer
-# x /5xg &global_descriptor_table
+x /5xg &global_descriptor_table
 # x /3xg &interrupt_descriptor_table+(256)

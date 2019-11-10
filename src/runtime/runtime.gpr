@@ -19,15 +19,20 @@ library project Runtime is
    package Compiler is
       for Default_Switches ("Ada") use (
         "-O0",
-        "-ffunction-sections", 
+        "-ffunction-sections",
         "-fdata-sections",
         "-fno-omit-frame-pointer",
-        "-g",
+        "-ggdb",
         "-gnat2012",
         "-gnatg",
         "-gnatwadhl",
         "-gnatVa",
-        "-gnaty3abcdefhiklmnoprstux"
+        "-gnaty3abcdefhiklmnoprstux",
+        "-Wl,--gc-sections"
+      );
+
+      for Default_Switches ("Asm_Cpp") use (
+        "-ggdb"
       );
    end Compiler;
 

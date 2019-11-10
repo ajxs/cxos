@@ -11,28 +11,39 @@
 
 ENTRY (_start)
 SECTIONS {
-  . = 1M;
+  . = 0xC0100000;
+  kernel_start = .;
 
-  .text BLOCK(4K) : ALIGN(4K) {
-    kernel_start = .;
+  .text ALIGN(4K) : AT (ADDR (.text) - 0xC0000000)
+  {
     *(.multiboot)
-    *(.text)
+    *(.text*)
   }
 
-  .rodata ALIGN (0x1000) : {
-    *(.rodata)
+  .rodata ALIGN (4K) : AT (ADDR (.rodata) - 0xC0000000)
+  {
+    *(.rodata*)
   }
 
-  .data ALIGN (0x1000) : {
-    *(.data)
+  .data ALIGN (4K) : AT (ADDR (.data) - 0xC0000000)
+  {
+    *(.data*)
   }
 
-  .bss : {
-    sbss = .;
+  .bss ALIGN (4K) : AT (ADDR (.bss) - 0xC0000000)
+  {
+    bss_start = .;
     *(COMMON)
-    *(.bss)
-    ebss = .;
+    *(.bss*)
 
-    kernel_end = .;
+    . = ALIGN (4K);
+    boot_page_directory = .;
+    . += 0x1000;
+    boot_page_table = .;
+    . += 0x1000;
+
+    bss_end = .;
   }
+
+  kernel_end = .;
 }

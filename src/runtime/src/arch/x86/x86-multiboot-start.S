@@ -24,10 +24,6 @@
   .long CHECKSUM
 
 .section .bss, "aw", @nobits
-.align 16
-stack_bottom:
-  .space STACK_SIZE
-stack_top:
 
 # Store multiboot variables.
 multiboot_magic:
@@ -43,25 +39,48 @@ multiboot_struct:
  */
 .type init_boot_page_directory, @function
 init_boot_page_directory:
-	movl $(boot_page_table - 0xC0000000), %edi
-	movl $0, %esi
-	# Map 1023 pages. The 1024th will be the VGA text buffer.
-	movl $1023, %ecx
 
-map_kernel_pages:
-	# If we're below the start of the kernel, increment the frame address
-	# without mapping that frame.
-	# cmpl $(kernel_start - 0xC0000000), %esi
-	# jl increment_frame_address
-	# If the current frame address is above the end of the kernel, skip to mapping
-	# the last frame to the VGA buffer.
-	cmpl $(kernel_end - 0xC0000000), %esi
-	jge map_vga_buffer
+# Identity map lowest 1MB.
+map_low_memory:
+  # The page table entry address.
+  movl $(boot_page_table - 0xC0000000), %edi
+  # The page frame address.
+  movl $0, %esi
+  # The number of entries to map.
+  movl $256, %ecx
 
-	# Map physical address as "present, writable". Note that this maps
-	# .text and .rodata as writable. Mind security and map them as non-writable.
+map_low_memory_frame:
+  # Move page address into EDX.
 	movl %esi, %edx
-	orl $0x003, %edx
+  # Apply flags: Supervisor x Present x Writeable.
+	orl $0x3, %edx
+  # Write page structure to entry address.
+	movl %edx, (%edi)
+
+increment_low_frame_address:
+	# Size of page frame is 4096 bytes.
+	addl $0x1000, %esi
+	# Size of entries in boot_page_table is 4 bytes.
+	addl $4, %edi
+
+	loop map_low_memory_frame
+
+
+map_kernel_memory:
+  # The page table entry address.
+  movl $((boot_page_table + 1024) - 0xC0000000), %edi
+  # The page frame address.
+  movl $(kernel_start - 0xC0000000), %esi
+
+map_kernel_frame:
+	# Check that we're only mapping the kernel.
+  cmpl $(kernel_end - 0xC0000000), %esi
+	jge load_mapped_page_tables
+
+  # Move physical address of page frame into EDX.
+	movl %esi, %edx
+	# Apply flags: Supervisor x Preset x Writeable.
+  orl $3, %edx
 	movl %edx, (%edi)
 
 increment_frame_address:
@@ -69,26 +88,19 @@ increment_frame_address:
 	addl $0x1000, %esi
 	# Size of entries in boot_page_table is 4 bytes.
 	addl $4, %edi
-	# Loop to the next entry if we haven't finished.
-	loop map_kernel_pages
 
-map_vga_buffer:
-	# Map VGA video memory to 0xC03FF000 as "present, writable".
-	movl $(0xB8000 + 3), boot_page_table - 0xC0000000 + (1023 * 4)
-
-	# The page table is used at both page directory entry 0 (virtually from 0x0
-	# to 0x3FFFFF) (thus identity mapping the kernel) and page directory entry
-	# 768 (virtually from 0xC0000000 to 0xC03FFFFF) (thus mapping it in the
-	# higher half). The kernel is identity mapped because enabling paging does
-	# not change the next instruction, which continues to be physical. The CPU
-	# would instead page fault if there was no identity mapping.
+  jmp map_kernel_frame
 
 load_mapped_page_tables:
-	# Map the kernel page table to both virtual addresses 0x00000000 and 0xC0000000.
-	# This allows the code to keep executing after enabling paging, prior to the
-	# absolute jump to the higher half.
-	movl $((boot_page_table - 0xC0000000) + 3), boot_page_directory - 0xC0000000
-	movl $((boot_page_table - 0xC0000000) + 3), boot_page_directory - 0xC0000000 + 768 * 4
+  # Move address of boot page table into EDX.
+  movl $boot_page_table - 0xC0000000, %edx
+  # Apply flags: Supervisor x Present x Writeable.
+  orl $3, %edx
+
+  # Map the boot page table to virtual addresses 0x00000000 and 0xC0000000.
+  # This allows for execution to continue sequentially immediately after enabling paging.
+  movl %edx, boot_page_directory - 0xC0000000
+  movl %edx, boot_page_directory - 0xC0000000 + (768 * 4)
 
 	ret
 
@@ -101,21 +113,21 @@ _start:
 
 	# Save multiboot variables, since we want to pass these to the system
 	# initialisation function after having initialised the runtime.
-	movl %eax, (multiboot_magic - 0xC0000000)
-	movl %ebx, (multiboot_struct - 0xC0000000)
+	movl %eax, multiboot_magic - 0xC0000000
+	movl %ebx, multiboot_struct - 0xC0000000
 
   call init_boot_page_directory
 
   # Load address of the page directory into CR3.
-	movl $(boot_page_directory - 0xC0000000), %ecx
+	movl $boot_page_directory - 0xC0000000, %ecx
 	movl %ecx, %cr3
 
-	# Enable paging and write-protect flag.
-	movl %cr0, %ecx
+	# Set write-protect and paging-enabled flags.
+  movl %cr0, %ecx
 	orl $0x80010000, %ecx
 	movl %ecx, %cr0
 
-	# Absolute jump to higher half.
+	# Perform an absolute jump to higher half.
 	lea higher_half_jump, %ecx
 	jmp *%ecx
 

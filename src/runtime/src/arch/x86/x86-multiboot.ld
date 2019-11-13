@@ -9,37 +9,43 @@
  *     Anthony <ajxs [at] panoptic.online>
  */
 
+KERNEL_VMA_START = 0xC0000000;
+STACK_SIZE       = 0x4000;
+
 ENTRY (_start)
 SECTIONS {
   . = 0xC0100000;
   kernel_start = .;
 
-  .text ALIGN(4K) : AT (ADDR (.text) - 0xC0000000)
+  .text ALIGN(4K) : AT (ADDR (.text) - KERNEL_VMA_START)
   {
     *(.multiboot)
     *(.text*)
   }
 
-  .rodata ALIGN (4K) : AT (ADDR (.rodata) - 0xC0000000)
+  .rodata ALIGN (4K) : AT (ADDR (.rodata) - KERNEL_VMA_START)
   {
     *(.rodata*)
   }
 
-  .data ALIGN (4K) : AT (ADDR (.data) - 0xC0000000)
+  .data ALIGN (4K) : AT (ADDR (.data) - KERNEL_VMA_START)
   {
     *(.data*)
   }
 
-  .bss ALIGN (4K) : AT (ADDR (.bss) - 0xC0000000)
+  .bss ALIGN (4K) : AT (ADDR (.bss) - KERNEL_VMA_START)
   {
     bss_start = .;
     *(COMMON)
     *(.bss*)
 
+    . = ALIGN (16);
+    stack_bottom = .;
+    . += STACK_SIZE;
+    stack_top = .;
+
     . = ALIGN (4K);
     boot_page_directory = .;
-    . += 0x1000;
-    boot_low_memory_page_table = .;
     . += 0x1000;
     boot_page_table = .;
     . += 0x1000;

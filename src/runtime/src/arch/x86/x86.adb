@@ -18,7 +18,7 @@ with x86.Interrupts;
 with x86.IRQ_Handlers;
 with x86.GDT;
 with x86.PIC;
-with x86.Memory.Paging;
+--  with x86.Memory.Paging;
 with x86.Memory.Map;
 with x86.PIT;
 with x86.Serial;
@@ -167,15 +167,15 @@ package body x86 is
          end Initialise_Memory_Map;
 
       --  Initialise the paging memory structures.
-      x86.Serial.Put_String (x86.Serial.COM1,
-        "Initialising kernel page directory" & ASCII.LF);
-      x86.Memory.Paging.Initialise_Kernel_Page_Directory;
+--      x86.Serial.Put_String (x86.Serial.COM1,
+--        "Initialising kernel page directory" & ASCII.LF);
+--      x86.Memory.Paging.Initialise_Kernel_Page_Directory;
 
-      x86.Serial.Put_String (x86.Serial.COM1,
-        "Enabling Paging" & ASCII.LF);
-      x86.Memory.Paging.Enable_Paging;
-      x86.Serial.Put_String (x86.Serial.COM1,
-        "Paging Enabled" & ASCII.LF);
+--      x86.Serial.Put_String (x86.Serial.COM1,
+--        "Enabling Paging" & ASCII.LF);
+--      x86.Memory.Paging.Enable_Paging;
+--      x86.Serial.Put_String (x86.Serial.COM1,
+--        "Paging Enabled" & ASCII.LF);
    end Initialise;
 
    ----------------------------------------------------------------------------

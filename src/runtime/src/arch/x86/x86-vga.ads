@@ -146,7 +146,7 @@ private
    Vga_Output_Buffer : Vga_Buffer (0 .. (VGA_COL_COUNT * VGA_ROW_COUNT) - 1)
    with Import,
      Convention => Ada,
-     Address    => To_Address (16#C03FF000#),
+     Address    => To_Address (16#B8000#),
      Volatile;
 
 end x86.Vga;

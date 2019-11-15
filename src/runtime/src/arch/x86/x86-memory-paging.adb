@@ -157,6 +157,26 @@ package body x86.Memory.Paging is
       return Success;
    end Get_Page_Table_Index;
 
+   function Identity_Map_Vga_Memory return Kernel_Process_Result is
+      Directory : Page_Directory
+      with Import,
+        Convention => Ada,
+        Address    => To_Address (16#FFFF_F000#);
+
+      Result : Process_Result;
+   begin
+      Result := Map_Page_Frame (Directory,
+        To_Address (16#B8000#), To_Address (16#B8000#));
+      if Result /= Success then
+         return Failure;
+      end if;
+
+      return Success;
+   exception
+      when Constraint_Error =>
+         return Failure;
+   end Identity_Map_Vga_Memory;
+
    ----------------------------------------------------------------------------
    --  Initialise_Kernel_Page_Directory
    --
@@ -164,7 +184,7 @@ package body x86.Memory.Paging is
    --    - Assumes kernel can fit in one page table.
    --    - Assumes boot page table has been properly recursively mapped.
    ----------------------------------------------------------------------------
-   procedure Initialise_Kernel_Page_Directory is
+   function Initialise_Kernel_Page_Directory return Kernel_Process_Result is
       use x86.Memory.Map;
 
       --  The result of the frame allocation operation.
@@ -201,7 +221,7 @@ package body x86.Memory.Paging is
             Allocate_Result := x86.Memory.Map.Allocate_Frame (
               Kernel_Page_Directory_Addr);
             if Allocate_Result /= Success then
-               return;
+               return Failure;
             end if;
 
             --  Allocate the initial kernel page table frame.
@@ -209,18 +229,18 @@ package body x86.Memory.Paging is
             Allocate_Result := x86.Memory.Map.Allocate_Frame (
               Kernel_Page_Table_Addr);
             if Allocate_Result /= Success then
-               return;
+               return Failure;
             end if;
 
             --  Allocate the recursive page table frame.
             Allocate_Result := x86.Memory.Map.Allocate_Frame (
                Kernel_Table_Index_Addr);
             if Allocate_Result /= Success then
-               return;
+               return Failure;
             end if;
          exception
             when Constraint_Error =>
-               return;
+               return Failure;
          end Allocate_Frames;
 
       --  Temporarily map the newly allocated page frame structures into the
@@ -249,7 +269,7 @@ package body x86.Memory.Paging is
             Flush_Tlb;
          exception
             when Constraint_Error =>
-               return;
+               return Failure;
          end Initialise_Temporary_Mapping;
 
       Init_Directory :
@@ -282,17 +302,17 @@ package body x86.Memory.Paging is
                begin
                   Result := Initialise_Page_Table (Kernel_Page_Table);
                   if Result /= Success then
-                     return;
+                     return Failure;
                   end if;
 
                   Result := Initialise_Page_Table (Kernel_Table_Index);
                   if Result /= Success then
-                     return;
+                     return Failure;
                   end if;
 
                   Result := Initialise_Page_Directory (Kernel_Page_Directory);
                   if Result /= Success then
-                     return;
+                     return Failure;
                   end if;
 
                   --  Map the kernel page table.
@@ -306,7 +326,7 @@ package body x86.Memory.Paging is
                     Convert_To_Page_Aligned_Address (Kernel_Table_Index_Addr);
                exception
                   when Constraint_Error =>
-                     return;
+                     return Failure;
                end Init_Page_Structures;
 
             --  Initialise the recursive page table index.
@@ -327,7 +347,7 @@ package body x86.Memory.Paging is
                     Kernel_Page_Directory_Addr);
                exception
                   when Constraint_Error =>
-                     return;
+                     return Failure;
                end Map_Page_Table_Index;
 
             --  Map the kernel address space.
@@ -379,28 +399,11 @@ package body x86.Memory.Paging is
                   end loop;
                exception
                   when Constraint_Error =>
-                     return;
+                     return Failure;
                end Map_Kernel_Address_Space;
          end Init_Directory;
 
-         Identity_Map_Vga_Memory :
-            declare
-               Directory : Page_Directory
-               with Import,
-                 Convention => Ada,
-                 Address    => To_Address (16#FFFF_F000#);
-
-               Result : Process_Result;
-            begin
-               Result := Map_Page_Frame (Directory,
-                 To_Address (16#B8000#), To_Address (16#B8000#));
-               if Result /= Success then
-                  return;
-               end if;
-            exception
-               when Constraint_Error =>
-                  return;
-            end Identity_Map_Vga_Memory;
+         return Success;
    end Initialise_Kernel_Page_Directory;
 
    ----------------------------------------------------------------------------
@@ -550,10 +553,6 @@ package body x86.Memory.Paging is
                      with Import,
                        Convention => Ada,
                        Address    => To_Address (16#FFFF_F000#);
-
-                     --  The address offset from the start of the page table
-                     --  index base address.
-                     Idx_Offset : Integer_Address;
                   begin
                      --  Add the newly allocated page table to the recursively
                      --  mapped index table.
@@ -561,12 +560,24 @@ package body x86.Memory.Paging is
                      Index_Page_Table (Directory_Idx).Page_Address :=
                        Convert_To_Page_Aligned_Address (Allocated_Addr);
 
+                     Flush_Tlb;
+                  exception
+                     when Constraint_Error =>
+                        return Invalid_Page_Directory;
+                  end Recursively_Map_Table;
+
+               Compute_Table_Virtual_Addres :
+                  declare
+                     --  The address offset from the start of the page table
+                     --  index base address.
+                     Idx_Offset : Integer_Address;
+                  begin
                      Idx_Offset := Integer_Address (16#1000# * Directory_Idx);
                      Table_Addr := To_Address (16#FFC0_0000# + Idx_Offset);
                   exception
                      when Constraint_Error =>
                         return Invalid_Page_Directory;
-                  end Recursively_Map_Table;
+                  end Compute_Table_Virtual_Addres;
 
                --  Initialise the newly allocated page table.
                Init_Table :
@@ -596,6 +607,10 @@ package body x86.Memory.Paging is
             when Constraint_Error =>
                return Invalid_Table_Index;
          end Get_Table_Address;
+
+      --  Refresh the page directory to allow the use of our
+      --  new mapping.
+      Flush_Tlb;
 
       Map_Entry :
          declare

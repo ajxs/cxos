@@ -2,13 +2,8 @@ set architecture i386
 target remote localhost:1234
 file src/kernel/build/cxos.elf -readnow
 
-# b set_frame_state
 # b initialise_kernel_page_directory
-# b mark_kernel_memory
-# b _start
-# b higher_half_jump
-b x86-memory-paging.adb:395
-b __flush_tlb
+b x86-memory-paging.adb:574
 # x /32tg &memory_map
 
 # print_mmap_region

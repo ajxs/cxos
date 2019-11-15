@@ -87,6 +87,9 @@ package body x86 is
         Volatile;
 
       Multiboot_Memory_Map_Present : Boolean;
+
+      --  The result of the internal processes.
+      Init_Result : Kernel_Process_Result;
    begin
       x86.Vga.Clear (x86.Vga.Black);
       x86.Vga.Put_String (0, 0, x86.Vga.Light_Green, x86.Vga.Black,
@@ -212,7 +215,13 @@ package body x86 is
       --  Initialise the paging memory structures.
       x86.Serial.Put_String (x86.Serial.COM1,
         "Initialising kernel page directory" & ASCII.LF);
-      x86.Memory.Paging.Initialise_Kernel_Page_Directory;
+      Init_Result := x86.Memory.Paging.Initialise_Kernel_Page_Directory;
+      if Init_Result /= Success then
+         x86.Serial.Put_String (x86.Serial.COM1,
+           "Error initialising kernel page directory" & ASCII.LF);
+
+         return;
+      end if;
 
       x86.Serial.Put_String (x86.Serial.COM1,
         "Loading kernel page directory" & ASCII.LF);
@@ -223,6 +232,20 @@ package body x86 is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Freeing boot page structures" & ASCII.LF);
       Clear_Boot_Page_Structures;
+
+      Init_Result := x86.Memory.Paging.Identity_Map_Vga_Memory;
+      if Init_Result /= Success then
+         x86.Serial.Put_String (x86.Serial.COM1,
+           "Error identity mapping VGA memory" & ASCII.LF);
+
+         return;
+      end if;
+   exception
+      when Constraint_Error =>
+         x86.Serial.Put_String (x86.Serial.COM1,
+           "Constraint Error during system init" & ASCII.LF);
+
+         return;
    end Initialise;
 
    ----------------------------------------------------------------------------

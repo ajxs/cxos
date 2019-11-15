@@ -28,7 +28,7 @@ library project Runtime is
 
    package Compiler is
       for Default_Switches ("Ada") use (
-        "-O2",
+        "-O0",
         "-ffunction-sections",
         "-fdata-sections",
         "-fno-omit-frame-pointer",

@@ -25,13 +25,15 @@ package x86.Memory.Paging is
    --  Initialise_Kernel_Page_Directory
    --
    --  Purpose:
-   --    This procedure initialises the kernel's main page directory.
+   --    This function initialises the kernel's main page directory.
    --    This populates the package-visible 'Kernel_Page_Directory_Addr'
    --    variable.
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Initialise_Kernel_Page_Directory;
+   function Initialise_Kernel_Page_Directory return Kernel_Process_Result;
+
+   function Identity_Map_Vga_Memory return Kernel_Process_Result;
 
    ----------------------------------------------------------------------------
    --  Enable_Paging

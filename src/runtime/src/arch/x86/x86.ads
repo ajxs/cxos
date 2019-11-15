@@ -27,6 +27,11 @@ package x86 is
    use Interfaces;
    use Multiboot;
 
+   type Kernel_Process_Result is (
+     Failure,
+     Success
+   );
+
    ----------------------------------------------------------------------------
    --  Initialise
    --

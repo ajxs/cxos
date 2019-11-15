@@ -552,8 +552,12 @@ package body x86.Memory.Paging is
                      Index_Page_Table : Page_Table
                      with Import,
                        Convention => Ada,
-                       Address    => To_Address (16#FFFF_F000#);
+                       Address    => To_Address (16#FFFF_E000#);
                   begin
+                     Directory (Directory_Idx).Present := True;
+                     Directory (Directory_Idx).Table_Address :=
+                       Convert_To_Page_Aligned_Address (Allocated_Addr);
+
                      --  Add the newly allocated page table to the recursively
                      --  mapped index table.
                      Index_Page_Table (Directory_Idx).Present := True;

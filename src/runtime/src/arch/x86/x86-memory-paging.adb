@@ -331,14 +331,46 @@ package body x86.Memory.Paging is
                end Map_Page_Table_Index;
 
             --  Map the kernel address space.
-            Identity_Map_Kernel :
+            Map_Kernel_Address_Space :
                declare
                   --  The current Address being mapped.
-                  Current_Addr : Integer_Address := 0;
+                  Current_Addr       : Integer_Address;
+                  --  The length of the kernel code segment in bytes.
+                  Kernel_Length      : Integer;
+                  --  The number of frames in the kernel.
+                  Kernel_Frame_Count : Integer;
+                  --  The page table index to begin mapping from.
+                  --  This corresponds to the frame the kernel memory begins
+                  --  at relative to the virtual memory starting offset.
+                  --    e.g (0xC0000000 - 0xC0100000) / 0x1000 = 256;
+                  Start_Frame        : Integer;
+
+                  --  The start of the kernel code segment.
+                  Kernel_Start : constant Unsigned_32
+                  with Import,
+                    Convention    => Assembler,
+                    External_Name => "kernel_start";
+                  --  The end of the kernel code segment.
+                  Kernel_End   : constant Unsigned_32
+                  with Import,
+                    Convention    => Assembler,
+                    External_Name => "kernel_end";
                begin
-                  for I in 0 .. 1023 loop
-                     Kernel_Page_Table (I).Present := True;
-                     Kernel_Page_Table (I).Page_Address :=
+                  Kernel_Length := Integer (
+                    To_Integer (Kernel_End'Address) -
+                    To_Integer (Kernel_Start'Address));
+
+                  --  The kernel's physical start is the virtual memory
+                  --  logical start subtracted from the kernel memory start.
+                  Current_Addr :=
+                    To_Integer (Kernel_Start'Address) - 16#C0000000#;
+
+                  Kernel_Frame_Count := 1 + (Kernel_Length / 16#1000#);
+                  Start_Frame        := Integer (Current_Addr / 16#1000#);
+
+                  for I in 0 .. Kernel_Frame_Count loop
+                     Kernel_Page_Table (Start_Frame + I).Present := True;
+                     Kernel_Page_Table (Start_Frame + I).Page_Address :=
                        Convert_To_Page_Aligned_Address (
                        To_Address (Current_Addr));
 
@@ -348,7 +380,7 @@ package body x86.Memory.Paging is
                exception
                   when Constraint_Error =>
                      return;
-               end Identity_Map_Kernel;
+               end Map_Kernel_Address_Space;
          end Init_Directory;
    end Initialise_Kernel_Page_Directory;
 

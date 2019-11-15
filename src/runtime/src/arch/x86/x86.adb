@@ -303,9 +303,11 @@ package body x86 is
 
       --  The length of the kernel code segment in bytes.
       Kernel_Length    : Unsigned_32;
+
       --  The result of the frame status set process.
       Result : x86.Memory.Map.Process_Result;
       --  The start of the kernel code segment.
+
       Kernel_Start     : constant Unsigned_32
       with Import,
         Convention    => Assembler,

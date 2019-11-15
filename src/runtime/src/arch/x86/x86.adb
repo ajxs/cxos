@@ -30,6 +30,49 @@ package body x86 is
    use System.Storage_Elements;
 
    ----------------------------------------------------------------------------
+   --  Clear_Boot_Page_Structures
+   ----------------------------------------------------------------------------
+   procedure Clear_Boot_Page_Structures is
+      use x86.Memory.Map;
+
+      --  The result of the frame status set process.
+      Result : x86.Memory.Map.Process_Result;
+
+      --  The boot page directory.
+      --  Import as an Unsigned int, since we don't care what kind of
+      --  structure is at this memory address. We only need to clear it.
+      Boot_Page_Directory : constant Unsigned_32
+      with Import,
+        Convention    => Assembler,
+        External_Name => "boot_page_directory";
+
+      --  The boot page table.
+      Boot_Page_Table     : constant Unsigned_32
+      with Import,
+        Convention    => Assembler,
+        External_Name => "boot_page_table";
+   begin
+      Result := x86.Memory.Map.Mark_Memory_Range (
+        Boot_Page_Directory'Address, 16#1000#, Unallocated);
+      if Result /= Success then
+         x86.Serial.Put_String (x86.Serial.COM1,
+           "Error freeing boot page directory" & ASCII.LF);
+
+         return;
+      end if;
+
+      Result := x86.Memory.Map.Mark_Memory_Range (
+        Boot_Page_Table'Address, 16#1000#, Unallocated);
+      if Result /= Success then
+         x86.Serial.Put_String (x86.Serial.COM1,
+           "Error freeing boot page table" & ASCII.LF);
+      end if;
+   exception
+      when Constraint_Error =>
+         return;
+   end Clear_Boot_Page_Structures;
+
+   ----------------------------------------------------------------------------
    --  Initialise
    ----------------------------------------------------------------------------
    procedure Initialise (
@@ -176,6 +219,10 @@ package body x86 is
       x86.Memory.Paging.Enable_Paging;
       x86.Serial.Put_String (x86.Serial.COM1,
         "Kernel page directory loaded" & ASCII.LF);
+
+      x86.Serial.Put_String (x86.Serial.COM1,
+        "Freeing boot page structures" & ASCII.LF);
+      Clear_Boot_Page_Structures;
    end Initialise;
 
    ----------------------------------------------------------------------------
@@ -306,8 +353,8 @@ package body x86 is
 
       --  The result of the frame status set process.
       Result : x86.Memory.Map.Process_Result;
-      --  The start of the kernel code segment.
 
+      --  The start of the kernel code segment.
       Kernel_Start     : constant Unsigned_32
       with Import,
         Convention    => Assembler,

@@ -251,7 +251,7 @@ private
    --  Map_Page_Frame
    --
    --  Purpose:
-   --    This procedure maps an individual page frame. This maps an individual
+   --    This function maps an individual page frame. This maps an individual
    --    4K aligned virtual address frame to a physical address.
    --  Exceptions:
    --    None.

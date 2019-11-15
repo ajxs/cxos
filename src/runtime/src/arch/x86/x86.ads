@@ -98,6 +98,17 @@ private
    procedure Mark_Kernel_Memory;
 
    ----------------------------------------------------------------------------
+   --  Clear_Boot_Page_Structures
+   --
+   --  Purpose:
+   --    This procedure marks the boot page structures as being unallocated
+   --    memory, free for being overwritten.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   procedure Clear_Boot_Page_Structures;
+
+   ----------------------------------------------------------------------------
    --  Parse_Multiboot_Memory_Map
    --
    --  Purpose:

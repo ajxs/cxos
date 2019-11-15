@@ -44,10 +44,6 @@ library project Runtime is
       for Default_Switches ("Asm_Cpp") use (
         "-ggdb"
       );
-
-      for Default_Switches ("Others") use (
-        "-ggdb"
-      );
    end Compiler;
 
    for Library_Dir use "build/adalib";

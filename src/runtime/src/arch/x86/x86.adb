@@ -18,7 +18,7 @@ with x86.Interrupts;
 with x86.IRQ_Handlers;
 with x86.GDT;
 with x86.PIC;
---  with x86.Memory.Paging;
+with x86.Memory.Paging;
 with x86.Memory.Map;
 with x86.PIT;
 with x86.Serial;
@@ -167,15 +167,15 @@ package body x86 is
          end Initialise_Memory_Map;
 
       --  Initialise the paging memory structures.
---      x86.Serial.Put_String (x86.Serial.COM1,
---        "Initialising kernel page directory" & ASCII.LF);
---      x86.Memory.Paging.Initialise_Kernel_Page_Directory;
+      x86.Serial.Put_String (x86.Serial.COM1,
+        "Initialising kernel page directory" & ASCII.LF);
+      x86.Memory.Paging.Initialise_Kernel_Page_Directory;
 
---      x86.Serial.Put_String (x86.Serial.COM1,
---        "Enabling Paging" & ASCII.LF);
---      x86.Memory.Paging.Enable_Paging;
---      x86.Serial.Put_String (x86.Serial.COM1,
---        "Paging Enabled" & ASCII.LF);
+      x86.Serial.Put_String (x86.Serial.COM1,
+        "Loading kernel page directory" & ASCII.LF);
+      x86.Memory.Paging.Enable_Paging;
+      x86.Serial.Put_String (x86.Serial.COM1,
+        "Kernel page directory loaded" & ASCII.LF);
    end Initialise;
 
    ----------------------------------------------------------------------------
@@ -294,6 +294,9 @@ package body x86 is
 
    ----------------------------------------------------------------------------
    --  Mark_Kernel_Memory
+   --
+   --  Implementation Notes:
+   --    - Marks the kernel's physical memory as being used.
    ----------------------------------------------------------------------------
    procedure Mark_Kernel_Memory is
       use x86.Memory.Map;
@@ -312,13 +315,21 @@ package body x86 is
       with Import,
         Convention    => Assembler,
         External_Name => "kernel_end";
+
+      --  The physical start of Kernel memory.
+      Kernel_Physical_Start : System.Address;
    begin
       Kernel_Length   := Unsigned_32 (
         To_Integer (Kernel_End'Address) -
         To_Integer (Kernel_Start'Address));
 
+      --  The kernel's physical start is the virtual memory logical start
+      --  subtracted from the kernel memory start.
+      Kernel_Physical_Start := To_Address (
+        To_Integer (Kernel_Start'Address) - 16#C0000000#);
+
       Result := x86.Memory.Map.Mark_Memory_Range (
-        Kernel_Start'Address, Kernel_Length, Allocated);
+        Kernel_Physical_Start, Kernel_Length, Allocated);
 
       if Result /= Success then
          x86.Serial.Put_String (x86.Serial.COM1,

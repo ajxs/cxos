@@ -45,6 +45,10 @@ project Kernel is
         "-gnaty3abcdefhiklmnoprstux",
         "-Wall"
       );
+
+      for Default_Switches ("Asm_Cpp") use (
+        "-ggdb"
+      );
    end Compiler;
 
    package Linker is

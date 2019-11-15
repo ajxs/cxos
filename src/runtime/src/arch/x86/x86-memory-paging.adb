@@ -159,21 +159,95 @@ package body x86.Memory.Paging is
 
    ----------------------------------------------------------------------------
    --  Initialise_Kernel_Page_Directory
+   --
+   --  Implementation Notes:
+   --    - Assumes kernel can fit in one page table.
+   --    - Assumes boot page table has been properly recursively mapped.
    ----------------------------------------------------------------------------
    procedure Initialise_Kernel_Page_Directory is
       use x86.Memory.Map;
 
       --  The result of the frame allocation operation.
       Allocate_Result : x86.Memory.Map.Process_Result;
+
+      --  Boot page directory initialised during boot.
+      --  The last page directory entry has been used to recursively map
+      --  the directory, so this constant address is used here.
+      Boot_Page_Directory : Page_Directory
+      with Import,
+        Convention => Ada,
+        Address    => To_Address (16#FFFF_F000#);
+
+      --  The page directory entry corresponding to the kernel's
+      --  virtual memory offset.
+      Boot_Kernel_Page_Table : Page_Table
+      with Import,
+        Convention => Ada,
+        Address    => Convert_To_System_Address
+          (Boot_Page_Directory (768).Table_Address);
+
+      --  The allocated address of the first kernel page table.
+      Kernel_Page_Table_Addr : System.Address;
+      --  The allocated address of the table used to hold the
+      --  recursive page table mappings.
+      Kernel_Recursive_Table_Addr : System.Address;
    begin
-      --  Allocate the Kernel page directory frame.
-      --  This populates the Kernel page directory address with the address
-      --  of the newly allocated frame.
-      Allocate_Result := x86.Memory.Map.Allocate_Frame (
-        Kernel_Page_Directory_Addr);
-      if Allocate_Result /= Success then
-         return;
-      end if;
+      --  Allocate all required structures.
+      Allocate_Frames :
+         begin
+            --  Allocate the Kernel page directory frame.
+            --  This populates the Kernel page directory address with the
+            --  address of the newly allocated frame.
+            Allocate_Result := x86.Memory.Map.Allocate_Frame (
+              Kernel_Page_Directory_Addr);
+            if Allocate_Result /= Success then
+               return;
+            end if;
+
+            --  Allocate the initial kernel page table frame.
+            --  This will be used to identity map the kernel.
+            Allocate_Result := x86.Memory.Map.Allocate_Frame (
+              Kernel_Page_Table_Addr);
+            if Allocate_Result /= Success then
+               return;
+            end if;
+
+            --  Allocate the recursive page table frame.
+            Allocate_Result := x86.Memory.Map.Allocate_Frame (
+              Kernel_Recursive_Table_Addr);
+            if Allocate_Result /= Success then
+               return;
+            end if;
+         exception
+            when Constraint_Error =>
+               return;
+         end Allocate_Frames;
+
+      --  Temporarily map the newly allocated page frame structures into the
+      --  last entries in trhe boot page table.
+      Initialise_Temporary_Mapping :
+         begin
+            Boot_Kernel_Page_Table (1021).Page_Address :=
+              Convert_To_Page_Aligned_Address (Kernel_Recursive_Table_Addr);
+            Boot_Kernel_Page_Table (1021).Present    := True;
+            Boot_Kernel_Page_Table (1021).Read_Write := True;
+
+            Boot_Kernel_Page_Table (1022).Page_Address :=
+              Convert_To_Page_Aligned_Address (Kernel_Page_Table_Addr);
+            Boot_Kernel_Page_Table (1022).Present    := True;
+            Boot_Kernel_Page_Table (1022).Read_Write := True;
+
+            Boot_Kernel_Page_Table (1023).Page_Address :=
+              Convert_To_Page_Aligned_Address (Kernel_Page_Directory_Addr);
+            Boot_Kernel_Page_Table (1023).Present    := True;
+            Boot_Kernel_Page_Table (1023).Read_Write := True;
+
+            --  Flush the TLB.
+            Flush_Tlb;
+         exception
+            when Constraint_Error =>
+               return;
+         end Initialise_Temporary_Mapping;
 
       Init_Directory :
          declare
@@ -181,35 +255,89 @@ package body x86.Memory.Paging is
             Kernel_Page_Directory : Page_Directory
             with Import,
               Convention => Ada,
-              Address    => Kernel_Page_Directory_Addr;
+              Address    => To_Address (16#C03F_F000#);
+
+            --  The initial Kernel Page Table.
+            Kernel_Page_Table : Page_Table
+            with Import,
+              Convention => Ada,
+              Address    => To_Address (16#C03F_E000#);
+
+            --  The recursive mapping Page Table.
+            Recursive_Map_Page_Table : Page_Table
+            with Import,
+              Convention => Ada,
+              Address    => To_Address (16#C03F_D000#);
 
             --  Process result of internal processes.
             Result : Process_Result;
          begin
             --  Initialise the page directory.
-            Init_Page_Dir :
+            Init_Page_Structures :
                begin
+                  Result := Initialise_Page_Table (Kernel_Page_Table);
+                  if Result /= Success then
+                     return;
+                  end if;
+
+                  Result := Initialise_Page_Table (Recursive_Map_Page_Table);
+                  if Result /= Success then
+                     return;
+                  end if;
+
                   Result := Initialise_Page_Directory (Kernel_Page_Directory);
                   if Result /= Success then
                      return;
                   end if;
+
+                  --  Map the kernel page table.
+                  Kernel_Page_Directory (768).Present := True;
+                  Kernel_Page_Directory (768).Table_Address :=
+                    Convert_To_Page_Aligned_Address (Kernel_Page_Table_Addr);
+
+                  --  Map the page index to the second last entry.
+                  Kernel_Page_Directory (1023).Present := True;
+                  Kernel_Page_Directory (1023).Table_Address :=
+                    Convert_To_Page_Aligned_Address (
+                    Kernel_Recursive_Table_Addr);
                exception
                   when Constraint_Error =>
                      return;
-               end Init_Page_Dir;
+               end Init_Page_Structures;
 
-            --  Identity map the kernel.
-            Identity_Map_Directory :
+            --  Initialise the recursive page table index.
+            Map_Page_Table_Index :
+               begin
+                  --  Map the first kernel page in the recursive index.
+                  Recursive_Map_Page_Table (768).Present      := True;
+                  Recursive_Map_Page_Table (768).Page_Address :=
+                    Convert_To_Page_Aligned_Address (Kernel_Page_Table_Addr);
+
+                  Recursive_Map_Page_Table (1022).Present      := True;
+                  Recursive_Map_Page_Table (1022).Page_Address :=
+                    Convert_To_Page_Aligned_Address (
+                    Kernel_Recursive_Table_Addr);
+
+                  Recursive_Map_Page_Table (1023).Present      := True;
+                  Recursive_Map_Page_Table (1023).Page_Address :=
+                    Convert_To_Page_Aligned_Address (
+                    Kernel_Page_Directory_Addr);
+               exception
+                  when Constraint_Error =>
+                     return;
+               end Map_Page_Table_Index;
+
+            --  Map the kernel address space.
+            Identity_Map_Kernel :
                declare
-                  --  The current address being mapped.
+                  --  The current Address being mapped.
                   Current_Addr : Integer_Address := 0;
                begin
                   for I in 0 .. 1023 loop
-                     Result := Map_Page_Frame (Kernel_Page_Directory,
-                       To_Address (Current_Addr), To_Address (Current_Addr));
-                     if Result /= Success then
-                        return;
-                     end if;
+                     Kernel_Page_Table (I).Present := True;
+                     Kernel_Page_Table (I).Page_Address :=
+                       Convert_To_Page_Aligned_Address (
+                       To_Address (Current_Addr));
 
                      --  Increment the counter by one page frame in size.
                      Current_Addr := Current_Addr + 16#1000#;
@@ -217,7 +345,7 @@ package body x86.Memory.Paging is
                exception
                   when Constraint_Error =>
                      return;
-               end Identity_Map_Directory;
+               end Identity_Map_Kernel;
          end Init_Directory;
    end Initialise_Kernel_Page_Directory;
 

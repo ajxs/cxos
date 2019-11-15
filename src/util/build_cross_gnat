@@ -2,11 +2,11 @@
 
 source "_shared.sh" || exit 1
 
-# Recipe for building and installing a GNAT capable GCC cross-compiler from `x86-64-linux-elf` 
+# Recipe for building and installing a GNAT capable GCC cross-compiler from `x86-64-linux-elf`
 # to `i686-elf` from source.
 # This script assumes a Debian-like system. Ubuntu etc. But can easily be adapted to another
 # system. If you want help with this, feel free to contact me directly.
-# Requires a compatible version of GNAT on the host machine for bootstrapping the 
+# Requires a compatible version of GNAT on the host machine for bootstrapping the
 # installation process. This is the source of much trouble and confusion. I have only been
 # able to build with certain combinations. Usually a matching system version of FSF GNAT
 # is required. e.g System FSF GNAT 8.3.0 will need to be installed to build GCC/GNAT 8.3.0.
@@ -17,12 +17,13 @@ source "_shared.sh" || exit 1
 # Optionally the script checks for GMP, MPC and MPFR being installed on the system and links
 # against them staticly during the build process.
 #
-# Once the installation is finished, you will need to add the directory specified in the 
+# Once the installation is finished, you will need to add the directory specified in the
 # `${BUILD_PREFIX}` variable to your PATH to use the built compiler.
 
 
 # The target triplet for the build.
-export BUILD_TARGET="i686-elf"
+# export BUILD_TARGET="i686-elf"
+export BUILD_TARGET="avr"
 # The install prefix.
 export BUILD_PREFIX="${HOME}/opt/cross/${BUILD_TARGET}"
 # The host target triplet.
@@ -320,9 +321,9 @@ else
 fi
 
 
-build_binutils
-build_bootstrap_gcc
-build_newlib
+# build_binutils
+# build_bootstrap_gcc
+# build_newlib
 build_gcc
 
 echo "Finished building cross-GNAT"

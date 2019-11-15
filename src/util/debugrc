@@ -7,13 +7,12 @@ file src/kernel/build/cxos.elf -readnow
 # b mark_kernel_memory
 # b _start
 # b higher_half_jump
-# b x86-multiboot-start.S:134
-b __system_init
-b x86.adb:61
+# b x86-memory-paging.adb:196
+b __flush_tlb
 # x /32tg &memory_map
 
 # print_mmap_region
 
 # x /1xg &idt_pointer
-x /5xg &global_descriptor_table
+# x /5xg &global_descriptor_table
 # x /3xg &interrupt_descriptor_table+(256)

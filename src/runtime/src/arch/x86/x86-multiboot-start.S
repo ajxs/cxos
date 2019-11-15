@@ -68,14 +68,14 @@ increment_low_frame_address:
 
 map_kernel_memory:
   # The page table entry address.
-  movl $((boot_page_table + 1024) - 0xC0000000), %edi
+  movl $(boot_page_table + 1024) - 0xC0000000, %edi
   # The page frame address.
-  movl $(kernel_start - 0xC0000000), %esi
+  movl $kernel_start - 0xC0000000, %esi
 
 map_kernel_frame:
 	# Check that we're only mapping the kernel.
-  cmpl $(kernel_end - 0xC0000000), %esi
-	jge load_mapped_page_tables
+  cmpl $kernel_end - 0xC0000000, %esi
+	jge recursively_map_boot_directory
 
   # Move physical address of page frame into EDX.
 	movl %esi, %edx
@@ -90,6 +90,15 @@ increment_frame_address:
 	addl $4, %edi
 
   jmp map_kernel_frame
+
+# Map the final entry in the page directory to itself.
+recursively_map_boot_directory:
+  # Load page directory address into EDX.
+  movl $boot_page_directory - 0xC0000000, %edx
+  # Apply flags: Supervisor x Present x Writeable.
+  orl $3, %edx
+  # Move to final entry in page directory.
+  movl %edx, boot_page_directory - 0xC0000000 + (1023 * 4)
 
 load_mapped_page_tables:
   # Move address of boot page table into EDX.

@@ -178,6 +178,19 @@ private
    with Pure_Function;
 
    ----------------------------------------------------------------------------
+   --  Flush_Tlb
+   --
+   --  Purpose:
+   --    Flushes and reloads the Translation Lookaside Buffer.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   procedure Flush_Tlb
+   with Import,
+     Convention    => Assembler,
+     External_Name => "__flush_tlb";
+
+   ----------------------------------------------------------------------------
    --  Get_Page_Directory_Index
    --
    --  Purpose:

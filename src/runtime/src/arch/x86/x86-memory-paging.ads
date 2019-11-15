@@ -58,6 +58,7 @@ private
      Frame_Not_Allocated,
      Invalid_Argument,
      Invalid_Non_Aligned_Address,
+     Invalid_Page_Directory,
      Invalid_Table_Index,
      Invalid_Value,
      Success,

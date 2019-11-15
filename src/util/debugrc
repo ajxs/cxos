@@ -7,7 +7,7 @@ file src/kernel/build/cxos.elf -readnow
 # b mark_kernel_memory
 # b _start
 # b higher_half_jump
-b x86-memory-paging.adb:360
+b x86-memory-paging.adb:395
 b __flush_tlb
 # x /32tg &memory_map
 

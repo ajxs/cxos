@@ -382,6 +382,25 @@ package body x86.Memory.Paging is
                      return;
                end Map_Kernel_Address_Space;
          end Init_Directory;
+
+         Identity_Map_Vga_Memory :
+            declare
+               Directory : Page_Directory
+               with Import,
+                 Convention => Ada,
+                 Address    => To_Address (16#FFFF_F000#);
+
+               Result : Process_Result;
+            begin
+               Result := Map_Page_Frame (Directory,
+                 To_Address (16#B8000#), To_Address (16#B8000#));
+               if Result /= Success then
+                  return;
+               end if;
+            exception
+               when Constraint_Error =>
+                  return;
+            end Identity_Map_Vga_Memory;
    end Initialise_Kernel_Page_Directory;
 
    ----------------------------------------------------------------------------
@@ -471,6 +490,18 @@ package body x86.Memory.Paging is
                return Invalid_Non_Aligned_Address;
          end Check_Address;
 
+      --  Ensure that this page directory has been properly recursively mapped.
+      --  This will be necessary to add a new page table if necessary.
+      Check_Page_Directory :
+         begin
+            if Directory (1023).Present = False then
+               return Invalid_Page_Directory;
+            end if;
+         exception
+            when Constraint_Error =>
+               return Invalid_Page_Directory;
+         end Check_Page_Directory;
+
       --  Get the indexes into the page directory and page table.
       Get_Indexes :
          begin
@@ -509,6 +540,34 @@ package body x86.Memory.Paging is
                   return Invalid_Value;
                end if;
 
+               --  Create an entry into the recursive page table index so that
+               --  we can modify this page table in the virtual memory space.
+               Recursively_Map_Table :
+                  declare
+                     --  The Index page table used to recursively map all
+                     --  of the page tables.
+                     Index_Page_Table : Page_Table
+                     with Import,
+                       Convention => Ada,
+                       Address    => To_Address (16#FFFF_F000#);
+
+                     --  The address offset from the start of the page table
+                     --  index base address.
+                     Idx_Offset : Integer_Address;
+                  begin
+                     --  Add the newly allocated page table to the recursively
+                     --  mapped index table.
+                     Index_Page_Table (Directory_Idx).Present := True;
+                     Index_Page_Table (Directory_Idx).Page_Address :=
+                       Convert_To_Page_Aligned_Address (Allocated_Addr);
+
+                     Idx_Offset := Integer_Address (16#1000# * Directory_Idx);
+                     Table_Addr := To_Address (16#FFC0_0000# + Idx_Offset);
+                  exception
+                     when Constraint_Error =>
+                        return Invalid_Page_Directory;
+                  end Recursively_Map_Table;
+
                --  Initialise the newly allocated page table.
                Init_Table :
                   declare
@@ -518,7 +577,7 @@ package body x86.Memory.Paging is
                      Table       : Page_Table
                      with Import,
                        Convention => Ada,
-                       Address    => Allocated_Addr;
+                       Address    => Table_Addr;
                   begin
                      --  Initialise the new page table.
                      Init_Result := Initialise_Page_Table (Table);
@@ -533,9 +592,6 @@ package body x86.Memory.Paging is
                  Convert_To_Page_Aligned_Address (Allocated_Addr);
                Directory (Directory_Idx).Present := True;
             end if;
-
-            Table_Addr := Convert_To_System_Address (
-              Directory (Directory_Idx).Table_Address);
          exception
             when Constraint_Error =>
                return Invalid_Table_Index;

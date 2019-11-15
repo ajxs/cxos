@@ -132,6 +132,6 @@ private
    ----------------------------------------------------------------------------
    procedure Protected_Mode_Init
    with Import,
-     Convention    => C,
+     Convention    => Assembler,
      External_Name => "__protected_mode_init";
 end x86;

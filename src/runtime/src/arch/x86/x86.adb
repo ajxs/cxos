@@ -233,10 +233,10 @@ package body x86 is
         "Freeing boot page structures" & ASCII.LF);
       Clear_Boot_Page_Structures;
 
-      Init_Result := x86.Memory.Paging.Identity_Map_Vga_Memory;
+      Init_Result := Map_Vga_Memory;
       if Init_Result /= Success then
          x86.Serial.Put_String (x86.Serial.COM1,
-           "Error identity mapping VGA memory" & ASCII.LF);
+           "Error mapping VGA memory" & ASCII.LF);
 
          return;
       end if;
@@ -361,6 +361,26 @@ package body x86 is
    begin
       null;
    end Last_Chance_Handler;
+
+   ----------------------------------------------------------------------------
+   --  Map_Vga_Memory
+   ----------------------------------------------------------------------------
+   function Map_Vga_Memory return Kernel_Process_Result is
+      use x86.Memory.Paging;
+
+      Result : x86.Memory.Paging.Process_Result;
+   begin
+      Result := x86.Memory.Paging.Map_Page_Frame (To_Address (16#B8000#),
+        To_Address (16#B8000#));
+      if Result /= Success then
+         return Failure;
+      end if;
+
+      return Success;
+   exception
+      when Constraint_Error =>
+         return Failure;
+   end Map_Vga_Memory;
 
    ----------------------------------------------------------------------------
    --  Mark_Kernel_Memory

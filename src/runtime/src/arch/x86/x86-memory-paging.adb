@@ -157,25 +157,57 @@ package body x86.Memory.Paging is
       return Success;
    end Get_Page_Table_Index;
 
-   function Identity_Map_Vga_Memory return Kernel_Process_Result is
-      Directory : Page_Directory
-      with Import,
-        Convention => Ada,
-        Address    => To_Address (16#FFFF_F000#);
-
-      Result : Process_Result;
+   ----------------------------------------------------------------------------
+   --  Get_Page_Table_Mapped_Address
+   ----------------------------------------------------------------------------
+   function Get_Page_Table_Mapped_Address (
+     Virtual_Addr :     System.Address;
+     Mapped_Addr  : out System.Address
+   ) return Process_Result is
+      --  The index into the page directory that this virtual address
+      --  is mapped at.
+      Directory_Idx    : Natural;
+      --  The start address of the recursive page table mapping.
+      Table_Map_Base   : constant Integer_Address := 16#FFC0_0000#;
+      --  The offset from the base mapping offset.
+      Table_Map_Offset : Integer_Address := 0;
+      --  The result of internal processes.
+      Result           : Process_Result;
    begin
-      Result := Map_Page_Frame (Directory,
-        To_Address (16#B8000#), To_Address (16#B8000#));
-      if Result /= Success then
-         return Failure;
-      end if;
+      --  Ensure that the provided address is properly page aligned.
+      Check_Address :
+         begin
+            if not Check_Address_Page_Aligned (Virtual_Addr) then
+               return Invalid_Non_Aligned_Address;
+            end if;
+         exception
+            when Constraint_Error =>
+               return Invalid_Non_Aligned_Address;
+         end Check_Address;
+
+      --  Get the directory index.
+      Get_Directory_Idx :
+         begin
+            Result := Get_Page_Directory_Index (Virtual_Addr, Directory_Idx);
+            if Result /= Success then
+               return Result;
+            end if;
+         exception
+            when Constraint_Error =>
+               return Invalid_Non_Aligned_Address;
+         end Get_Directory_Idx;
+
+      Calculate_Mapped_Address :
+         begin
+            Table_Map_Offset := Integer_Address (16#1000# * Directory_Idx);
+            Mapped_Addr := To_Address (Table_Map_Offset + Table_Map_Base);
+         exception
+            when Constraint_Error =>
+               return Invalid_Non_Aligned_Address;
+         end Calculate_Mapped_Address;
 
       return Success;
-   exception
-      when Constraint_Error =>
-         return Failure;
-   end Identity_Map_Vga_Memory;
+   end Get_Page_Table_Mapped_Address;
 
    ----------------------------------------------------------------------------
    --  Initialise_Kernel_Page_Directory
@@ -465,20 +497,129 @@ package body x86.Memory.Paging is
    end Initialise_Page_Table;
 
    ----------------------------------------------------------------------------
+   --  Insert_Page_Table
+   ----------------------------------------------------------------------------
+   function Insert_Page_Table (
+     Directory_Idx : Natural
+   ) return Process_Result is
+      use x86.Memory.Map;
+
+      --  The currently loaded page directory.
+      Directory          : Page_Directory
+      with Import,
+        Convention => Ada,
+        Address    => To_Address (16#FFFF_F000#);
+
+      --  The process result of allocating a new page frame, if needed.
+      Allocate_Result    : x86.Memory.Map.Process_Result;
+      --  The address of the newly allocated page frame, if applicable.
+      Allocated_Addr     : System.Address;
+      --  The virtual address of the newly created table.
+      Table_Virtual_Addr : System.Address;
+      --  The result of internal processes.
+      Result             : Process_Result;
+   begin
+      --  Allocate a page frame for the new page table.
+      Allocate_Result := x86.Memory.Map.Allocate_Frame (
+        Allocated_Addr);
+      if Allocate_Result /= Success then
+         return Invalid_Value;
+      end if;
+
+      --  Set the address at the applicable index into the page
+      --  directory to point to the newly allocated page table.
+      Directory (Directory_Idx).Table_Address :=
+        Convert_To_Page_Aligned_Address (Allocated_Addr);
+      Directory (Directory_Idx).Present := True;
+
+      --  Create an entry into the recursive page table index so that
+      --  we can modify this page table in the virtual memory space.
+      Recursively_Map_Table :
+         declare
+            --  The Index page table used to recursively map all
+            --  of the page tables.
+            Index_Page_Table : Page_Table
+            with Import,
+              Convention => Ada,
+              Address    => To_Address (16#FFFF_E000#);
+         begin
+            --  Add the newly allocated page table to the recursively
+            --  mapped index table.
+            Index_Page_Table (Directory_Idx).Present := True;
+            Index_Page_Table (Directory_Idx).Page_Address :=
+              Convert_To_Page_Aligned_Address (Allocated_Addr);
+         exception
+            when Constraint_Error =>
+               return Invalid_Page_Directory;
+         end Recursively_Map_Table;
+
+      --  Refresh the page directory to allow the use of our
+      --  new mapping.
+      Flush_Tlb;
+
+      --  Calculate the virtual address of the page table.
+      --  The virtual address will always be a constant referring to the
+      --  recursively mapped table in the table index.
+      Get_Table_Virtual_Address :
+         declare
+            Table_Map_Base   : constant Integer_Address := 16#FFC0_0000#;
+            Table_Map_Offset : Integer_Address := 0;
+         begin
+            Table_Map_Offset   := Integer_Address (16#1000# * Directory_Idx);
+            Table_Virtual_Addr :=
+              To_Address (Table_Map_Base + Table_Map_Offset);
+         exception
+            when Constraint_Error =>
+               return Invalid_Table_Index;
+         end Get_Table_Virtual_Address;
+
+      --  Initialise the newly allocated page table.
+      Init_Table :
+         declare
+            --  The newly allocated page table.
+            Table       : Page_Table
+            with Import,
+              Convention => Ada,
+              Address    => Table_Virtual_Addr;
+         begin
+            --  Initialise the new page table.
+            Result := Initialise_Page_Table (Table);
+            if Result /= Success then
+               return Result;
+            end if;
+         end Init_Table;
+
+      return Success;
+   exception
+      when Constraint_Error =>
+         return Invalid_Table_Index;
+   end Insert_Page_Table;
+
+   ----------------------------------------------------------------------------
    --  Map_Page_Frame
+   --
+   --  Implementation Notes:
+   --    - Maps the frame in the currently loaded virtual address space.
+   --    - Assumes all of the paging structures are correctly recursively
+   --      mapped.
    ----------------------------------------------------------------------------
    function Map_Page_Frame (
-     Directory     : in out Page_Directory;
-     Physical_Addr :        System.Address;
-     Virtual_Addr  :        System.Address
+     Physical_Addr : System.Address;
+     Virtual_Addr  : System.Address
    ) return Process_Result is
+      --  The currently loaded page directory.
+      Directory : Page_Directory
+      with Import,
+        Convention => Ada,
+        Address    => To_Address (16#FFFF_F000#);
+
       --  Index variables used when mapping  the page directory and table.
       Directory_Idx : Natural;
       Table_Idx     : Natural;
       --  Result variable for internal processes.
       Result        : Process_Result;
-      --  Address variables used during the mapping process.
-      Table_Addr    : System.Address;
+      --  The virtual address of the table to map the page frame in.
+      Table_Virtual_Addr : System.Address;
    begin
       --  Ensure that the provided addresses are 4K aligned.
       Check_Address :
@@ -522,99 +663,38 @@ package body x86.Memory.Paging is
                return Invalid_Table_Index;
          end Get_Indexes;
 
-      --  Get the address of the page table.
-      Get_Table_Address :
-         declare
-            use x86.Memory.Map;
+      --  Calculate the virtual address of the page table.
+      --  The virtual address will always be a constant referring to the
+      --  recursively mapped table in the table index.
+      Get_Table_Virtual_Address :
+         begin
+            Result := Get_Page_Table_Mapped_Address (Virtual_Addr,
+              Table_Virtual_Addr);
+            if Result /= Success then
+               return Result;
+            end if;
+         exception
+            when Constraint_Error =>
+               return Invalid_Table_Index;
+         end Get_Table_Virtual_Address;
 
-            --  The process result of allocating a new page frame, if needed.
-            Allocate_Result : x86.Memory.Map.Process_Result;
-            --  The address of the newly allocated page frame, if applicable.
-            Allocated_Addr  : System.Address;
+      --  Check that the table mapping in the directory is present, create it
+      --  if not.
+      Check_Table_Mapping :
          begin
             --  If there is no entry currently at this index in the page
             --  directory, allocate a new frame for to hold this page table,
             --  then allocate and initialise the new page table.
             if not Directory (Directory_Idx).Present then
-               --  Allocate a page frame for the new page table.
-               Allocate_Result := x86.Memory.Map.Allocate_Frame (
-                 Allocated_Addr);
-               if Allocate_Result /= Success then
-                  return Invalid_Value;
+               Result := Insert_Page_Table (Directory_Idx);
+               if Result /= Success then
+                  return Result;
                end if;
-
-               --  Create an entry into the recursive page table index so that
-               --  we can modify this page table in the virtual memory space.
-               Recursively_Map_Table :
-                  declare
-                     --  The Index page table used to recursively map all
-                     --  of the page tables.
-                     Index_Page_Table : Page_Table
-                     with Import,
-                       Convention => Ada,
-                       Address    => To_Address (16#FFFF_E000#);
-                  begin
-                     Directory (Directory_Idx).Present := True;
-                     Directory (Directory_Idx).Table_Address :=
-                       Convert_To_Page_Aligned_Address (Allocated_Addr);
-
-                     --  Add the newly allocated page table to the recursively
-                     --  mapped index table.
-                     Index_Page_Table (Directory_Idx).Present := True;
-                     Index_Page_Table (Directory_Idx).Page_Address :=
-                       Convert_To_Page_Aligned_Address (Allocated_Addr);
-
-                     Flush_Tlb;
-                  exception
-                     when Constraint_Error =>
-                        return Invalid_Page_Directory;
-                  end Recursively_Map_Table;
-
-               Compute_Table_Virtual_Addres :
-                  declare
-                     --  The address offset from the start of the page table
-                     --  index base address.
-                     Idx_Offset : Integer_Address;
-                  begin
-                     Idx_Offset := Integer_Address (16#1000# * Directory_Idx);
-                     Table_Addr := To_Address (16#FFC0_0000# + Idx_Offset);
-                  exception
-                     when Constraint_Error =>
-                        return Invalid_Page_Directory;
-                  end Compute_Table_Virtual_Addres;
-
-               --  Initialise the newly allocated page table.
-               Init_Table :
-                  declare
-                     --  The process result of the initialisation.
-                     Init_Result : Process_Result;
-                     --  The newly allocated page table.
-                     Table       : Page_Table
-                     with Import,
-                       Convention => Ada,
-                       Address    => Table_Addr;
-                  begin
-                     --  Initialise the new page table.
-                     Init_Result := Initialise_Page_Table (Table);
-                     if Init_Result /= Success then
-                        return Init_Result;
-                     end if;
-                  end Init_Table;
-
-               --  Set the address at the applicable index into the page
-               --  directory to point to this page table.
-               Directory (Directory_Idx).Table_Address :=
-                 Convert_To_Page_Aligned_Address (Allocated_Addr);
-               Directory (Directory_Idx).Present := True;
             end if;
          exception
             when Constraint_Error =>
                return Invalid_Table_Index;
-         end Get_Table_Address;
-
-      --  Refresh the page directory to allow the use of our
-      --  new mapping.
-      Flush_Tlb;
+         end Check_Table_Mapping;
 
       Map_Entry :
          declare
@@ -622,7 +702,7 @@ package body x86.Memory.Paging is
             Table : Page_Table
             with Import,
               Convention => Ada,
-              Address    => Table_Addr;
+              Address    => Table_Virtual_Addr;
          begin
             Table (Table_Idx).Page_Address :=
               Convert_To_Page_Aligned_Address (Physical_Addr);

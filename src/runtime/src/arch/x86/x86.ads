@@ -103,6 +103,16 @@ private
    procedure Mark_Kernel_Memory;
 
    ----------------------------------------------------------------------------
+   --  Map_Vga_Memory
+   --
+   --  Purpose:
+   --    Maps VGA memory to a usable virtual memory address.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   function Map_Vga_Memory return Kernel_Process_Result;
+
+   ----------------------------------------------------------------------------
    --  Clear_Boot_Page_Structures
    --
    --  Purpose:

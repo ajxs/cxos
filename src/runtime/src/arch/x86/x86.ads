@@ -89,7 +89,7 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Mark_Low_Memory;
+   function Mark_Low_Memory return Kernel_Process_Result;
 
    ----------------------------------------------------------------------------
    --  Mark_Kernel_Memory
@@ -100,7 +100,7 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Mark_Kernel_Memory;
+   function Mark_Kernel_Memory return Kernel_Process_Result;
 
    ----------------------------------------------------------------------------
    --  Map_Vga_Memory

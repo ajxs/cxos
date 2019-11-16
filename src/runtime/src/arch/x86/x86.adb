@@ -203,9 +203,22 @@ package body x86 is
             x86.Serial.Put_String (x86.Serial.COM1,
               "Mapping kernel memory" & ASCII.LF);
             --  Mark memory below 1MB as used.
-            Mark_Low_Memory;
+            Init_Result := Mark_Low_Memory;
+            if Init_Result /= Success then
+               x86.Serial.Put_String (x86.Serial.COM1,
+                 "Error marking low memory" & ASCII.LF);
+
+               return;
+            end if;
+
             --  Mark kernel code segment as being used.
-            Mark_Kernel_Memory;
+            Init_Result := Mark_Kernel_Memory;
+            if Init_Result /= Success then
+               x86.Serial.Put_String (x86.Serial.COM1,
+                 "Error marking kernel memory" & ASCII.LF);
+
+               return;
+            end if;
          exception
             when Constraint_Error =>
                x86.Serial.Put_String (x86.Serial.COM1,
@@ -388,7 +401,7 @@ package body x86 is
    --  Implementation Notes:
    --    - Marks the kernel's physical memory as being used.
    ----------------------------------------------------------------------------
-   procedure Mark_Kernel_Memory is
+   function Mark_Kernel_Memory return Kernel_Process_Result is
       use x86.Memory.Map;
 
       --  The length of the kernel code segment in bytes.
@@ -422,21 +435,23 @@ package body x86 is
 
       Result := x86.Memory.Map.Mark_Memory_Range (
         Kernel_Physical_Start, Kernel_Length, Allocated);
-
       if Result /= Success then
          x86.Serial.Put_String (x86.Serial.COM1,
            "Error marking kernel code segment" & ASCII.LF);
+
+         return Failure;
       end if;
 
+      return Success;
    exception
       when Constraint_Error =>
-         return;
+         return Failure;
    end Mark_Kernel_Memory;
 
    ----------------------------------------------------------------------------
    --  Mark_Low_Memory
    ----------------------------------------------------------------------------
-   procedure Mark_Low_Memory is
+   function Mark_Low_Memory return Kernel_Process_Result is
       use x86.Memory.Map;
 
       --  The result of the process.
@@ -448,11 +463,14 @@ package body x86 is
       if Result /= Success then
          x86.Serial.Put_String (x86.Serial.COM1,
            "Error setting memory range" & ASCII.LF);
-         return;
+
+         return Failure;
       end if;
+
+      return Success;
    exception
       when Constraint_Error =>
-         return;
+         return Failure;
    end Mark_Low_Memory;
 
    ----------------------------------------------------------------------------

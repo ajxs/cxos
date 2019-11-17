@@ -546,8 +546,7 @@ package body x86.Memory.Paging is
    --
    --  Implementation Notes:
    --    - Maps the frame in the currently loaded virtual address space.
-   --    - Assumes all of the paging structures are correctly recursively
-   --      mapped.
+   --    - Assumes the paging directory is recursively mapped.
    ----------------------------------------------------------------------------
    function Map_Page_Frame (
      Physical_Addr : System.Address;

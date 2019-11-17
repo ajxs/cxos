@@ -23,4 +23,4 @@ __flush_tlb:
 	movl %cr3, %eax
 	movl %eax, %cr3
 
-  ret
+	ret

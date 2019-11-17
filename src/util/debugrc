@@ -3,10 +3,11 @@ target remote localhost:1234
 file src/kernel/build/cxos.elf -readnow
 
 # b initialise_kernel_page_directory
-b map_page_frame
-b x86-memory-paging.adb:557
+# b map_page_frame
+# b x86-memory-paging.adb:557
 # x /32tg &memory_map
-
+b __system_init
+b x86.adb:241
 # print_mmap_region
 
 # x /1xg &idt_pointer

@@ -91,10 +91,6 @@ package body x86 is
       --  The result of the internal processes.
       Init_Result : Kernel_Process_Result;
    begin
-      x86.Vga.Clear (x86.Vga.Black);
-      x86.Vga.Put_String (0, 0, x86.Vga.Light_Green, x86.Vga.Black,
-        "VGA Text Mode Initialised");
-
       x86.Serial.Initialise (x86.Serial.COM1, 38400);
       x86.Serial.Put_String (x86.Serial.COM1,
         "COM1 initialised" & ASCII.LF);
@@ -246,6 +242,7 @@ package body x86 is
         "Freeing boot page structures" & ASCII.LF);
       Clear_Boot_Page_Structures;
 
+      --  Initialise VGA system.
       Init_Result := Map_Vga_Memory;
       if Init_Result /= Success then
          x86.Serial.Put_String (x86.Serial.COM1,
@@ -253,6 +250,11 @@ package body x86 is
 
          return;
       end if;
+
+      x86.Vga.Clear (x86.Vga.Black);
+      x86.Vga.Put_String (0, 0, x86.Vga.Light_Green, x86.Vga.Black,
+        "VGA Text Mode Initialised");
+
    exception
       when Constraint_Error =>
          x86.Serial.Put_String (x86.Serial.COM1,

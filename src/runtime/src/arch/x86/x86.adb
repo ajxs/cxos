@@ -422,6 +422,11 @@ package body x86 is
       with Import,
         Convention    => Assembler,
         External_Name => "kernel_end";
+      --  The address of the kernel in virtual memory.
+      Kernel_Vma_Start : constant Unsigned_32
+      with Import,
+        Convention    => Assembler,
+        External_name => "KERNEL_VMA_START";
 
       --  The physical start of Kernel memory.
       Kernel_Physical_Start : System.Address;
@@ -433,7 +438,8 @@ package body x86 is
       --  The kernel's physical start is the virtual memory logical start
       --  subtracted from the kernel memory start.
       Kernel_Physical_Start := To_Address (
-        To_Integer (Kernel_Start'Address) - 16#C0000000#);
+        To_Integer (Kernel_Start'Address) -
+        To_Integer (Kernel_Vma_Start'Address));
 
       Result := x86.Memory.Map.Mark_Memory_Range (
         Kernel_Physical_Start, Kernel_Length, Allocated);

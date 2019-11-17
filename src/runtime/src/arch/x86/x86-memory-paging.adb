@@ -398,15 +398,20 @@ package body x86.Memory.Paging is
                   Start_Frame        : Integer;
 
                   --  The start of the kernel code segment.
-                  Kernel_Start : constant Unsigned_32
+                  Kernel_Start     : constant Unsigned_32
                   with Import,
                     Convention    => Assembler,
                     External_Name => "kernel_start";
                   --  The end of the kernel code segment.
-                  Kernel_End   : constant Unsigned_32
+                  Kernel_End       : constant Unsigned_32
                   with Import,
                     Convention    => Assembler,
                     External_Name => "kernel_end";
+                  --  The address of the kernel in virtual memory.
+                  Kernel_Vma_Start : constant Unsigned_32
+                  with Import,
+                    Convention    => Assembler,
+                    External_name => "KERNEL_VMA_START";
                begin
                   Kernel_Length := Integer (
                     To_Integer (Kernel_End'Address) -
@@ -415,7 +420,8 @@ package body x86.Memory.Paging is
                   --  The kernel's physical start is the virtual memory
                   --  logical start subtracted from the kernel memory start.
                   Current_Addr :=
-                    To_Integer (Kernel_Start'Address) - 16#C0000000#;
+                    To_Integer (Kernel_Start'Address) -
+                    To_Integer (Kernel_Vma_Start'Address);
 
                   Kernel_Frame_Count := 1 + (Kernel_Length / 16#1000#);
                   Start_Frame        := Integer (Current_Addr / 16#1000#);
@@ -504,8 +510,8 @@ package body x86.Memory.Paging is
    ) return Process_Result is
       use x86.Memory.Map;
 
-      --  The currently loaded page directory.
-      Directory          : Page_Directory
+      --  The currently active page directory.
+      Directory : Page_Directory
       with Import,
         Convention => Ada,
         Address    => To_Address (16#FFFF_F000#);
@@ -523,7 +529,7 @@ package body x86.Memory.Paging is
       Allocate_Result := x86.Memory.Map.Allocate_Frame (
         Allocated_Addr);
       if Allocate_Result /= Success then
-         return Invalid_Value;
+         return Frame_Allocation_Error;
       end if;
 
       --  Set the address at the applicable index into the page

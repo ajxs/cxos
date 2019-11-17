@@ -240,9 +240,6 @@ package body x86.Memory.Paging is
 
       --  The allocated address of the first kernel page table.
       Kernel_Page_Table_Addr : System.Address;
-      --  The allocated address of the table used to hold the
-      --  recursive page table mappings.
-      Kernel_Table_Index_Addr : System.Address;
    begin
       --  Allocate all required structures.
       Allocate_Frames :
@@ -257,16 +254,8 @@ package body x86.Memory.Paging is
             end if;
 
             --  Allocate the initial kernel page table frame.
-            --  This will be used to identity map the kernel.
             Allocate_Result := x86.Memory.Map.Allocate_Frame (
               Kernel_Page_Table_Addr);
-            if Allocate_Result /= Success then
-               return Failure;
-            end if;
-
-            --  Allocate the recursive page table frame.
-            Allocate_Result := x86.Memory.Map.Allocate_Frame (
-               Kernel_Table_Index_Addr);
             if Allocate_Result /= Success then
                return Failure;
             end if;
@@ -279,12 +268,6 @@ package body x86.Memory.Paging is
       --  last entries in trhe boot page table.
       Initialise_Temporary_Mapping :
          begin
-            --  Temporarily map the table index to 0xC03FD000.
-            Boot_Kernel_Page_Table (1021).Page_Address :=
-              Convert_To_Page_Aligned_Address (Kernel_Table_Index_Addr);
-            Boot_Kernel_Page_Table (1021).Present    := True;
-            Boot_Kernel_Page_Table (1021).Read_Write := True;
-
             --  Temporarily map the kernel page table to 0xC03FE000.
             Boot_Kernel_Page_Table (1022).Page_Address :=
               Convert_To_Page_Aligned_Address (Kernel_Page_Table_Addr);
@@ -318,14 +301,6 @@ package body x86.Memory.Paging is
               Convention => Ada,
               Address    => To_Address (16#C03F_E000#);
 
-            --  The recursive mapping Page Table.
-            --  This page table maps to each of the individual page tables
-            --  from 0xFFC0 0000 to 0xFFFF F000.
-            Kernel_Table_Index : Page_Table
-            with Import,
-              Convention => Ada,
-              Address    => To_Address (16#C03F_D000#);
-
             --  Process result of internal processes.
             Result : Process_Result;
          begin
@@ -333,11 +308,6 @@ package body x86.Memory.Paging is
             Init_Page_Structures :
                begin
                   Result := Initialise_Page_Table (Kernel_Page_Table);
-                  if Result /= Success then
-                     return Failure;
-                  end if;
-
-                  Result := Initialise_Page_Table (Kernel_Table_Index);
                   if Result /= Success then
                      return Failure;
                   end if;
@@ -355,32 +325,12 @@ package body x86.Memory.Paging is
                   --  Map the page index to the second last entry.
                   Kernel_Page_Directory (1023).Present := True;
                   Kernel_Page_Directory (1023).Table_Address :=
-                    Convert_To_Page_Aligned_Address (Kernel_Table_Index_Addr);
-               exception
-                  when Constraint_Error =>
-                     return Failure;
-               end Init_Page_Structures;
-
-            --  Initialise the recursive page table index.
-            Map_Page_Table_Index :
-               begin
-                  --  Map the first kernel page in the recursive index.
-                  Kernel_Table_Index (768).Present      := True;
-                  Kernel_Table_Index (768).Page_Address :=
-                    Convert_To_Page_Aligned_Address (Kernel_Page_Table_Addr);
-
-                  Kernel_Table_Index (1022).Present      := True;
-                  Kernel_Table_Index (1022).Page_Address :=
-                    Convert_To_Page_Aligned_Address (Kernel_Table_Index_Addr);
-
-                  Kernel_Table_Index (1023).Present      := True;
-                  Kernel_Table_Index (1023).Page_Address :=
                     Convert_To_Page_Aligned_Address (
                     Kernel_Page_Directory_Addr);
                exception
                   when Constraint_Error =>
                      return Failure;
-               end Map_Page_Table_Index;
+               end Init_Page_Structures;
 
             --  Map the kernel address space.
             Map_Kernel_Address_Space :
@@ -506,7 +456,8 @@ package body x86.Memory.Paging is
    --  Insert_Page_Table
    ----------------------------------------------------------------------------
    function Insert_Page_Table (
-     Directory_Idx : Natural
+     Directory_Idx : Natural;
+     Supervisor    : Boolean := True
    ) return Process_Result is
       use x86.Memory.Map;
 
@@ -525,6 +476,11 @@ package body x86.Memory.Paging is
       --  The result of internal processes.
       Result             : Process_Result;
    begin
+      --  If this entry has already been allocated, abort.
+      if Directory (Directory_Idx).Present = True then
+         return Invalid_Argument;
+      end if;
+
       --  Allocate a page frame for the new page table.
       Allocate_Result := x86.Memory.Map.Allocate_Frame (
         Allocated_Addr);
@@ -538,26 +494,10 @@ package body x86.Memory.Paging is
         Convert_To_Page_Aligned_Address (Allocated_Addr);
       Directory (Directory_Idx).Present := True;
 
-      --  Create an entry into the recursive page table index so that
-      --  we can modify this page table in the virtual memory space.
-      Recursively_Map_Table :
-         declare
-            --  The Index page table used to recursively map all
-            --  of the page tables.
-            Index_Page_Table : Page_Table
-            with Import,
-              Convention => Ada,
-              Address    => To_Address (16#FFFF_E000#);
-         begin
-            --  Add the newly allocated page table to the recursively
-            --  mapped index table.
-            Index_Page_Table (Directory_Idx).Present := True;
-            Index_Page_Table (Directory_Idx).Page_Address :=
-              Convert_To_Page_Aligned_Address (Allocated_Addr);
-         exception
-            when Constraint_Error =>
-               return Invalid_Page_Directory;
-         end Recursively_Map_Table;
+      --  If this is a user level page, set this permission level.
+      if Supervisor = False then
+         Directory (Directory_Idx).U_S := True;
+      end if;
 
       --  Refresh the page directory to allow the use of our
       --  new mapping.
@@ -583,7 +523,7 @@ package body x86.Memory.Paging is
       Init_Table :
          declare
             --  The newly allocated page table.
-            Table       : Page_Table
+            Table : Page_Table
             with Import,
               Convention => Ada,
               Address    => Table_Virtual_Addr;

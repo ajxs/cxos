@@ -243,6 +243,8 @@ package body x86 is
       Clear_Boot_Page_Structures;
 
       --  Initialise VGA system.
+      x86.Serial.Put_String (x86.Serial.COM1,
+        "Identity mapping VGA memory" & ASCII.LF);
       Init_Result := Map_Vga_Memory;
       if Init_Result /= Success then
          x86.Serial.Put_String (x86.Serial.COM1,

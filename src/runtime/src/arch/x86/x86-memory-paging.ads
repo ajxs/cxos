@@ -264,7 +264,8 @@ private
    --    None.
    ----------------------------------------------------------------------------
    function Insert_Page_Table (
-     Directory_Idx : Natural
+     Directory_Idx : Natural;
+     Supervisor    : Boolean := True
    ) return Process_Result
    with Pure_Function;
 

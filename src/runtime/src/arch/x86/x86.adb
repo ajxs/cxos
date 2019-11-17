@@ -244,7 +244,7 @@ package body x86 is
 
       --  Initialise VGA system.
       x86.Serial.Put_String (x86.Serial.COM1,
-        "Identity mapping VGA memory" & ASCII.LF);
+        "Mapping VGA memory" & ASCII.LF);
       Init_Result := Map_Vga_Memory;
       if Init_Result /= Success then
          x86.Serial.Put_String (x86.Serial.COM1,
@@ -388,7 +388,7 @@ package body x86 is
       Result : x86.Memory.Paging.Process_Result;
    begin
       Result := x86.Memory.Paging.Map_Page_Frame (To_Address (16#B8000#),
-        To_Address (16#B8000#));
+        To_Address (16#C03F_E000#));
       if Result /= Success then
          return Failure;
       end if;

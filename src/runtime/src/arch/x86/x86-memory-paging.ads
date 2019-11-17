@@ -39,6 +39,12 @@ package x86.Memory.Paging is
    );
 
    ----------------------------------------------------------------------------
+   --  Kernel Page Directory Address.
+   --  This contains the physical address of the kernel page directory.
+   ----------------------------------------------------------------------------
+   Kernel_Page_Directory_Addr : System.Address;
+
+   ----------------------------------------------------------------------------
    --  Initialise_Kernel_Page_Directory
    --
    --  Purpose:
@@ -49,20 +55,6 @@ package x86.Memory.Paging is
    --    None.
    ----------------------------------------------------------------------------
    function Initialise_Kernel_Page_Directory return Kernel_Process_Result;
-
-   ----------------------------------------------------------------------------
-   --  Enable_Paging
-   --
-   --  Purpose:
-   --    This procedure enables paging on the processor and loads the initial
-   --    kernel page directory address into the processor's control registers.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   procedure Enable_Paging
-   with Import,
-     Convention    => Assembler,
-     External_Name => "__paging_load";
 
    ----------------------------------------------------------------------------
    --  Map_Page_Frame
@@ -80,6 +72,22 @@ package x86.Memory.Paging is
      Virtual_Addr  : System.Address
    ) return Process_Result
    with Volatile_Function;
+
+   ----------------------------------------------------------------------------
+   --  Enable_Paging
+   --
+   --  Purpose:
+   --    This procedure enables paging on the processor and loads the initial
+   --    kernel page directory address into the processor's control registers.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   procedure Load_Page_Directory (
+      Directory_Ptr : System.Address
+   )
+   with Import,
+     Convention    => Assembler,
+     External_Name => "__load_page_directory";
 
 private
    ----------------------------------------------------------------------------
@@ -295,16 +303,6 @@ private
      Frame_Address   : out Page_Aligned_Address
    ) return Process_Result
    with Volatile_Function;
-
-   ----------------------------------------------------------------------------
-   --  Kernel Page Directory Address.
-   --  This contains the physical address of the kernel page directory.
-   ----------------------------------------------------------------------------
-   Kernel_Page_Directory_Addr : System.Address
-   with Export,
-     Convention    => Assembler,
-     External_Name => "kernel_page_directory_addr",
-     Volatile;
 
    ----------------------------------------------------------------------------
    --  Initialise_Page_Directory

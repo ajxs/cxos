@@ -234,7 +234,8 @@ package body x86 is
 
       x86.Serial.Put_String (x86.Serial.COM1,
         "Loading kernel page directory" & ASCII.LF);
-      x86.Memory.Paging.Enable_Paging;
+      x86.Memory.Paging.Load_Page_Directory (
+        x86.Memory.Paging.Kernel_Page_Directory_Addr);
       x86.Serial.Put_String (x86.Serial.COM1,
         "Kernel page directory loaded" & ASCII.LF);
 

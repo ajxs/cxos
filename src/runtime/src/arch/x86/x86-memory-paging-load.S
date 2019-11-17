@@ -12,20 +12,18 @@
 .section .text
 
 #####################################################################
-#  Paging Load
+#  Load Page Directory
 #
-#  Instructs the processor on the location of the Page Table Directory.
+#  Loads a pointer to a Page Table Directory structure.
 #####################################################################
-.global __paging_load
-.type __paging_load, @function
-__paging_load:
-	# Store address of page directory in eax, move to CR3.
-	mov (kernel_page_directory_addr), %eax
+.global __load_page_directory
+.type __load_page_directory, @function
+__load_page_directory:
+	pushl %ebp
+	movl %esp, %ebp
+
+	movl 0x8(%ebp), %eax
 	movl %eax, %cr3
 
-	# Enable paging bit in CR0.
-	movl %cr0, %eax
-	orl $0x80000000, %eax
-	movl %eax, %cr0
-
+	leave
 	ret

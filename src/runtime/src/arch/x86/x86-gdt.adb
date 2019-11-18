@@ -23,6 +23,7 @@ package body x86.GDT is
       Install_Descriptor (2, Flat_Base, Flat_Limit, Ring_0, Data);
       Install_Descriptor (3, Flat_Base, Flat_Limit, Ring_3, Code);
       Install_Descriptor (4, Flat_Base, Flat_Limit, Ring_3, Data);
+      Install_Descriptor (5, Flat_Base, Flat_Limit, Ring_3, Data);
 
       GDT_Ptr.Size   := Global_Descriptor_Table'Size - 1;
       GDT_Ptr.Offset := Global_Descriptor_Table'Address;
@@ -92,6 +93,14 @@ package body x86.GDT is
             null;
          when Data =>
             Global_Descriptor_Table (Index).Descr_Type.Field_Type := False;
+         when Task_Type =>
+            Global_Descriptor_Table (Index).Descr_Type := (
+               A          => True,
+               W_R        => False,
+               E_C        => False,
+               Field_Type => True
+            );
+            Global_Descriptor_Table (Index).S   := False;
          when None =>
             Global_Descriptor_Table (Index).Descr_Type := (
                A          => False,

@@ -57,7 +57,8 @@ private
    type Segment_Type is (
      Code,
      Data,
-     None
+     None,
+     Task_Type
    );
 
    ----------------------------------------------------------------------------
@@ -141,7 +142,7 @@ private
    --  The number of entries in the Global Descriptor Table.
    --  Room for this number of entries is statically allocated.
    ----------------------------------------------------------------------------
-   GDT_LENGTH : constant := 5;
+   GDT_LENGTH : constant := 16;
 
    ----------------------------------------------------------------------------
    --  The actual global descriptor table entity.

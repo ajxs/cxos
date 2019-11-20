@@ -48,4 +48,56 @@ package x86.Port_IO is
      Port : System.Address;
      Data : Unsigned_8
    );
+
+   ----------------------------------------------------------------------------
+   --  Inw
+   --
+   --  Purpose:
+   --    This function reads a word from a particular IO port.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   function Inw (
+     Port : System.Address
+   ) return Unsigned_16
+   with Volatile_Function;
+
+   ----------------------------------------------------------------------------
+   --  Outw
+   --
+   --  Purpose:
+   --    This function writes a word to a particular IO port.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   procedure Outw (
+     Port : System.Address;
+     Data : Unsigned_16
+   );
+
+   ----------------------------------------------------------------------------
+   --  Inl
+   --
+   --  Purpose:
+   --    This function reads a DWord from a particular IO port.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   function Inl (
+     Port : System.Address
+   ) return Unsigned_32
+   with Volatile_Function;
+
+   ----------------------------------------------------------------------------
+   --  Outl
+   --
+   --  Purpose:
+   --    This function writes a DWord to a particular IO port.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   procedure Outl (
+     Port : System.Address;
+     Data : Unsigned_32
+   );
 end x86.Port_IO;

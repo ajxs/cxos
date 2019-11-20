@@ -4,8 +4,8 @@ KERNEL_BINARY   := ${KERNEL_DIR}/build/cxos.elf
 RUNTIME_DIR     := runtime
 RUNTIME_BINARY  := ${RUNTIME_DIR}/build/adalib/libgnat.a
 
-BUILD_DIR       := ../build
-ISO             := ${BUILD_DIR}/cxos.img
+ISO_DIR         := iso
+ISO             := ${ISO_DIR}/build/cxos.img
 
 SERIAL_FILENAME := serial.log
 
@@ -24,29 +24,29 @@ QEMU_FLAGS :=                 \
 all: ${ISO}
 
 ${ISO}: ${KERNEL_BINARY} ${BUILD_DIR}
-	cp "${KERNEL_BINARY}" iso/boot
-	grub-mkrescue -o ${ISO} iso
+	make -C "${ISO_DIR}"
 
 clean:
 	# Ensure the kernel directory is cleaned before the rts dir.
 	# gprclean needs to see that there is a valid rts to perform any operations.
+	make clean -C "${ISO_DIR}"
 	make clean -C "${KERNEL_DIR}"
 	make clean -C "${RUNTIME_DIR}"
 
 debug: ${ISO}
-	qemu-system-i386                   \
-		${QEMU_FLAGS}                    \
-		-drive format=raw,file=${ISO}    \
-		-d cpu_reset,int,guest_errors    \
-		-gdb tcp::1234                   \
-		-S                               \
+	qemu-system-i386                               \
+		${QEMU_FLAGS}                                \
+		-drive format=raw,media=cdrom,file=${ISO}    \
+		-d cpu_reset,int,guest_errors                \
+		-gdb tcp::1234                               \
+		-S                                           \
 		-serial file:${SERIAL_FILENAME}
 
 emu: ${ISO}
-	qemu-system-i386                   \
-		${QEMU_FLAGS}                    \
-		-drive format=raw,file=${ISO}    \
-		-serial stdio                    \
+	qemu-system-i386                               \
+		${QEMU_FLAGS}                                \
+		-drive format=raw,media=cdrom,file=${ISO}    \
+		-serial stdio
 
 bochs: ${ISO}
 	bochs -f ./src/util/bochsrc
@@ -54,6 +54,8 @@ bochs: ${ISO}
 kernel: ${KERNEL_BINARY}
 
 runtime: ${RUNTIME_BINARY}
+
+iso: ${ISO}
 
 ${RUNTIME_BINARY}:
 	make -C "${RUNTIME_DIR}"

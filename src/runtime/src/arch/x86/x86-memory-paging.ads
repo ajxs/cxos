@@ -39,24 +39,6 @@ package x86.Memory.Paging is
    );
 
    ----------------------------------------------------------------------------
-   --  Kernel Page Directory Address.
-   --  This contains the physical address of the kernel page directory.
-   ----------------------------------------------------------------------------
-   Kernel_Page_Directory_Addr : System.Address;
-
-   ----------------------------------------------------------------------------
-   --  Initialise_Kernel_Page_Directory
-   --
-   --  Purpose:
-   --    This function initialises the kernel's main page directory.
-   --    This populates the package-visible 'Kernel_Page_Directory_Addr'
-   --    variable.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   function Initialise_Kernel_Page_Directory return Kernel_Process_Result;
-
-   ----------------------------------------------------------------------------
    --  Map_Page_Frame
    --
    --  Purpose:
@@ -89,7 +71,6 @@ package x86.Memory.Paging is
      Convention    => Assembler,
      External_Name => "__load_page_directory";
 
-private
    ----------------------------------------------------------------------------
    --  Type to hold a 20bit address.
    --  These are truncated 32bit addresses that are assumed to be 4K aligned,

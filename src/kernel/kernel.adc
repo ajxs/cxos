@@ -64,4 +64,4 @@ pragma Restrictions (Max_Select_Alternatives => 0);
 pragma Restrictions (Max_Task_Entries => 0);
 pragma Restrictions (Max_Tasks => 0);
 pragma Restrictions (Max_Asynchronous_Select_Nesting => 0);
-pragma Restrictions (No_Default_Initialization);
+--  pragma Restrictions (No_Default_Initialization);

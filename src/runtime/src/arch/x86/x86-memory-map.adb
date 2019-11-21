@@ -165,8 +165,8 @@ package body x86.Memory.Map is
      Addr  : System.Address;
      State : Memory_Map_Frame_State
    ) return Process_Result is
-      Map_Idx : Natural;
-      Result  : Process_Result;
+      Map_Idx : Natural        := 0;
+      Result  : Process_Result := Success;
    begin
       Get_Address_Map_Index :
          begin

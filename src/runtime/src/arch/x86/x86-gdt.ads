@@ -9,6 +9,7 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
+with Interfaces;
 with System;
 with System.Storage_Elements;
 with x86.Descriptors;
@@ -23,6 +24,7 @@ with x86.Descriptors;
 package x86.GDT is
    pragma Preelaborate (x86.GDT);
 
+   use Interfaces;
    use System.Storage_Elements;
    use x86.Descriptors;
 

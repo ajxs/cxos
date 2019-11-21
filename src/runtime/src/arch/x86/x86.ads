@@ -9,7 +9,6 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Interfaces;
 with Multiboot;
 with System;
 
@@ -24,7 +23,6 @@ with System;
 package x86 is
    pragma Preelaborate (x86);
 
-   use Interfaces;
    use Multiboot;
 
    type Kernel_Process_Result is (
@@ -79,63 +77,6 @@ private
    ) with Export,
      Convention => C,
      External_Name => "__gnat_last_chance_handler";
-
-   ----------------------------------------------------------------------------
-   --  Mark_Low_Memory
-   --
-   --  Purpose:
-   --    This procedure marks all memory below 1M as being non-free in the
-   --    kernel memory map.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   function Mark_Low_Memory return Kernel_Process_Result;
-
-   ----------------------------------------------------------------------------
-   --  Mark_Kernel_Memory
-   --
-   --  Purpose:
-   --    This procedure marks the memory used by the kernel as being allocated
-   --    and non-free in the memory map.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   function Mark_Kernel_Memory return Kernel_Process_Result;
-
-   ----------------------------------------------------------------------------
-   --  Map_Vga_Memory
-   --
-   --  Purpose:
-   --    Maps VGA memory to a usable virtual memory address.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   function Map_Vga_Memory return Kernel_Process_Result;
-
-   ----------------------------------------------------------------------------
-   --  Clear_Boot_Page_Structures
-   --
-   --  Purpose:
-   --    This procedure marks the boot page structures as being unallocated
-   --    memory, free for being overwritten.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   procedure Clear_Boot_Page_Structures;
-
-   ----------------------------------------------------------------------------
-   --  Parse_Multiboot_Memory_Map
-   --
-   --  Purpose:
-   --    Parses the multiboot memory map structures, mapping the specified
-   --    memory regions listed in the multiboot structure.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   procedure Parse_Multiboot_Memory_Map (
-      Memory_Map_Addr   : System.Address;
-      Memory_Map_Length : Unsigned_32
-   );
 
    ----------------------------------------------------------------------------
    --  Protected_Mode_Init

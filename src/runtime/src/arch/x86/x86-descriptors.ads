@@ -9,6 +9,8 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
+with Interfaces;
+
 -------------------------------------------------------------------------------
 --  SYSTEM.X86.DESCRIPTORS
 --
@@ -20,6 +22,8 @@
 -------------------------------------------------------------------------------
 package x86.Descriptors is
    pragma Preelaborate (x86.Descriptors);
+
+   use Interfaces;
 
    ----------------------------------------------------------------------------
    --  The privilege level for a particular descriptor.

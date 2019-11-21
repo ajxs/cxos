@@ -29,8 +29,10 @@
 .section .bss, "aw", @nobits
 
 # Store multiboot variables.
+.global multiboot_magic
 multiboot_magic:
 	.skip 4
+.global multiboot_struct
 multiboot_struct:
 	.skip 4
 

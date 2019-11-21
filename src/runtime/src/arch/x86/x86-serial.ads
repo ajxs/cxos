@@ -10,6 +10,7 @@
 -------------------------------------------------------------------------------
 
 with Ada.Unchecked_Conversion;
+with Interfaces;
 
 -------------------------------------------------------------------------------
 --  X86.SERIAL
@@ -21,6 +22,8 @@ with Ada.Unchecked_Conversion;
 -------------------------------------------------------------------------------
 package x86.Serial is
    pragma Preelaborate (x86.Serial);
+
+   use Interfaces;
 
    MAXIMUM_BAUD_RATE : constant := 115200;
 

@@ -9,38 +9,30 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Interfaces;
-
--------------------------------------------------------------------------------
---  SYSTEM.X86.MEMORY
---
---  Purpose:
---    This package contains code and defintions for implementing and working
---    with memory on the x86 platform.
--------------------------------------------------------------------------------
-package x86.Memory is
-   pragma Preelaborate (x86.Memory);
-
-   type Byte_Array is array (Natural range <>)
-     of aliased Interfaces.Unsigned_8;
-
+package body x86.Memory is
    ----------------------------------------------------------------------------
    --  Copy
-   --
-   --  Purpose:
-   --    Generic memcpy implementation.
-   --    This is reuired by the runtime for default initialisation of
-   --    package variables.
-   --  Exceptions:
-   --    None.
    ----------------------------------------------------------------------------
    function Copy (
      Source : System.Address;
      Dest   : System.Address;
      Count  : Integer
-   ) return System.Address
-   with Export,
-     Convention    => C,
-     External_Name => "memcpy";
+   ) return System.Address is
+      Source_Array : Byte_Array (0 .. Count)
+      with Import,
+        Convention => C,
+        Address    => Source;
+
+      Dest_Array   : Byte_Array (0 .. Count)
+      with Import,
+        Convention => C,
+        Address    => Dest;
+   begin
+      for Idx in Source_Array'Range loop
+         Dest_Array (Idx) := Source_Array (Idx);
+      end loop;
+
+      return Dest;
+   end Copy;
 
 end x86.Memory;

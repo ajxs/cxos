@@ -17,26 +17,26 @@ package body Cxos is
    ----------------------------------------------------------------------------
    --  Initialise
    ----------------------------------------------------------------------------
-   procedure Initialise is
+   function Initialise_Kernel return Kernel_Process_Result is
       --  The result of internal initialisation functions.
       Result : Kernel_Process_Result;
    begin
       Result := Cxos.Memory.Initialise;
       if Result /= Success then
-         return;
+         return Result;
       end if;
+
+      return Success;
    exception
       when Constraint_Error =>
-         return;
-   end Initialise;
+         return Failure;
+   end Initialise_Kernel;
 
    ----------------------------------------------------------------------------
    --  Main
    ----------------------------------------------------------------------------
    procedure Main is
    begin
-      Initialise;
-
       --  Print the ASCII splash screen.
       Print_Splash;
 

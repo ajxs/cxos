@@ -9,7 +9,6 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Multiboot;
 with System;
 
 -------------------------------------------------------------------------------
@@ -23,8 +22,6 @@ with System;
 package x86 is
    pragma Preelaborate (x86);
 
-   use Multiboot;
-
    type Kernel_Process_Result is (
      Failure,
      Success
@@ -35,15 +32,12 @@ package x86 is
    --
    --  Purpose:
    --    This procedure initialises the x86 platform.
-   --    This will perform all the necessary initialisation in order to load
-   --    and begin execution of the kernel.
+   --    This will perform all the necessary system initialisation necessary
+   --    prior to beginning kernel execution.
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Initialise (
-     Magic_Number      : Multiboot_Magic_Number;
-     Boot_Info_Address : System.Address
-   )
+   procedure Initialise
    with Export,
      Convention => Assembler,
      External_Name => "__system_init";

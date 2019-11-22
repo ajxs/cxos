@@ -10,7 +10,6 @@
 -------------------------------------------------------------------------------
 
 with Ada.Interrupts.Names;
-with Interfaces;
 with x86.Exceptions;
 with x86.IDT;
 with x86.Interrupts;
@@ -25,21 +24,11 @@ with x86.Vga;
 
 package body x86 is
    use Ada.Interrupts.Names;
-   use Interfaces;
 
    ----------------------------------------------------------------------------
    --  Initialise
    ----------------------------------------------------------------------------
-   procedure Initialise (
-     Magic_Number      : Multiboot_Magic_Number;
-     Boot_Info_Address : System.Address
-   ) is
-      --  Create multiboot info structure overlaid at boot info address.
-      Boot_Info : constant Multiboot_Info
-      with Address => Boot_Info_Address,
-        Import,
-        Convention => C,
-        Volatile;
+   procedure Initialise is
    begin
       --  Initialise VGA system.
       x86.Vga.Clear (x86.Vga.Black);
@@ -51,15 +40,6 @@ package body x86 is
       x86.Serial.Initialise (x86.Serial.COM1, 38400);
       x86.Serial.Put_String (x86.Serial.COM1,
         "COM1 initialised" & ASCII.LF);
-
-      --  Check whether we were booted by a Multiboot compatible bootloader.
-      if Magic_Number = VALID_MAGIC_NUMBER then
-         x86.Serial.Put_String (x86.Serial.COM1,
-           "Detected valid Multiboot magic number" & ASCII.LF);
-      else
-         x86.Serial.Put_String (x86.Serial.COM1,
-           "Unable to detect valid Multiboot magic number" & ASCII.LF);
-      end if;
 
       x86.Serial.Put_String (x86.Serial.COM1,
         "Initialising PIC" & ASCII.LF);

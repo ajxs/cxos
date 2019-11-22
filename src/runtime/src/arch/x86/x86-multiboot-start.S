@@ -28,7 +28,13 @@
 
 .section .bss, "aw", @nobits
 
-# Store multiboot variables.
+#####################################################################
+# Multiboot Variables
+# These are stored globally so they are acessible to the kernel
+# during kernel initialisation.
+# Since the runtime and hardware is initialised first, these sre
+# stored here to not rely on the stack or registers to store these.
+#####################################################################
 .global multiboot_magic
 multiboot_magic:
 	.skip 4
@@ -146,8 +152,9 @@ _start:
 	# Disable interrupts prior to system initialisation.
 	cli
 
-	# Save multiboot variables, since we want to pass these to the system
-	# initialisation function after having initialised the runtime.
+	# Save multiboot variables in global variables.
+	# These are used in the kernel start procedure to authenticate the bootloader.
+	# See: https://www.gnu.org/software/grub/manual/multiboot/multiboot.html#Machine-state
 	movl %eax, multiboot_magic - 0xC0000000
 	movl %ebx, multiboot_struct - 0xC0000000
 
@@ -173,15 +180,6 @@ _start:
 
 	# Initialise Ada runtime.
 	call adainit
-
-	# Retrieve the magic number and boot info struct address then push onto the
-	# stack as per the Multiboot spec.
-	# See: https://www.gnu.org/software/grub/manual/multiboot/multiboot.html#Machine-state
-	movl multiboot_magic, %eax
-	movl multiboot_struct, %ebx
-
-	pushl %ebx
-	pushl %eax
 
 	# Initialise the system.
 	call __system_init

@@ -143,20 +143,6 @@ package x86.Memory.Paging is
       end record;
 
    ----------------------------------------------------------------------------
-   --  Check_Address_Page_Aligned
-   --
-   --  Purpose:
-   --    Checks whether a provided address is 4K aligned, as required by the
-   --    paging entity structures.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   function Check_Address_Page_Aligned (
-     Addr : System.Address
-   ) return Boolean
-   with Pure_Function;
-
-   ----------------------------------------------------------------------------
    --  Convert_To_Page_Aligned_Address
    --
    --  Purpose:
@@ -196,51 +182,6 @@ package x86.Memory.Paging is
    with Import,
      Convention    => Assembler,
      External_Name => "__flush_tlb";
-
-   ----------------------------------------------------------------------------
-   --  Get_Page_Directory_Index
-   --
-   --  Purpose:
-   --    This function gets the index of the page table in a page directory of
-   --    corresponding to a particular address.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   function Get_Page_Directory_Index (
-     Addr  :     System.Address;
-     Index : out Natural
-   ) return Process_Result
-   with Pure_Function;
-
-   ----------------------------------------------------------------------------
-   --  Get_Page_Table_Index
-   --
-   --  Purpose:
-   --    This function gets the index of the page table entry in a page table
-   --    corresponding to a particular address.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   function Get_Page_Table_Index (
-     Addr  :     System.Address;
-     Index : out Natural
-   ) return Process_Result
-   with Pure_Function;
-
-   ----------------------------------------------------------------------------
-   --  Get_Page_Table_Mapped_Address
-   --
-   --  Purpose:
-   --    This function returns the recursively mapped address of a page table.
-   --    This mapped address can be used to edit the page table within memory.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   function Get_Page_Table_Mapped_Address (
-     Virtual_Addr :     System.Address;
-     Mapped_Addr  : out System.Address
-   ) return Process_Result
-   with Pure_Function;
 
    ----------------------------------------------------------------------------
    --  Insert_Page_Table
@@ -310,5 +251,65 @@ package x86.Memory.Paging is
    function Initialise_Page_Table (
      Table : in out Page_Table
    ) return Process_Result;
+
+private
+   ----------------------------------------------------------------------------
+   --  Check_Address_Page_Aligned
+   --
+   --  Purpose:
+   --    Checks whether a provided address is 4K aligned, as required by the
+   --    paging entity structures.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   function Check_Address_Page_Aligned (
+     Addr : System.Address
+   ) return Boolean
+   with Pure_Function;
+
+   ----------------------------------------------------------------------------
+   --  Get_Page_Directory_Index
+   --
+   --  Purpose:
+   --    This function gets the index of the page table in a page directory of
+   --    corresponding to a particular address.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   function Get_Page_Directory_Index (
+     Addr  :     System.Address;
+     Index : out Natural
+   ) return Process_Result
+   with Pure_Function;
+
+   ----------------------------------------------------------------------------
+   --  Get_Page_Table_Index
+   --
+   --  Purpose:
+   --    This function gets the index of the page table entry in a page table
+   --    corresponding to a particular address.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   function Get_Page_Table_Index (
+     Addr  :     System.Address;
+     Index : out Natural
+   ) return Process_Result
+   with Pure_Function;
+
+   ----------------------------------------------------------------------------
+   --  Get_Page_Table_Mapped_Address
+   --
+   --  Purpose:
+   --    This function returns the recursively mapped address of a page table.
+   --    This mapped address can be used to edit the page table within memory.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   function Get_Page_Table_Mapped_Address (
+     Virtual_Addr :     System.Address;
+     Mapped_Addr  : out System.Address
+   ) return Process_Result
+   with Pure_Function;
 
 end x86.Memory.Paging;

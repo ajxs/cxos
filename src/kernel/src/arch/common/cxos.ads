@@ -19,16 +19,6 @@ package Cxos is
    pragma Preelaborate (Cxos);
 
    ----------------------------------------------------------------------------
-   --  Initialise
-   --
-   --  Purpose:
-   --    Initialises the kernel.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   procedure Initialise;
-
-   ----------------------------------------------------------------------------
    --  Kernel Process Result type.
    --  Used to track the result of kernel processes.
    ----------------------------------------------------------------------------
@@ -36,6 +26,16 @@ package Cxos is
      Failure,
      Success
    );
+
+   ----------------------------------------------------------------------------
+   --  Initialise_Kernel
+   --
+   --  Purpose:
+   --    Initialises the kernel.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   function Initialise_Kernel return Kernel_Process_Result;
 
    ----------------------------------------------------------------------------
    --  Main

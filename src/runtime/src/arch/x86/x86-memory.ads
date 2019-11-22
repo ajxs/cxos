@@ -21,6 +21,12 @@ with Interfaces;
 package x86.Memory is
    pragma Preelaborate (x86.Memory);
 
+   ----------------------------------------------------------------------------
+   --  Byte Array Type.
+   --  Used in memory operations. The type is aliased to ensure that the
+   --  element at every index of the array is treated as a pointer and not
+   --  stored in registers.
+   ----------------------------------------------------------------------------
    type Byte_Array is array (Natural range <>)
      of aliased Interfaces.Unsigned_8;
 

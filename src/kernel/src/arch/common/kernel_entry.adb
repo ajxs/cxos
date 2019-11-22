@@ -36,7 +36,7 @@ procedure Kernel_Entry is
      External_Name => "multiboot_magic";
 
    --  The process result of initialising the kernel.
-   Init_Result  : Cxos.Kernel_Process_Result;
+   Init_Result  : Cxos.Kernel_Process_Result := Failure;
 begin
    --  Check whether we were booted by a Multiboot compatible bootloader.
    if Magic_Number = VALID_MAGIC_NUMBER then

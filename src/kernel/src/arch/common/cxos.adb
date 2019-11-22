@@ -19,7 +19,7 @@ package body Cxos is
    ----------------------------------------------------------------------------
    function Initialise_Kernel return Kernel_Process_Result is
       --  The result of internal initialisation functions.
-      Result : Kernel_Process_Result;
+      Result : Kernel_Process_Result := Failure;
    begin
       Result := Cxos.Memory.Initialise;
       if Result /= Success then

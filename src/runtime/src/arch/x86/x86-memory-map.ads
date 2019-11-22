@@ -169,6 +169,6 @@ private
    ----------------------------------------------------------------------------
    --  The system memory map.
    ----------------------------------------------------------------------------
-   Memory_Map : Memory_Map_Array;
+   Memory_Map : Memory_Map_Array := (others => Unallocated);
 
 end x86.Memory.Map;

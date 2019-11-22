@@ -1,9 +1,21 @@
+-------------------------------------------------------------------------------
+--  Copyright (c) 2019, CXOS.
+--  This program is free software; you can redistribute it and/or modify it
+--  under the terms of the GNU General Public License as published by the
+--  Free Software Foundation; either version 3 of the License, or
+--  (at your option) any later version.
+--
+--  Authors:
+--     Anthony <ajxs [at] panoptic.online>
+-------------------------------------------------------------------------------
+
 --  Refer to: https://docs.adacore.com/gnat_rm-docs/html/gnat_rm/gnat_rm/standard_and_implementation_defined_restrictions.html
 pragma Discard_Names;
 pragma Normalize_Scalars;
 pragma Restrictions (No_Access_Subprograms);
 pragma Restrictions (No_Allocators);
 pragma Restrictions (No_Calendar);
+--  pragma Restrictions (No_Default_Initialization);
 pragma Restrictions (No_Delay);
 pragma Restrictions (No_Dispatch);
 pragma Restrictions (No_Enumeration_Maps);

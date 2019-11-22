@@ -150,7 +150,27 @@ private
    --  The actual global descriptor table entity.
    --  The length of the entries is statically allocated.
    ----------------------------------------------------------------------------
-   Global_Descriptor_Table : GDT_Table (0 .. (GDT_LENGTH - 1))
+   Global_Descriptor_Table : GDT_Table (0 .. (GDT_LENGTH - 1)) := (others =>
+     (
+       Limit_Low  => 0,
+       Base_Low   => 0,
+       Base_Mid   => 0,
+       Descr_Type => (
+         A          => False,
+         W_R        => False,
+         E_C        => False,
+         Field_Type => False
+       ),
+       S          => False,
+       DPL        => Ring_0,
+       P          => False,
+       Limit_High => 0,
+       AVL        => False,
+       L          => False,
+       DB         => False,
+       G          => False,
+       Base_High  => 0
+     ))
    with Alignment  => 16,
      Export,
      Convention    => Assembler,

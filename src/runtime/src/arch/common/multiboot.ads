@@ -76,6 +76,37 @@ package Multiboot is
       end record;
 
    ----------------------------------------------------------------------------
+   --  Multiboot Drive entry struct.
+   --  Contains information on disk drives obtained from the boot loader.
+   ----------------------------------------------------------------------------
+   type Multiboot_Drive_Entry is
+      record
+         Size            : Unsigned_32;
+         Drive_Number    : Unsigned_8;
+         Drive_Mode      : Unsigned_8;
+         Drive_Cylinders : Unsigned_16;
+         Drive_Heads     : Unsigned_8;
+         Drive_Sectors   : Unsigned_8;
+      end record
+   with Size => 80;
+   for Multiboot_Drive_Entry use
+      record
+         Size            at 0 range 0  .. 31;
+         Drive_Number    at 0 range 32 .. 39;
+         Drive_Mode      at 0 range 40 .. 47;
+         Drive_Cylinders at 0 range 48 .. 63;
+         Drive_Heads     at 0 range 64 .. 71;
+         Drive_Sectors   at 0 range 72 .. 79;
+      end record;
+
+   ----------------------------------------------------------------------------
+   --  Multiboot Drive entry port array.
+   --  Represents an array of ports used to communicate with the drive.
+   ----------------------------------------------------------------------------
+   type Multiboot_Drive_Entry_Port_Array is
+     array (Natural range <>) of Unsigned_16;
+
+   ----------------------------------------------------------------------------
    --  Multiboot information struct.
    --  As defined in the Multiboot spec in the GNU GRUB manual.
    ----------------------------------------------------------------------------

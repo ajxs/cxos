@@ -539,6 +539,7 @@ package body Cxos.Memory is
 
                   return;
             end Mark_Free_Memory;
+
          Increment_Pointer :
             begin
                --  The 'Size' value is not inclusive of the size variable

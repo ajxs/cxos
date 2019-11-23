@@ -12,7 +12,7 @@
 with Interfaces;
 
 -------------------------------------------------------------------------------
---  SYSTEM.X86.DESCRIPTORS
+--  X86.DESCRIPTORS
 --
 --  Purpose:
 --    This package contains definitions common to the use of descriptors in the

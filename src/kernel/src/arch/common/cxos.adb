@@ -11,6 +11,7 @@
 
 with Cxos.Memory;
 with Cxos.Serial;
+with Cxos.VFS;
 with System.Machine_Code;
 
 package body Cxos is
@@ -22,6 +23,11 @@ package body Cxos is
       Result : Kernel_Process_Result := Failure;
    begin
       Result := Cxos.Memory.Initialise;
+      if Result /= Success then
+         return Result;
+      end if;
+
+      Result := Cxos.VFS.Initialise;
       if Result /= Success then
          return Result;
       end if;

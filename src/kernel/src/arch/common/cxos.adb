@@ -22,12 +22,12 @@ package body Cxos is
       --  The result of internal initialisation functions.
       Result : Kernel_Process_Result := Failure;
    begin
-      Result := Cxos.Memory.Initialise;
+      Result := Cxos.VFS.Initialise;
       if Result /= Success then
          return Result;
       end if;
 
-      Result := Cxos.VFS.Initialise;
+      Result := Cxos.Memory.Initialise;
       if Result /= Success then
          return Result;
       end if;

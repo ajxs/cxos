@@ -9,6 +9,9 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
+with Interfaces;
+with System;
+
 -------------------------------------------------------------------------------
 --  CXOS.VFS
 --
@@ -19,8 +22,19 @@
 package Cxos.VFS is
    pragma Preelaborate (Cxos.VFS);
 
+   use Interfaces;
+
+   ----------------------------------------------------------------------------
+   --  Initialise
+   --
+   --  Purpose:
+   --    This function initialises the kernel's virtual file system.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
    function Initialise return Kernel_Process_Result;
 
+private
    ----------------------------------------------------------------------------
    --  Parse_Multiboot_Drive_Map
    --
@@ -30,8 +44,7 @@ package Cxos.VFS is
    --    None.
    ----------------------------------------------------------------------------
    function Parse_Multiboot_Drive_Map (
-     Memory_Map_Addr   : System.Address;
-     Memory_Map_Length : Unsigned_32
+     Drive_Map_Addr   : System.Address;
+     Drive_Map_Length : Unsigned_32
    ) return Kernel_Process_Result;
 end Cxos.VFS;
-

@@ -52,7 +52,7 @@ project Kernel is
    end Compiler;
 
    package Linker is
-      for Default_Switches ("Ada") use (
+      for Switches (others) use (
         "-Wl,--gc-sections",
         "-static",
         "-nostartfiles",

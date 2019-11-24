@@ -503,8 +503,12 @@ package body Cxos.Memory is
                      Cxos.Serial.Put_String ("Reserved" & ASCII.LF);
                end case;
 
-               Cxos.Serial.Put_String ("  Base:  __" & ASCII.LF);
-               Cxos.Serial.Put_String ("  Limit: __" & ASCII.LF);
+               Cxos.Serial.Put_String ("  Base:   " &
+                 Unsigned_32 (Curr_Region.all.Base and 16#FFFF_FFFF#)'Image &
+                 ASCII.LF);
+               Cxos.Serial.Put_String ("  Length: " &
+                 Unsigned_32 (Curr_Region.all.Length and 16#FFFF_FFFF#)'Image &
+                 ASCII.LF);
             exception
                when Constraint_Error =>
                   return;

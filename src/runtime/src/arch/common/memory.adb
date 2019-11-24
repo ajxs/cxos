@@ -9,13 +9,13 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-package body x86.Memory is
+package body Memory is
    ----------------------------------------------------------------------------
    --  Copy
    ----------------------------------------------------------------------------
    function Copy (
-     Source : System.Address;
      Dest   : System.Address;
+     Source : System.Address;
      Count  : Integer
    ) return System.Address is
       Source_Array : Byte_Array (0 .. Count)
@@ -28,6 +28,11 @@ package body x86.Memory is
         Convention => C,
         Address    => Dest;
    begin
+      --  If there is no length, do nothing.
+      if Count < 1 then
+         return Dest;
+      end if;
+
       for Idx in Source_Array'Range loop
          Dest_Array (Idx) := Source_Array (Idx);
       end loop;
@@ -35,4 +40,4 @@ package body x86.Memory is
       return Dest;
    end Copy;
 
-end x86.Memory;
+end Memory;

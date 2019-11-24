@@ -7,7 +7,7 @@ file src/kernel/build/cxos.elf -readnow
 # b x86-memory-paging.adb:557
 # x /32tg &memory_map
 # b __load_page_directory
-b parse_multiboot_drive_map
+b image_unsigned
 # print_mmap_region
 
 # x /1xg &idt_pointer

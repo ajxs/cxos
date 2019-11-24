@@ -9,10 +9,8 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Interfaces;
-
 -------------------------------------------------------------------------------
---  SYSTEM.X86.MEMORY
+--  X86.MEMORY
 --
 --  Purpose:
 --    This package contains code and defintions for implementing and working
@@ -20,33 +18,4 @@ with Interfaces;
 -------------------------------------------------------------------------------
 package x86.Memory is
    pragma Preelaborate (x86.Memory);
-
-   ----------------------------------------------------------------------------
-   --  Byte Array Type.
-   --  Used in memory operations. The type is aliased to ensure that the
-   --  element at every index of the array is treated as a pointer and not
-   --  stored in registers.
-   ----------------------------------------------------------------------------
-   type Byte_Array is array (Natural range <>)
-     of aliased Interfaces.Unsigned_8;
-
-   ----------------------------------------------------------------------------
-   --  Copy
-   --
-   --  Purpose:
-   --    Generic memcpy implementation.
-   --    This is reuired by the runtime for default initialisation of
-   --    package variables.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   function Copy (
-     Source : System.Address;
-     Dest   : System.Address;
-     Count  : Integer
-   ) return System.Address
-   with Export,
-     Convention    => C,
-     External_Name => "memcpy";
-
 end x86.Memory;

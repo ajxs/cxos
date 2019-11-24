@@ -91,7 +91,7 @@ package body Cxos.VFS is
                Cxos.Serial.Put_String ("Parsing Drive Entry" & ASCII.LF);
             end Print_Drive_Entry_Info;
 
-         -- Increment the entry.
+         --  Increment the entry.
          Increment_Pointer :
             begin
                --  The 'Size' value is not inclusive of the size variable

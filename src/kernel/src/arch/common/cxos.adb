@@ -11,6 +11,7 @@
 
 with Cxos.Memory;
 with Cxos.Serial;
+with Cxos.PCI;
 with Cxos.VFS;
 with System.Machine_Code;
 
@@ -28,6 +29,11 @@ package body Cxos is
       end if;
 
       Result := Cxos.Memory.Initialise;
+      if Result /= Success then
+         return Result;
+      end if;
+
+      Result := Cxos.PCI.Find_Pci_Devices;
       if Result /= Success then
          return Result;
       end if;

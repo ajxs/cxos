@@ -22,7 +22,6 @@ package Cxos.PCI is
    pragma Preelaborate;
 
    use Interfaces;
-   use x86.PCI;
 
    ----------------------------------------------------------------------------
    --  Process Result type.
@@ -49,6 +48,9 @@ private
    ----------------------------------------------------------------------------
    type Pci_Device is
       record
+         Bus_Number       : Unsigned_8;
+         Device_Number    : x86.PCI.Pci_Device_Number;
+         Function_Number  : x86.PCI.Pci_Function_Number;
          Vendor_Id        : Unsigned_16;
          Device_Id        : Unsigned_16;
          Command          : Unsigned_16;
@@ -86,10 +88,10 @@ private
    --    PCI device.
    ----------------------------------------------------------------------------
    function Read_Pci_Device (
-     Output          : out Pci_Device;
+     Device          : out Pci_Device;
      Bus_Number      :     Unsigned_8;
-     Device_Number   :     Pci_Device_Number;
-     Function_Number :     Pci_Function_Number
+     Device_Number   :     x86.PCI.Pci_Device_Number;
+     Function_Number :     x86.PCI.Pci_Function_Number
    ) return Process_Result
    with Volatile_Function;
 
@@ -113,8 +115,8 @@ private
    function Test_Pci_Device (
      Result          : out Boolean;
      Bus_Number      :     Unsigned_8;
-     Device_Number   :     Pci_Device_Number;
-     Function_Number :     Pci_Function_Number
+     Device_Number   :     x86.PCI.Pci_Device_Number;
+     Function_Number :     x86.PCI.Pci_Function_Number
    ) return Process_Result;
 
 end Cxos.PCI;

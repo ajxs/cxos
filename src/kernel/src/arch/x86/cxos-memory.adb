@@ -486,7 +486,8 @@ package body Cxos.Memory is
          --  Print information about the current mmap region.
          Print_Memory_Region_Info :
             begin
-               Cxos.Serial.Put_String ("Parsing Mmap region" & ASCII.LF);
+               Cxos.Serial.Put_String ("------------------------" & ASCII.LF);
+               Cxos.Serial.Put_String ("Mmap region:" & ASCII.LF);
                Cxos.Serial.Put_String ("  Type:    ");
 
                case Curr_Region.all.Memory_Type is

@@ -12,6 +12,8 @@
 with Cxos.Serial;
 
 package body Cxos.PCI is
+   use x86.PCI;
+
    ----------------------------------------------------------------------------
    --  Find_Pci_Devices
    ----------------------------------------------------------------------------
@@ -45,17 +47,11 @@ package body Cxos.PCI is
                end if;
 
                if PRINT_INFO then
-                  Cxos.Serial.Put_String ("------------------------" &
-                    ASCII.LF);
-                  Cxos.Serial.Put_String ("Bus:      " & Bus'Image & ASCII.LF);
-                  Cxos.Serial.Put_String ("Device:   " & Device'Image
-                    & ASCII.LF);
-                  Cxos.Serial.Put_String ("Function:  0" & ASCII.LF);
-
                   Print_Pci_Device (Device_Info);
                end if;
 
-               --  If this is a multi-function device.
+               --  If this is a multi-function device read any child devices
+               --  on the function bus.
                if (Device_Info.Header_Type and 16#80#) /= 0 then
                   for Func in Pci_Function_Number range 1 .. 7 loop
                      Result := Test_Pci_Device (Test_Result, Bus,
@@ -76,15 +72,6 @@ package body Cxos.PCI is
                         end if;
 
                         if PRINT_INFO then
-                           Cxos.Serial.Put_String ("------------------------" &
-                             ASCII.LF);
-                           Cxos.Serial.Put_String ("Bus:      " &
-                             Bus'Image & ASCII.LF);
-                           Cxos.Serial.Put_String ("Device:   " &
-                             Device'Image & ASCII.LF);
-                           Cxos.Serial.Put_String ("Function: " &
-                             Func'Image & ASCII.LF);
-
                            Print_Pci_Device (Device_Info);
                         end if;
                      end if;
@@ -107,18 +94,54 @@ package body Cxos.PCI is
       Device : Pci_Device
    ) is
    begin
+      Cxos.Serial.Put_String ("------------------------" & ASCII.LF);
       Cxos.Serial.Put_String ("Device:" & ASCII.LF);
-
+      Cxos.Serial.Put_String ("  Bus:       "
+        & Device.Bus_Number'Image & ASCII.LF);
+      Cxos.Serial.Put_String ("  Device:    "
+        & Device.Device_Number'Image & ASCII.LF);
+      Cxos.Serial.Put_String ("  Function:  "
+        & Device.Function_Number'Image & ASCII.LF);
       Cxos.Serial.Put_String ("  Vendor ID: "
         & Device.Vendor_Id'Image & ASCII.LF);
       Cxos.Serial.Put_String ("  Device ID: "
         & Device.Device_Id'Image & ASCII.LF);
-      Cxos.Serial.Put_String ("  Class:     "
-        & Device.Device_Class'Image & ASCII.LF);
+      Cxos.Serial.Put_String ("  Class:      ");
+      case Device.Device_Class is
+         when 1 =>
+            Cxos.Serial.Put_String ("Mass Storage Controller" & ASCII.LF);
+            Cxos.Serial.Put_String ("  Subclass:   ");
+            case Device.Subclass is
+               when 1 =>
+                  Cxos.Serial.Put_String ("IDE Controller" & ASCII.LF);
+               when 2 =>
+                  Cxos.Serial.Put_String ("Floppy Disk Controller" & ASCII.LF);
+               when 3 =>
+                  Cxos.Serial.Put_String ("IPI Bus Controller" & ASCII.LF);
+               when 4 =>
+                  Cxos.Serial.Put_String ("RAID Controller" & ASCII.LF);
+               when 5 =>
+                  Cxos.Serial.Put_String ("ATA Controller" & ASCII.LF);
+               when 6 =>
+                  Cxos.Serial.Put_String ("Serial ATA" & ASCII.LF);
+               when 7 =>
+                  Cxos.Serial.Put_String ("Serial Attached SCSI" & ASCII.LF);
+               when 8 =>
+                  Cxos.Serial.Put_String ("Non-Volatile Memory Controller"
+                    & ASCII.LF);
+               when 16#80# =>
+                  Cxos.Serial.Put_String ("Other" & ASCII.LF);
+               when others =>
+                  Cxos.Serial.Put_String ("Unknown: "
+                    & Device.Device_Class'Image & ASCII.LF);
+            end case;
+         when others =>
+            Cxos.Serial.Put_String (Device.Device_Class'Image & ASCII.LF);
+            Cxos.Serial.Put_String ("  Subclass:  "
+              & Device.Subclass'Image & ASCII.LF);
+      end case;
       Cxos.Serial.Put_String ("  Header:    "
         & Device.Header_Type'Image & ASCII.LF);
-      Cxos.Serial.Put_String ("  Subclass:  "
-        & Device.Subclass'Image & ASCII.LF);
       Cxos.Serial.Put_String ("  BAR0:      "
         & Device.BAR0'Image & ASCII.LF);
 
@@ -128,56 +151,52 @@ package body Cxos.PCI is
    --  Read_Pci_Device
    ----------------------------------------------------------------------------
    function Read_Pci_Device (
-     Output          : out Pci_Device;
+     Device          : out Pci_Device;
      Bus_Number      :     Unsigned_8;
      Device_Number   :     Pci_Device_Number;
      Function_Number :     Pci_Function_Number
    ) return Process_Result is
       --  The results of internal PCI bus read processes.
       Result : x86.PCI.Process_Result;
-      --  The value read from the PCI bus registers.
-      Bus_Output : Unsigned_32;
+      --  Array type to hold the data read from the PCI bus.
+      type Bus_Output_Array is array (Unsigned_8 range 0 .. 31)
+        of Unsigned_32;
+      --  The data read from the PCI bus registers.
+      Bus_Output : Bus_Output_Array;
    begin
-      Result := x86.PCI.Pci_Read_Long (Bus_Output, Bus_Number,
-        Device_Number, Function_Number, 0);
-      if Result /= Success then
-         return Bus_Read_Error;
-      end if;
+      --  Read all of the PCI Device table into the bus ouput array.
+      Read_Bus :
+         begin
+            for I in Bus_Output_Array'Range loop
+               Result := x86.PCI.Pci_Read_Long (Bus_Output (I), Bus_Number,
+                 Device_Number, Function_Number, I * 4);
+               if Result /= Success then
+                  return Bus_Read_Error;
+               end if;
+            end loop;
+         end Read_Bus;
 
-      Output.Vendor_Id := Unsigned_16 (Bus_Output and 16#FFFF#);
-      Output.Device_Id := Unsigned_16 (Shift_Right (Bus_Output, 16));
+      Device.Bus_Number      := Bus_Number;
+      Device.Device_Number   := Device_Number;
+      Device.Function_Number := Function_Number;
 
-      Result := x86.PCI.Pci_Read_Long (Bus_Output, Bus_Number,
-        Device_Number, Function_Number, 8);
-      if Result /= Success then
-         return Bus_Read_Error;
-      end if;
+      Device.Vendor_Id := Unsigned_16 (Bus_Output (0) and 16#FFFF#);
+      Device.Device_Id := Unsigned_16 (Shift_Right (Bus_Output (0), 16));
 
-      Output.Device_Class := Unsigned_8 (Shift_Right (Bus_Output, 24));
-      Output.Subclass := Unsigned_8 (Shift_Right (Bus_Output, 16) and 16#FF#);
-      Output.Prog_IF  := Unsigned_8 (Shift_Right (Bus_Output, 8) and 16#FF#);
-      Output.Revision_Id := Unsigned_8 (Bus_Output and 16#FF#);
+      Device.Device_Class := Unsigned_8 (Shift_Right (Bus_Output (2), 24));
+      Device.Subclass := Unsigned_8 (
+        Shift_Right (Bus_Output (2), 16) and 16#FF#);
+      Device.Prog_IF  := Unsigned_8 (
+        Shift_Right (Bus_Output (2), 8) and 16#FF#);
+      Device.Revision_Id := Unsigned_8 (Bus_Output (2) and 16#FF#);
+      Device.BIST := Unsigned_8 (Shift_Right (Bus_Output (2), 24));
 
-      Result := x86.PCI.Pci_Read_Long (Bus_Output, Bus_Number,
-        Device_Number, Function_Number, 16#C#);
-      if Result /= Success then
-         return Bus_Read_Error;
-      end if;
-
-      Output.BIST := Unsigned_8 (Shift_Right (Bus_Output, 24));
-      Output.Header_Type := Unsigned_8 (
-        Shift_Right (Bus_Output, 16) and 16#FF#);
-      Output.Latency_Timer  := Unsigned_8 (
-        Shift_Right (Bus_Output, 8) and 16#FF#);
-      Output.Cache_Line_Size := Unsigned_8 (Bus_Output and 16#FF#);
-
-      Result := x86.PCI.Pci_Read_Long (Bus_Output, Bus_Number,
-        Device_Number, Function_Number, 16#10#);
-      if Result /= Success then
-         return Bus_Read_Error;
-      end if;
-
-      Output.BAR0 := Bus_Output;
+      Device.Header_Type := Unsigned_8 (
+        Shift_Right (Bus_Output (3), 16) and 16#FF#);
+      Device.Latency_Timer  := Unsigned_8 (
+        Shift_Right (Bus_Output (3), 8) and 16#FF#);
+      Device.Cache_Line_Size := Unsigned_8 (Bus_Output (3) and 16#FF#);
+      Device.BAR0 := Bus_Output (5);
 
       return Success;
    exception
@@ -199,7 +218,9 @@ package body Cxos.PCI is
      Device_Number   :     Pci_Device_Number;
      Function_Number :     Pci_Function_Number
    ) return Process_Result is
+      --  The result of the bus read process.
       Read_Result : x86.PCI.Process_Result;
+      --  The long integer read from the bus during the test process.
       Output      : Unsigned_32;
    begin
       Read_Result := x86.PCI.Pci_Read_Long (Output, Bus_Number,

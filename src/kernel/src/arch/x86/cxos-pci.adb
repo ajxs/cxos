@@ -32,52 +32,37 @@ package body Cxos.PCI is
 
       for Bus in Unsigned_8 range 0 .. 255 loop
          for Device in x86.PCI.Pci_Device_Number range 0 .. 31 loop
-            Result := Test_Pci_Device (Test_Result, Bus, Device, 0);
-            if Result /= Success then
-               Cxos.Serial.Put_String ("Error testing PCI device" & ASCII.LF);
-               return Failure;
-            end if;
+            Function_Loop :
+               for Func in Pci_Function_Number range 0 .. 7 loop
+                  --  Test the individual PCI address.
+                  Result := Test_Pci_Device (Test_Result, Bus, Device, Func);
+                  if Result /= Success then
+                     Cxos.Serial.Put_String ("Error testing PCI device"
+                       & ASCII.LF);
+                     return Failure;
+                  end if;
 
-            if Test_Result then
-               Result := Read_Pci_Device (Device_Info, Bus, Device, 0);
-               if Result /= Success then
-                  Cxos.Serial.Put_String ("Error reading PCI device" &
-                    ASCII.LF);
-                  return Failure;
-               end if;
-
-               if PRINT_INFO then
-                  Print_Pci_Device (Device_Info);
-               end if;
-
-               --  If this is a multi-function device read any child devices
-               --  on the function bus.
-               if (Device_Info.Header_Type and 16#80#) /= 0 then
-                  for Func in Pci_Function_Number range 1 .. 7 loop
-                     Result := Test_Pci_Device (Test_Result, Bus,
+                  if Test_Result then
+                     Result := Read_Pci_Device (Device_Info, Bus,
                        Device, Func);
                      if Result /= Success then
-                        Cxos.Serial.Put_String ("Error testing PCI device" &
+                        Cxos.Serial.Put_String ("Error reading PCI device" &
                           ASCII.LF);
                         return Failure;
                      end if;
 
-                     if Test_Result then
-                        Result := Read_Pci_Device (Device_Info, Bus,
-                          Device, Func);
-                        if Result /= Success then
-                           Cxos.Serial.Put_String ("Error reading PCI device" &
-                             ASCII.LF);
-                           return Failure;
-                        end if;
-
-                        if PRINT_INFO then
-                           Print_Pci_Device (Device_Info);
-                        end if;
+                     if PRINT_INFO then
+                        Print_Pci_Device (Device_Info);
                      end if;
-                  end loop;
-               end if;
-            end if;
+
+                     --  If this is not a multi-function device, exit.
+                     if Func = 0 and (Device_Info.Header_Type and 16#80#) = 0
+                     then
+                        exit Function_Loop;
+                     end if;
+
+                  end if;
+               end loop Function_Loop;
          end loop;
       end loop;
 
@@ -106,12 +91,14 @@ package body Cxos.PCI is
         & Device.Vendor_Id'Image & ASCII.LF);
       Cxos.Serial.Put_String ("  Device ID: "
         & Device.Device_Id'Image & ASCII.LF);
-      Cxos.Serial.Put_String ("  Class:      ");
+      Cxos.Serial.Put_String ("  Class:     ");
       case Device.Device_Class is
          when 1 =>
-            Cxos.Serial.Put_String ("Mass Storage Controller" & ASCII.LF);
+            Cxos.Serial.Put_String (" Mass Storage Controller" & ASCII.LF);
             Cxos.Serial.Put_String ("  Subclass:   ");
             case Device.Subclass is
+               when 0 =>
+                  Cxos.Serial.Put_String ("SCSI Bus Controller" & ASCII.LF);
                when 1 =>
                   Cxos.Serial.Put_String ("IDE Controller" & ASCII.LF);
                when 2 =>
@@ -133,7 +120,113 @@ package body Cxos.PCI is
                   Cxos.Serial.Put_String ("Other" & ASCII.LF);
                when others =>
                   Cxos.Serial.Put_String ("Unknown: "
-                    & Device.Device_Class'Image & ASCII.LF);
+                    & Device.Subclass'Image & ASCII.LF);
+            end case;
+         when 2 =>
+            Cxos.Serial.Put_String (" Network Controller" & ASCII.LF);
+            Cxos.Serial.Put_String ("  Subclass:   ");
+            case Device.Subclass is
+               when 0 =>
+                  Cxos.Serial.Put_String ("Ethernet Controller" & ASCII.LF);
+               when 1 =>
+                  Cxos.Serial.Put_String ("Token Ring Controller" & ASCII.LF);
+               when 2 =>
+                  Cxos.Serial.Put_String ("FDDI Controller" & ASCII.LF);
+               when 3 =>
+                  Cxos.Serial.Put_String ("ATM Controller" & ASCII.LF);
+               when 4 =>
+                  Cxos.Serial.Put_String ("ISDN Controller" & ASCII.LF);
+               when 5 =>
+                  Cxos.Serial.Put_String ("WorldFip Controller" & ASCII.LF);
+               when 6 =>
+                  Cxos.Serial.Put_String ("PICMG 2.14" & ASCII.LF);
+               when 7 =>
+                  Cxos.Serial.Put_String ("Infiniband Controller" & ASCII.LF);
+               when 8 =>
+                  Cxos.Serial.Put_String ("Fabric Controller" & ASCII.LF);
+               when 16#80# =>
+                  Cxos.Serial.Put_String ("Other" & ASCII.LF);
+               when others =>
+                  Cxos.Serial.Put_String ("Unknown: "
+                    & Device.Subclass'Image & ASCII.LF);
+            end case;
+         when 3 =>
+            Cxos.Serial.Put_String (" VGA Controller" & ASCII.LF);
+            Cxos.Serial.Put_String ("  Subclass:   ");
+            case Device.Subclass is
+               when 0 =>
+                  Cxos.Serial.Put_String ("VGA Compatible" & ASCII.LF);
+               when 1 =>
+                  Cxos.Serial.Put_String ("XSA Controller" & ASCII.LF);
+               when 2 =>
+                  Cxos.Serial.Put_String ("3D Controller" & ASCII.LF);
+               when 16#80# =>
+                  Cxos.Serial.Put_String ("Other" & ASCII.LF);
+               when others =>
+                  Cxos.Serial.Put_String ("Unknown: "
+                    & Device.Subclass'Image & ASCII.LF);
+            end case;
+         when 6 =>
+            Cxos.Serial.Put_String (" Bridge Device" & ASCII.LF);
+            Cxos.Serial.Put_String ("  Subclass:   ");
+            case Device.Subclass is
+               when 0 =>
+                  Cxos.Serial.Put_String ("Host Bridge" & ASCII.LF);
+               when 1 =>
+                  Cxos.Serial.Put_String ("ISA Bridge" & ASCII.LF);
+               when 2 =>
+                  Cxos.Serial.Put_String ("EISA Bridge" & ASCII.LF);
+               when 3 =>
+                  Cxos.Serial.Put_String ("MCA Bridge" & ASCII.LF);
+               when 4 =>
+                  Cxos.Serial.Put_String ("PCI-to-PCI Bridge" & ASCII.LF);
+               when 5 =>
+                  Cxos.Serial.Put_String ("PCMCIA Bridge" & ASCII.LF);
+               when 6 =>
+                  Cxos.Serial.Put_String ("NuBus Bridge" & ASCII.LF);
+               when 7 =>
+                  Cxos.Serial.Put_String ("CardBus Bridge" & ASCII.LF);
+               when 8 =>
+                  Cxos.Serial.Put_String ("RACEway Bridge" & ASCII.LF);
+               when 9 =>
+                  Cxos.Serial.Put_String ("PCI-to-PCI Bridge" & ASCII.LF);
+               when 10 =>
+                  Cxos.Serial.Put_String ("InfiniBand Bridge" & ASCII.LF);
+               when 16#80# =>
+                  Cxos.Serial.Put_String ("Other" & ASCII.LF);
+               when others =>
+                  Cxos.Serial.Put_String ("Unknown: "
+                    & Device.Subclass'Image & ASCII.LF);
+            end case;
+         when 12 =>
+            Cxos.Serial.Put_String (" Serial Bus Controller" & ASCII.LF);
+            Cxos.Serial.Put_String ("  Subclass:   ");
+            case Device.Subclass is
+               when 0 =>
+                  Cxos.Serial.Put_String ("Firewire Controller" & ASCII.LF);
+               when 1 =>
+                  Cxos.Serial.Put_String ("ACCESS Bus" & ASCII.LF);
+               when 2 =>
+                  Cxos.Serial.Put_String ("SSA" & ASCII.LF);
+               when 3 =>
+                  Cxos.Serial.Put_String ("USB Controller" & ASCII.LF);
+               when 4 =>
+                  Cxos.Serial.Put_String ("Fibre Channel" & ASCII.LF);
+               when 5 =>
+                  Cxos.Serial.Put_String ("SMBus" & ASCII.LF);
+               when 6 =>
+                  Cxos.Serial.Put_String ("InfiniBand" & ASCII.LF);
+               when 7 =>
+                  Cxos.Serial.Put_String ("IPMI Interface" & ASCII.LF);
+               when 8 =>
+                  Cxos.Serial.Put_String ("Sercos Interface" & ASCII.LF);
+               when 9 =>
+                  Cxos.Serial.Put_String ("CANbus" & ASCII.LF);
+               when 16#80# =>
+                  Cxos.Serial.Put_String ("Other" & ASCII.LF);
+               when others =>
+                  Cxos.Serial.Put_String ("Unknown: "
+                    & Device.Subclass'Image & ASCII.LF);
             end case;
          when others =>
             Cxos.Serial.Put_String (Device.Device_Class'Image & ASCII.LF);

@@ -18,7 +18,7 @@ package body Cxos.VFS is
    ----------------------------------------------------------------------------
    --  Initialise
    ----------------------------------------------------------------------------
-   function Initialise return Kernel_Process_Result is
+   function Initialise return Process_Result is
       use Multiboot;
       use System.Storage_Elements;
 
@@ -36,7 +36,7 @@ package body Cxos.VFS is
         Volatile;
 
       --  The outcome of internal processes.
-      Result : Kernel_Process_Result;
+      Result : Process_Result;
    begin
       if Boot_Info.Flags.Drives_Fields_Valid then
          Cxos.Serial.Put_String (
@@ -57,7 +57,7 @@ package body Cxos.VFS is
       return Success;
    exception
       when Constraint_Error =>
-         return Failure;
+         return Unhandled_Exception;
    end Initialise;
 
    ----------------------------------------------------------------------------
@@ -66,7 +66,7 @@ package body Cxos.VFS is
    function Parse_Multiboot_Drive_Map (
      Drive_Map_Addr   : System.Address;
      Drive_Map_Length : Unsigned_32
-   ) return Kernel_Process_Result is
+   ) return Process_Result is
       use System.Storage_Elements;
 
       --  Pointer conversions package.
@@ -102,7 +102,7 @@ package body Cxos.VFS is
                Bytes_Read := Bytes_Read + 4 + Curr_Entry.all.Size;
             exception
                when Constraint_Error =>
-                  return Failure;
+                  return Unhandled_Exception;
             end Increment_Pointer;
       end loop;
 

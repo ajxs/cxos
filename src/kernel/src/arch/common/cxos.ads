@@ -19,10 +19,10 @@ package Cxos is
    pragma Preelaborate (Cxos);
 
    ----------------------------------------------------------------------------
-   --  Kernel Process Result type.
-   --  Used to track the result of kernel processes.
+   --  Process Result type.
+   --  Used to track the result of the kernel initialisation process.
    ----------------------------------------------------------------------------
-   type Kernel_Process_Result is (
+   type Kernel_Init_Process_Result is (
      Failure,
      Success
    );
@@ -35,7 +35,7 @@ package Cxos is
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   function Initialise_Kernel return Kernel_Process_Result;
+   function Initialise_Kernel return Kernel_Init_Process_Result;
 
    ----------------------------------------------------------------------------
    --  Main

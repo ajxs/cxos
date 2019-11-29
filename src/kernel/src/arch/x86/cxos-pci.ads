@@ -30,7 +30,8 @@ package Cxos.PCI is
    type Process_Result is (
      Bus_Read_Error,
      Device_Not_Found,
-     Success
+     Success,
+     Unhandled_Exception
    );
 
    ----------------------------------------------------------------------------
@@ -39,7 +40,7 @@ package Cxos.PCI is
    --  Purpose:
    --    Searches the PCI Address space to find PCI devices.
    ----------------------------------------------------------------------------
-   function Find_Pci_Devices return Kernel_Process_Result
+   function Find_Pci_Devices return Process_Result
    with Volatile_Function;
 
 private

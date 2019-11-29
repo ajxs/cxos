@@ -46,7 +46,7 @@ project Kernel is
         "-gnatwadhl",
         "-gnatVa",
         "-gnaty3abcdefhiklmnoprstux",
-        "-Wall"
+        "-gnatwae"
       );
 
       for Default_Switches ("Asm_Cpp") use (

@@ -22,9 +22,7 @@ package body Cxos is
    ----------------------------------------------------------------------------
    --  Initialise
    ----------------------------------------------------------------------------
-   function Initialise_Kernel return Kernel_Process_Result is
-      --  The result of internal initialisation functions.
-      Result : Kernel_Process_Result := Failure;
+   function Initialise_Kernel return Kernel_Init_Process_Result is
    begin
       --  Initialise system interrupts.
       Initialise_Interrupts :
@@ -53,10 +51,19 @@ package body Cxos is
             Cxos.PIT.Initialise;
          end Initialise_Timers;
 
-      Result := Cxos.VFS.Initialise;
-      if Result /= Success then
-         return Result;
-      end if;
+      --  Initialise the file system.
+      Initialise_Filesystem :
+         declare
+            use Cxos.VFS;
+
+            --  The result of initialising the virtual file system.
+            Vfs_Init_Result : Cxos.VFS.Process_Result;
+         begin
+            Vfs_Init_Result := Cxos.VFS.Initialise;
+            if Vfs_Init_Result /= Success then
+               return Failure;
+            end if;
+         end Initialise_Filesystem;
 
       --  Initialise System Memory.
       Initialise_Memory :
@@ -72,10 +79,18 @@ package body Cxos is
             end if;
          end Initialise_Memory;
 
-      Result := Cxos.PCI.Find_Pci_Devices;
-      if Result /= Success then
-         return Result;
-      end if;
+      Initialise_Devices :
+         declare
+            use Cxos.PCI;
+
+            --  The result of initialising the PCI functionality.
+            Pci_Init_Result : Cxos.PCI.Process_Result;
+         begin
+            Pci_Init_Result := Cxos.PCI.Find_Pci_Devices;
+            if Pci_Init_Result /= Success then
+               return Failure;
+            end if;
+         end Initialise_Devices;
 
       return Success;
    exception

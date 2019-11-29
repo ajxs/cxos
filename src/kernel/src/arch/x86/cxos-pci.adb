@@ -17,7 +17,7 @@ package body Cxos.PCI is
    ----------------------------------------------------------------------------
    --  Find_Pci_Devices
    ----------------------------------------------------------------------------
-   function Find_Pci_Devices return Kernel_Process_Result is
+   function Find_Pci_Devices return Process_Result is
       --  Variable to store the last read device.
       Device_Info : Pci_Device;
       --  Variable for testing whether a device exists at a specific address.
@@ -38,7 +38,7 @@ package body Cxos.PCI is
                   if Result /= Success then
                      Cxos.Serial.Put_String ("Error testing PCI device"
                        & ASCII.LF);
-                     return Failure;
+                     return Unhandled_Exception;
                   end if;
 
                   if Test_Result then
@@ -47,7 +47,7 @@ package body Cxos.PCI is
                      if Result /= Success then
                         Cxos.Serial.Put_String ("Error reading PCI device" &
                           ASCII.LF);
-                        return Failure;
+                        return Unhandled_Exception;
                      end if;
 
                      if PRINT_INFO then
@@ -68,7 +68,7 @@ package body Cxos.PCI is
       return Success;
    exception
       when Constraint_Error =>
-         return Failure;
+         return Unhandled_Exception;
    end Find_Pci_Devices;
 
    ----------------------------------------------------------------------------
@@ -253,7 +253,11 @@ package body Cxos.PCI is
          when others =>
             null;
       end case;
-
+   exception
+      when Constraint_Error =>
+         Cxos.Serial.Put_String ("Error printing device: " &
+           "Invalid Value Encountered" & ASCII.LF);
+         return;
    end Print_Pci_Device;
 
    ----------------------------------------------------------------------------

@@ -187,7 +187,6 @@ package body Cxos.Memory is
    ----------------------------------------------------------------------------
    function Initialise_Kernel_Page_Directory return Process_Result is
       use System.Storage_Elements;
-      use Cxos.Memory.Map;
       use x86.Memory.Paging;
 
       --  Boot page directory initialised during boot.

@@ -20,9 +20,18 @@ with System;
 --    file system.
 -------------------------------------------------------------------------------
 package Cxos.VFS is
-   pragma Preelaborate (Cxos.VFS);
+   pragma Preelaborate;
 
    use Interfaces;
+
+   ----------------------------------------------------------------------------
+   --  Process Result type.
+   --  Used to track the result of package processes.
+   ----------------------------------------------------------------------------
+   type Process_Result is (
+     Success,
+     Unhandled_Exception
+   );
 
    ----------------------------------------------------------------------------
    --  Initialise
@@ -32,7 +41,7 @@ package Cxos.VFS is
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   function Initialise return Kernel_Process_Result;
+   function Initialise return Process_Result;
 
 private
    ----------------------------------------------------------------------------
@@ -46,5 +55,5 @@ private
    function Parse_Multiboot_Drive_Map (
      Drive_Map_Addr   : System.Address;
      Drive_Map_Length : Unsigned_32
-   ) return Kernel_Process_Result;
+   ) return Process_Result;
 end Cxos.VFS;

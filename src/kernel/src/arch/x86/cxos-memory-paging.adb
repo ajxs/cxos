@@ -36,7 +36,6 @@ package body Cxos.Memory.Paging is
      Directory_Idx : Natural;
      Supervisor    : Boolean := True
    ) return Process_Result is
-      use Cxos.Memory.Map;
       use x86.Memory.Paging;
 
       --  The currently active page directory.

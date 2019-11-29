@@ -10,8 +10,6 @@
 -------------------------------------------------------------------------------
 
 with Interfaces;
-with System;
-with System.Storage_Elements;
 with x86.PIT;
 
 package body Cxos.PIT is

@@ -14,7 +14,7 @@ with System;
 with x86.Descriptors;
 
 -------------------------------------------------------------------------------
---  SYSTEM.X86.IDT
+--  X86.IDT
 --
 --  Purpose:
 --    This package contains code for initialising the Interrupt Descriptor

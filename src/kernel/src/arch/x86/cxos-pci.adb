@@ -20,8 +20,7 @@ package body Cxos.PCI is
    function Find_Pci_Devices return Kernel_Process_Result is
       --  Variable to store the last read device.
       Device_Info : Pci_Device;
-      --  Variable for testing whether a particular bus address contains
-      --  a device.
+      --  Variable for testing whether a device exists at a specific address.
       Test_Result : Boolean;
       --  The result of internal processes.
       Result      : Process_Result;
@@ -235,8 +234,25 @@ package body Cxos.PCI is
       end case;
       Cxos.Serial.Put_String ("  Header:    "
         & Device.Header_Type'Image & ASCII.LF);
-      Cxos.Serial.Put_String ("  BAR0:      "
-        & Device.BAR0'Image & ASCII.LF);
+
+      --  Print additional information based on header type.
+      case (Device.Header_Type and 16#7F#) is
+         when 0 =>
+            Cxos.Serial.Put_String ("  BAR0:      "
+              & Device.BAR0'Image & ASCII.LF);
+            Cxos.Serial.Put_String ("  BAR1:      "
+              & Device.BAR1'Image & ASCII.LF);
+            Cxos.Serial.Put_String ("  BAR2:      "
+              & Device.BAR2'Image & ASCII.LF);
+            Cxos.Serial.Put_String ("  BAR3:      "
+              & Device.BAR3'Image & ASCII.LF);
+            Cxos.Serial.Put_String ("  BAR4:      "
+              & Device.BAR4'Image & ASCII.LF);
+            Cxos.Serial.Put_String ("  BAR5:      "
+              & Device.BAR5'Image & ASCII.LF);
+         when others =>
+            null;
+      end case;
 
    end Print_Pci_Device;
 
@@ -289,7 +305,18 @@ package body Cxos.PCI is
       Device.Latency_Timer  := Unsigned_8 (
         Shift_Right (Bus_Output (3), 8) and 16#FF#);
       Device.Cache_Line_Size := Unsigned_8 (Bus_Output (3) and 16#FF#);
-      Device.BAR0 := Bus_Output (5);
+
+      --  Print additional information based on header type.
+      case (Device.Header_Type and 16#7F#) is
+         when 0 =>
+            Device.BAR0 := Bus_Output (5);
+            Device.BAR1 := Bus_Output (6);
+            Device.BAR2 := Bus_Output (7);
+            Device.BAR3 := Bus_Output (8);
+            Device.BAR4 := Bus_Output (9);
+         when others =>
+            null;
+      end case;
 
       return Success;
    exception
@@ -300,10 +327,10 @@ package body Cxos.PCI is
    ----------------------------------------------------------------------------
    --  Test_Pci_Device
    --
-   --  Purpose:
-   --    This function tests whether a device is present on the PCI bus at a
-   --    particular address. The function sets a boolean value indicating
-   --    whether a valid device is present.
+   --  Implementation Notes:
+   --    - Reads the Vendor ID field of the PCI Device at the specified
+   --      address. If a null value of 0xFFFFFFFF is returned, we can
+   --      conclude that no device exists at this bus address.
    ----------------------------------------------------------------------------
    function Test_Pci_Device (
      Result          : out Boolean;
@@ -316,23 +343,24 @@ package body Cxos.PCI is
       --  The long integer read from the bus during the test process.
       Output      : Unsigned_32;
    begin
-      Read_Result := x86.PCI.Pci_Read_Long (Output, Bus_Number,
-        Device_Number, Function_Number, 0);
-      if Read_Result /= Success then
-         return Bus_Read_Error;
-      end if;
+      --  Read the first DWORD from the PCI Bus.
+      Read_Bus :
+         begin
+            Read_Result := x86.PCI.Pci_Read_Long (Output, Bus_Number,
+              Device_Number, Function_Number, 0);
+            if Read_Result /= Success then
+               return Bus_Read_Error;
+            end if;
+         exception
+            when Constraint_Error =>
+               return Bus_Read_Error;
+         end Read_Bus;
 
-      if Output /= 16#FFFF_FFFF# then
-         Result := True;
-      else
-         Result := False;
-      end if;
+      --  Test whether reading the first DWORD of the device at this address
+      --  returns a null value of 0xFFFF_FFFF.
+      Result := Output /= 16#FFFF_FFFF#;
 
       return Success;
-   exception
-      when Constraint_Error =>
-         Result := False;
-         return Bus_Read_Error;
    end Test_Pci_Device;
 
 end Cxos.PCI;

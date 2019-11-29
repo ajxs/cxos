@@ -15,7 +15,7 @@ with System.Storage_Elements;
 with x86.Descriptors;
 
 -------------------------------------------------------------------------------
---  SYSTEM.X86.GDT
+--  X86.GDT
 --
 --  Purpose:
 --    This package contains code for initialising the Global Descriptor Table.

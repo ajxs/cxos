@@ -110,7 +110,8 @@ private
    --
    --  Purpose:
    --    This function tests whether a device is present on the PCI bus at a
-   --    particular address.
+   --    particular address. The function sets a boolean value indicating
+   --    whether a valid device is present.
    ----------------------------------------------------------------------------
    function Test_Pci_Device (
      Result          : out Boolean;

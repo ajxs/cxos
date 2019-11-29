@@ -34,14 +34,140 @@ package x86.PCI is
    );
 
    ----------------------------------------------------------------------------
-   --  TODO:
+   --  PCI Device function number type.
    ----------------------------------------------------------------------------
    type Pci_Function_Number is mod 2 ** 3;
 
    ----------------------------------------------------------------------------
-   --  TODO:
+   --  PCI device number type.
    ----------------------------------------------------------------------------
    type Pci_Device_Number   is mod 2 ** 5;
+
+   ----------------------------------------------------------------------------
+   --  PCI Command Register Fields.
+   --  The format of PCI commands to be sent to a device.
+   ----------------------------------------------------------------------------
+   type Pci_Command is
+      record
+         IO_Space                 : Boolean;
+         Memory_Space             : Boolean;
+         Bus_Master               : Boolean;
+         Special_Cycle            : Boolean;
+         Memory_Write_Inv_Enable  : Boolean;
+         VGA_Palette_Snoop        : Boolean;
+         Parity_Error_Response    : Boolean;
+         Reserved                 : Boolean := False;
+         SERR_Enable              : Boolean;
+         Fast_Back_To_Back_Enable : Boolean;
+         Interrupt_Disable        : Boolean;
+         Reserved_2               : Boolean := False;
+      end record
+   with Size => 16;
+   for Pci_Command use
+      record
+         IO_Space                 at 0 range 0  .. 0;
+         Memory_Space             at 0 range 1  .. 1;
+         Bus_Master               at 0 range 2  .. 2;
+         Special_Cycle            at 0 range 3  .. 3;
+         Memory_Write_Inv_Enable  at 0 range 4  .. 4;
+         VGA_Palette_Snoop        at 0 range 5  .. 5;
+         Parity_Error_Response    at 0 range 6  .. 6;
+         Reserved                 at 0 range 7  .. 7;
+         SERR_Enable              at 0 range 8  .. 8;
+         Fast_Back_To_Back_Enable at 0 range 9  .. 9;
+         Interrupt_Disable        at 0 range 10 .. 10;
+         Reserved_2               at 0 range 11 .. 15;
+      end record;
+
+   ----------------------------------------------------------------------------
+   --  Pci_Command_To_Word
+   --
+   --  Purpose:
+   --    Unchecked conversion to convert from a PCI device command to a 16 bit
+   --    unsigned integer.
+   ----------------------------------------------------------------------------
+   function Pci_Command_To_Word is
+      new Ada.Unchecked_Conversion (
+        Source => Pci_Command,
+        Target => Unsigned_16
+      );
+
+   ----------------------------------------------------------------------------
+   --  Word_To_Pci_Command
+   --
+   --  Purpose:
+   --    Unchecked conversion between a 16 bit unsigned interger and a PCI
+   --    command.
+   ----------------------------------------------------------------------------
+   function Word_To_Pci_Command is
+      new Ada.Unchecked_Conversion (
+        Source => Unsigned_16,
+        Target => Pci_Command
+      );
+
+   ----------------------------------------------------------------------------
+   --  PCI Status Register Fields.
+   --  The format of PCI status received from a device.
+   ----------------------------------------------------------------------------
+   type Pci_Status is
+      record
+         Reserved                  : Boolean := False;
+         Interrupt_Status          : Boolean;
+         Captabilities_List        : Boolean;
+         Compatible_66Mhz          : Boolean;
+         Reserved_2                : Boolean := False;
+         Fast_Back_To_Back_Capable : Boolean;
+         Master_Data_Parity_Error  : Boolean;
+         DEVSEL_Timing             : Boolean;
+         Signaled_Target_Abort     : Boolean;
+         Received_Target_Abort     : Boolean;
+         Received_Master_Abort     : Boolean;
+         Signaled_System_Error     : Boolean;
+         Detected_Parity_Error     : Boolean;
+      end record
+   with Size => 16;
+   for Pci_Status use
+      record
+         Reserved                  at 0 range 0  .. 2;
+         Interrupt_Status          at 0 range 3  .. 3;
+         Captabilities_List        at 0 range 4  .. 4;
+         Compatible_66Mhz          at 0 range 5  .. 5;
+         Reserved_2                at 0 range 6  .. 6;
+         Fast_Back_To_Back_Capable at 0 range 7  .. 7;
+         Master_Data_Parity_Error  at 0 range 8  .. 8;
+         DEVSEL_Timing             at 0 range 9  .. 10;
+         Signaled_Target_Abort     at 0 range 11 .. 11;
+         Received_Target_Abort     at 0 range 12 .. 12;
+         Received_Master_Abort     at 0 range 13 .. 13;
+         Signaled_System_Error     at 0 range 14 .. 14;
+         Detected_Parity_Error     at 0 range 15 .. 15;
+      end record;
+
+   ----------------------------------------------------------------------------
+   --  Pci_Status_To_Word
+   --
+   --  Purpose:
+   --    Unchecked conversion to convert from a PCI device status to a 16 bit
+   --    unsigned integer.
+   ----------------------------------------------------------------------------
+   function Pci_Status_To_Word is
+      new Ada.Unchecked_Conversion (
+        Source => Pci_Status,
+        Target => Unsigned_16
+      );
+
+   ----------------------------------------------------------------------------
+   --  Word_To_Pci_Status
+   --
+   --  Purpose:
+   --    Unchecked conversion between a 16 bit unsigned interger and a PCI
+   --    status.
+   ----------------------------------------------------------------------------
+   function Word_To_Pci_Status is
+      new Ada.Unchecked_Conversion (
+        Source => Unsigned_16,
+        Target => Pci_Status
+      );
 
    ----------------------------------------------------------------------------
    --  Pci_Read_Long

@@ -9,19 +9,15 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Interfaces;
-
 -------------------------------------------------------------------------------
---  SYSTEM.X86.MEMORY.MAP
+--  CXOS.MEMORY.MAP
 --
 --  Purpose:
 --    This package contains code and defintions for working with a map of
 --    usable memory on the system.
 -------------------------------------------------------------------------------
-package x86.Memory.Map is
-   pragma Preelaborate (x86.Memory.Map);
-
-   use Interfaces;
+package Cxos.Memory.Map is
+   pragma Preelaborate;
 
    ----------------------------------------------------------------------------
    --  Memory Map Process Result
@@ -171,4 +167,4 @@ private
    ----------------------------------------------------------------------------
    Memory_Map : Memory_Map_Array := (others => Unallocated);
 
-end x86.Memory.Map;
+end Cxos.Memory.Map;

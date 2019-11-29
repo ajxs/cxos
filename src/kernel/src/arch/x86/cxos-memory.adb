@@ -14,7 +14,7 @@ with Cxos.Serial;
 with Multiboot;
 with System.Address_To_Access_Conversions;
 with System.Storage_Elements;
-with x86.Memory.Map;
+with Cxos.Memory.Map;
 with x86.Memory.Paging;
 
 package body Cxos.Memory is
@@ -22,10 +22,10 @@ package body Cxos.Memory is
    --  Clear_Boot_Page_Structures
    ----------------------------------------------------------------------------
    function Clear_Boot_Page_Structures return Kernel_Process_Result is
-      use x86.Memory.Map;
+      use Cxos.Memory.Map;
 
       --  The result of the frame status set process.
-      Result : x86.Memory.Map.Process_Result;
+      Result : Cxos.Memory.Map.Process_Result;
 
       --  The boot page directory.
       --  Import as an Unsigned int, since we don't care what kind of
@@ -41,7 +41,7 @@ package body Cxos.Memory is
         Convention    => Assembler,
         External_Name => "boot_page_table";
    begin
-      Result := x86.Memory.Map.Mark_Memory_Range (
+      Result := Cxos.Memory.Map.Mark_Memory_Range (
         Boot_Page_Directory'Address, 16#1000#, Unallocated);
       if Result /= Success then
          Cxos.Serial.Put_String (
@@ -49,7 +49,7 @@ package body Cxos.Memory is
          return Failure;
       end if;
 
-      Result := x86.Memory.Map.Mark_Memory_Range (
+      Result := Cxos.Memory.Map.Mark_Memory_Range (
         Boot_Page_Table'Address, 16#1000#, Unallocated);
       if Result /= Success then
          Cxos.Serial.Put_String (
@@ -86,6 +86,10 @@ package body Cxos.Memory is
       --  The result of the internal processes.
       Init_Result : Cxos.Kernel_Process_Result;
    begin
+      --  Initialise the system memory map.
+      Cxos.Serial.Put_String ("Initialising Memory Map" & ASCII.LF);
+      Cxos.Memory.Map.Initialise;
+
       --  Check whether we have a valid Multiboot memory map.
       if Boot_Info.Flags.Memory_Map_Fields_Valid then
          Cxos.Serial.Put_String (
@@ -174,11 +178,11 @@ package body Cxos.Memory is
    ----------------------------------------------------------------------------
    function Initialise_Kernel_Page_Directory return Kernel_Process_Result is
       use System.Storage_Elements;
-      use x86.Memory.Map;
+      use Cxos.Memory.Map;
       use x86.Memory.Paging;
 
       --  The result of the frame allocation operation.
-      Allocate_Result : x86.Memory.Map.Process_Result;
+      Allocate_Result : Cxos.Memory.Map.Process_Result;
 
       --  Boot page directory initialised during boot.
       --  The last page directory entry has been used to recursively map
@@ -205,14 +209,14 @@ package body Cxos.Memory is
             --  Allocate the Kernel page directory frame.
             --  This populates the Kernel page directory address with the
             --  address of the newly allocated frame.
-            Allocate_Result := x86.Memory.Map.Allocate_Frame (
+            Allocate_Result := Cxos.Memory.Map.Allocate_Frame (
               Kernel_Page_Directory_Addr);
             if Allocate_Result /= Success then
                return Failure;
             end if;
 
             --  Allocate the initial kernel page table frame.
-            Allocate_Result := x86.Memory.Map.Allocate_Frame (
+            Allocate_Result := Cxos.Memory.Map.Allocate_Frame (
               Kernel_Page_Table_Addr);
             if Allocate_Result /= Success then
                return Failure;
@@ -382,13 +386,13 @@ package body Cxos.Memory is
    ----------------------------------------------------------------------------
    function Mark_Kernel_Memory return Kernel_Process_Result is
       use System.Storage_Elements;
-      use x86.Memory.Map;
+      use Cxos.Memory.Map;
 
       --  The length of the kernel code segment in bytes.
       Kernel_Length    : Unsigned_32 := 0;
 
       --  The result of the frame status set process.
-      Result : x86.Memory.Map.Process_Result := Success;
+      Result : Cxos.Memory.Map.Process_Result := Success;
 
       --  The start of the kernel code segment.
       Kernel_Start     : constant Unsigned_32
@@ -419,7 +423,7 @@ package body Cxos.Memory is
         To_Integer (Kernel_Start'Address) -
         To_Integer (Kernel_Vma_Start'Address));
 
-      Result := x86.Memory.Map.Mark_Memory_Range (
+      Result := Cxos.Memory.Map.Mark_Memory_Range (
         Kernel_Physical_Start, Kernel_Length, Allocated);
       if Result /= Success then
          Cxos.Serial.Put_String (
@@ -439,12 +443,12 @@ package body Cxos.Memory is
    ----------------------------------------------------------------------------
    function Mark_Low_Memory return Kernel_Process_Result is
       use System.Storage_Elements;
-      use x86.Memory.Map;
+      use Cxos.Memory.Map;
 
       --  The result of the process.
-      Result : x86.Memory.Map.Process_Result := Success;
+      Result : Cxos.Memory.Map.Process_Result := Success;
    begin
-      Result := x86.Memory.Map.Mark_Memory_Range (To_Address (0),
+      Result := Cxos.Memory.Map.Mark_Memory_Range (To_Address (0),
         16#100000#, Allocated);
 
       if Result /= Success then
@@ -465,7 +469,7 @@ package body Cxos.Memory is
      Memory_Map_Length : Unsigned_32
    ) is
       use System.Storage_Elements;
-      use x86.Memory.Map;
+      use Cxos.Memory.Map;
 
       package Mmap_Region_Ptr is new
         System.Address_To_Access_Conversions (Multiboot.Multiboot_Mmap_Region);
@@ -519,13 +523,13 @@ package body Cxos.Memory is
             declare
 
                --  The result of the frame status set process.
-               Result : x86.Memory.Map.Process_Result := Success;
+               Result : Cxos.Memory.Map.Process_Result := Success;
             begin
                --  If the memory region is marked as free, set the status
                --  accordingly in the memory map.
                case Curr_Region.all.Memory_Type is
                   when 1 =>
-                     Result := x86.Memory.Map.Mark_Memory_Range (
+                     Result := Cxos.Memory.Map.Mark_Memory_Range (
                        To_Address (Integer_Address (Curr_Region.all.Base)),
                        Unsigned_32 (Curr_Region.all.Length), Unallocated);
                      if Result /= Success then

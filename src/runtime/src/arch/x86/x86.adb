@@ -16,7 +16,6 @@ with x86.Interrupts;
 with x86.IRQ_Handlers;
 with x86.GDT;
 with x86.PIC;
-with x86.Memory.Map;
 with x86.PIT;
 with x86.Serial;
 with x86.Time_Keeping;
@@ -95,11 +94,6 @@ package body x86 is
 
       --  Enable interrupts.
       x86.Interrupts.Set_Interrupt_Flag (True);
-
-      --  Initialise the system memory map.
-      x86.Serial.Put_String (x86.Serial.COM1,
-        "Initialising Memory Map" & ASCII.LF);
-      x86.Memory.Map.Initialise;
    end Initialise;
 
    ----------------------------------------------------------------------------

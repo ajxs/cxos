@@ -11,7 +11,7 @@
 
 with System.Storage_Elements;
 
-package body x86.Memory.Map is
+package body Cxos.Memory.Map is
    use System.Storage_Elements;
 
    ----------------------------------------------------------------------------
@@ -206,4 +206,4 @@ package body x86.Memory.Map is
          return Invalid_Index_Argument;
    end Set_Frame_State;
 
-end x86.Memory.Map;
+end Cxos.Memory.Map;

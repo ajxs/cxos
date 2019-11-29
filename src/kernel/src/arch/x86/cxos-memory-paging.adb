@@ -10,7 +10,7 @@
 -------------------------------------------------------------------------------
 
 with System.Storage_Elements;
-with x86.Memory.Map;
+with Cxos.Memory.Map;
 
 package body Cxos.Memory.Paging is
    use System.Storage_Elements;
@@ -36,7 +36,7 @@ package body Cxos.Memory.Paging is
      Directory_Idx : Natural;
      Supervisor    : Boolean := True
    ) return Process_Result is
-      use x86.Memory.Map;
+      use Cxos.Memory.Map;
       use x86.Memory.Paging;
 
       --  The currently active page directory.
@@ -59,10 +59,10 @@ package body Cxos.Memory.Paging is
       Allocate_New_Frame :
          declare
             --  The process result of allocating a new page frame, if needed.
-            Allocate_Result : x86.Memory.Map.Process_Result;
+            Allocate_Result : Cxos.Memory.Map.Process_Result;
          begin
             --  Allocate a page frame for the new page table.
-            Allocate_Result := x86.Memory.Map.Allocate_Frame (Allocated_Addr);
+            Allocate_Result := Cxos.Memory.Map.Allocate_Frame (Allocated_Addr);
             if Allocate_Result /= Success then
                return Frame_Allocation_Error;
             end if;

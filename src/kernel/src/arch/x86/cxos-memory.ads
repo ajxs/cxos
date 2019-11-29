@@ -36,6 +36,9 @@ package Cxos.Memory is
      Invalid_Page_Directory,
      Invalid_Table_Index,
      Invalid_Value,
+     Invalid_Address_Argument,
+     Invalid_Index_Argument,
+     No_Free_Frames,
      Memory_Map_Not_Present,
      Success,
      Unhandled_Exception

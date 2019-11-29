@@ -59,7 +59,7 @@ package body Cxos.Memory.Paging is
       Allocate_New_Frame :
          declare
             --  The process result of allocating a new page frame, if needed.
-            Allocate_Result : Cxos.Memory.Map.Process_Result;
+            Allocate_Result : Process_Result;
          begin
             --  Allocate a page frame for the new page table.
             Allocate_Result := Cxos.Memory.Map.Allocate_Frame (Allocated_Addr);

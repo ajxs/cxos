@@ -20,18 +20,6 @@ package Cxos.Memory.Map is
    pragma Preelaborate;
 
    ----------------------------------------------------------------------------
-   --  Memory Map Process Result
-   --  Used for storing and returning the result of an internal memory map
-   --  procedure.
-   ----------------------------------------------------------------------------
-   type Process_Result is (
-     Invalid_Address_Argument,
-     Invalid_Index_Argument,
-     No_Free_Frames,
-     Success
-   );
-
-   ----------------------------------------------------------------------------
    --  Memory Map Frame type.
    --  Represents the presence of an individual page frame in memory.
    ----------------------------------------------------------------------------

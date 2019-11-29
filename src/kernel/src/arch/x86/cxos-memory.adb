@@ -25,7 +25,7 @@ package body Cxos.Memory is
       use Cxos.Memory.Map;
 
       --  The result of the frame status set process.
-      Result : Cxos.Memory.Map.Process_Result;
+      Result : Process_Result;
 
       --  The boot page directory.
       --  Import as an Unsigned int, since we don't care what kind of
@@ -213,7 +213,7 @@ package body Cxos.Memory is
       Allocate_Frames :
          declare
             --  The result of the frame allocation operation.
-            Allocate_Result : Cxos.Memory.Map.Process_Result;
+            Allocate_Result : Process_Result;
          begin
             --  Allocate the Kernel page directory frame.
             --  This populates the Kernel page directory address with the
@@ -400,7 +400,7 @@ package body Cxos.Memory is
       Kernel_Length    : Unsigned_32 := 0;
 
       --  The result of the frame status set process.
-      Result : Cxos.Memory.Map.Process_Result := Success;
+      Result : Process_Result := Success;
 
       --  The start of the kernel code segment.
       Kernel_Start     : constant Unsigned_32
@@ -454,13 +454,13 @@ package body Cxos.Memory is
       use Cxos.Memory.Map;
 
       --  The result of the process.
-      Result : Cxos.Memory.Map.Process_Result := Success;
+      Result : Process_Result := Success;
    begin
       Result := Cxos.Memory.Map.Mark_Memory_Range (To_Address (0),
         16#100000#, Allocated);
 
       if Result /= Success then
-         return Unhandled_Exception;
+         return Result;
       end if;
 
       return Success;
@@ -529,9 +529,8 @@ package body Cxos.Memory is
          --  Mark free memory in the kernel memory map.
          Mark_Free_Memory :
             declare
-
                --  The result of the frame status set process.
-               Result : Cxos.Memory.Map.Process_Result := Success;
+               Result : Process_Result := Success;
             begin
                --  If the memory region is marked as free, set the status
                --  accordingly in the memory map.

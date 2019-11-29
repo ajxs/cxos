@@ -58,10 +58,19 @@ package body Cxos is
          return Result;
       end if;
 
-      Result := Cxos.Memory.Initialise;
-      if Result /= Success then
-         return Result;
-      end if;
+      --  Initialise System Memory.
+      Initialise_Memory :
+         declare
+            use Cxos.Memory;
+
+            --  The result of the internal initialisation process.
+            Init_Result : Cxos.Memory.Process_Result;
+         begin
+            Init_Result := Cxos.Memory.Initialise;
+            if Init_Result /= Success then
+               return Failure;
+            end if;
+         end Initialise_Memory;
 
       Result := Cxos.PCI.Find_Pci_Devices;
       if Result /= Success then

@@ -19,9 +19,27 @@ with System;
 --    This package contains code and defintions for working with memory.
 -------------------------------------------------------------------------------
 package Cxos.Memory is
-   pragma Preelaborate (Cxos.Memory);
+   pragma Preelaborate;
 
    use Interfaces;
+
+   ----------------------------------------------------------------------------
+   --  Process Result type.
+   --  Used for storing and returning the result of an internal memory related
+   --  procedure.
+   ----------------------------------------------------------------------------
+   type Process_Result is (
+     Frame_Allocation_Error,
+     Frame_Not_Allocated,
+     Invalid_Argument,
+     Invalid_Non_Aligned_Address,
+     Invalid_Page_Directory,
+     Invalid_Table_Index,
+     Invalid_Value,
+     Memory_Map_Not_Present,
+     Success,
+     Unhandled_Exception
+   );
 
    ----------------------------------------------------------------------------
    --  Initialise
@@ -32,7 +50,7 @@ package Cxos.Memory is
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   function Initialise return Kernel_Process_Result;
+   function Initialise return Process_Result;
 
 private
    ----------------------------------------------------------------------------
@@ -50,7 +68,7 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   function Clear_Boot_Page_Structures return Kernel_Process_Result;
+   function Clear_Boot_Page_Structures return Process_Result;
 
    ----------------------------------------------------------------------------
    --  Initialise_Kernel_Page_Directory
@@ -62,7 +80,7 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   function Initialise_Kernel_Page_Directory return Kernel_Process_Result;
+   function Initialise_Kernel_Page_Directory return Process_Result;
 
    ----------------------------------------------------------------------------
    --  Map_Vga_Memory
@@ -72,7 +90,7 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   function Map_Vga_Memory return Kernel_Process_Result;
+   function Map_Vga_Memory return Process_Result;
 
    ----------------------------------------------------------------------------
    --  Mark_Low_Memory
@@ -83,7 +101,7 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   function Mark_Low_Memory return Kernel_Process_Result;
+   function Mark_Low_Memory return Process_Result;
 
    ----------------------------------------------------------------------------
    --  Mark_Kernel_Memory
@@ -94,7 +112,7 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   function Mark_Kernel_Memory return Kernel_Process_Result;
+   function Mark_Kernel_Memory return Process_Result;
 
    ----------------------------------------------------------------------------
    --  Parse_Multiboot_Memory_Map

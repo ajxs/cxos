@@ -23,23 +23,6 @@ package Cxos.Memory.Paging is
    pragma Preelaborate;
 
    ----------------------------------------------------------------------------
-   --  Paging Process Result
-   --  Used for storing and returning the result of an internal paging
-   --  procedure.
-   ----------------------------------------------------------------------------
-   type Process_Result is (
-     Frame_Allocation_Error,
-     Frame_Not_Allocated,
-     Invalid_Argument,
-     Invalid_Non_Aligned_Address,
-     Invalid_Page_Directory,
-     Invalid_Table_Index,
-     Invalid_Value,
-     Success,
-     Unhandled_Exception
-   );
-
-   ----------------------------------------------------------------------------
    --  Map_Page_Frame
    --
    --  Purpose:

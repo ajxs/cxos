@@ -21,7 +21,7 @@ package body Cxos.Memory is
    ----------------------------------------------------------------------------
    --  Clear_Boot_Page_Structures
    ----------------------------------------------------------------------------
-   function Clear_Boot_Page_Structures return Kernel_Process_Result is
+   function Clear_Boot_Page_Structures return Process_Result is
       use Cxos.Memory.Map;
 
       --  The result of the frame status set process.
@@ -46,7 +46,7 @@ package body Cxos.Memory is
       if Result /= Success then
          Cxos.Serial.Put_String (
            "Error freeing boot page directory" & ASCII.LF);
-         return Failure;
+         return Unhandled_Exception;
       end if;
 
       Result := Cxos.Memory.Map.Mark_Memory_Range (
@@ -54,19 +54,19 @@ package body Cxos.Memory is
       if Result /= Success then
          Cxos.Serial.Put_String (
            "Error freeing boot page table" & ASCII.LF);
-         return Failure;
+         return Unhandled_Exception;
       end if;
 
       return Success;
    exception
       when Constraint_Error =>
-         return Failure;
+         return Unhandled_Exception;
    end Clear_Boot_Page_Structures;
 
    ----------------------------------------------------------------------------
    --  Initialise
    ----------------------------------------------------------------------------
-   function Initialise return Kernel_Process_Result is
+   function Initialise return Process_Result is
       use Multiboot;
       use System.Storage_Elements;
 
@@ -82,9 +82,6 @@ package body Cxos.Memory is
         Convention    => Assembler,
         Address       => Boot_Info_Address,
         Volatile;
-
-      --  The result of the internal processes.
-      Init_Result : Cxos.Kernel_Process_Result;
    begin
       --  Initialise the system memory map.
       Cxos.Serial.Put_String ("Initialising Memory Map" & ASCII.LF);
@@ -104,6 +101,9 @@ package body Cxos.Memory is
 
          --  Mark used memory.
          Map_System_Memory :
+            declare
+               --  The result of the internal processes.
+               Init_Result : Process_Result;
             begin
                --  Mark memory below 1MB as used.
                Cxos.Serial.Put_String ("Marking low memory" & ASCII.LF);
@@ -126,47 +126,56 @@ package body Cxos.Memory is
                when Constraint_Error =>
                   Cxos.Serial.Put_String (
                     "Error marking used memory" & ASCII.LF);
-                  return Failure;
+                  return Unhandled_Exception;
             end Map_System_Memory;
       else
          Cxos.Serial.Put_String (
            "Multiboot memory map not present" & ASCII.LF);
-         return Failure;
+         return Memory_Map_Not_Present;
       end if;
 
-      --  Initialise the paging memory structures.
-      Cxos.Serial.Put_String ("Initialising kernel page directory" & ASCII.LF);
-      Init_Result := Initialise_Kernel_Page_Directory;
-      if Init_Result /= Success then
-         Cxos.Serial.Put_String (
-           "Error initialising kernel page directory" & ASCII.LF);
-         return Failure;
-      end if;
+      Init_Paging_Structures :
+         declare
+            --  The result of the internal processes.
+            Init_Result : Process_Result;
+         begin
+            --  Initialise the paging memory structures.
+            Cxos.Serial.Put_String ("Initialising kernel page directory"
+              & ASCII.LF);
+            Init_Result := Initialise_Kernel_Page_Directory;
+            if Init_Result /= Success then
+               Cxos.Serial.Put_String (
+                 "Error initialising kernel page directory" & ASCII.LF);
+               return Unhandled_Exception;
+            end if;
 
-      Cxos.Serial.Put_String ("Loading kernel page directory" & ASCII.LF);
-      Cxos.Memory.Paging.Load_Page_Directory (Kernel_Page_Directory_Addr);
-      Cxos.Serial.Put_String ("Kernel page directory loaded" & ASCII.LF);
+            Cxos.Serial.Put_String ("Loading kernel page directory"
+              & ASCII.LF);
+            Cxos.Memory.Paging.Load_Page_Directory (
+              Kernel_Page_Directory_Addr);
+            Cxos.Serial.Put_String ("Kernel page directory loaded" & ASCII.LF);
 
-      Cxos.Serial.Put_String ("Freeing boot page structures" & ASCII.LF);
-      Init_Result := Clear_Boot_Page_Structures;
-      if Init_Result /= Success then
-         Cxos.Serial.Put_String (
-           "Error freeing boot page structures" & ASCII.LF);
-         return Failure;
-      end if;
+            Cxos.Serial.Put_String ("Freeing boot page structures" & ASCII.LF);
+            Init_Result := Clear_Boot_Page_Structures;
+            if Init_Result /= Success then
+               Cxos.Serial.Put_String (
+                 "Error freeing boot page structures" & ASCII.LF);
+               return Unhandled_Exception;
+            end if;
 
-      --  Map VGA memory to a usable address.
-      Cxos.Serial.Put_String ("Mapping VGA memory" & ASCII.LF);
-      Init_Result := Map_Vga_Memory;
-      if Init_Result /= Success then
-         Cxos.Serial.Put_String ("Error mapping VGA memory" & ASCII.LF);
-         return Failure;
-      end if;
+            --  Map VGA memory to a usable address.
+            Cxos.Serial.Put_String ("Mapping VGA memory" & ASCII.LF);
+            Init_Result := Map_Vga_Memory;
+            if Init_Result /= Success then
+               Cxos.Serial.Put_String ("Error mapping VGA memory" & ASCII.LF);
+               return Unhandled_Exception;
+            end if;
+         end Init_Paging_Structures;
 
       return Success;
    exception
       when Constraint_Error =>
-         return Failure;
+         return Unhandled_Exception;
    end Initialise;
 
    ----------------------------------------------------------------------------
@@ -176,13 +185,10 @@ package body Cxos.Memory is
    --    - Assumes kernel can fit in one page table.
    --    - Assumes boot page table has been properly recursively mapped.
    ----------------------------------------------------------------------------
-   function Initialise_Kernel_Page_Directory return Kernel_Process_Result is
+   function Initialise_Kernel_Page_Directory return Process_Result is
       use System.Storage_Elements;
       use Cxos.Memory.Map;
       use x86.Memory.Paging;
-
-      --  The result of the frame allocation operation.
-      Allocate_Result : Cxos.Memory.Map.Process_Result;
 
       --  Boot page directory initialised during boot.
       --  The last page directory entry has been used to recursively map
@@ -205,6 +211,9 @@ package body Cxos.Memory is
    begin
       --  Allocate all required structures.
       Allocate_Frames :
+         declare
+            --  The result of the frame allocation operation.
+            Allocate_Result : Cxos.Memory.Map.Process_Result;
          begin
             --  Allocate the Kernel page directory frame.
             --  This populates the Kernel page directory address with the
@@ -212,18 +221,18 @@ package body Cxos.Memory is
             Allocate_Result := Cxos.Memory.Map.Allocate_Frame (
               Kernel_Page_Directory_Addr);
             if Allocate_Result /= Success then
-               return Failure;
+               return Unhandled_Exception;
             end if;
 
             --  Allocate the initial kernel page table frame.
             Allocate_Result := Cxos.Memory.Map.Allocate_Frame (
               Kernel_Page_Table_Addr);
             if Allocate_Result /= Success then
-               return Failure;
+               return Unhandled_Exception;
             end if;
          exception
             when Constraint_Error =>
-               return Failure;
+               return Unhandled_Exception;
          end Allocate_Frames;
 
       --  Temporarily map the newly allocated page frame structures into the
@@ -246,7 +255,7 @@ package body Cxos.Memory is
             Flush_Tlb;
          exception
             when Constraint_Error =>
-               return Failure;
+               return Unhandled_Exception;
          end Initialise_Temporary_Mapping;
 
       Init_Directory :
@@ -271,12 +280,12 @@ package body Cxos.Memory is
                begin
                   Result := Initialise_Page_Table (Kernel_Page_Table);
                   if Result /= Success then
-                     return Failure;
+                     return Unhandled_Exception;
                   end if;
 
                   Result := Initialise_Page_Directory (Kernel_Page_Directory);
                   if Result /= Success then
-                     return Failure;
+                     return Unhandled_Exception;
                   end if;
 
                   --  Map the kernel page table.
@@ -291,7 +300,7 @@ package body Cxos.Memory is
                     Kernel_Page_Directory_Addr);
                exception
                   when Constraint_Error =>
-                     return Failure;
+                     return Unhandled_Exception;
                end Init_Page_Structures;
 
             --  Map the kernel address space.
@@ -349,7 +358,7 @@ package body Cxos.Memory is
                   end loop;
                exception
                   when Constraint_Error =>
-                     return Failure;
+                     return Unhandled_Exception;
                end Map_Kernel_Address_Space;
          end Init_Directory;
 
@@ -359,23 +368,22 @@ package body Cxos.Memory is
    ----------------------------------------------------------------------------
    --  Map_Vga_Memory
    ----------------------------------------------------------------------------
-   function Map_Vga_Memory return Kernel_Process_Result is
+   function Map_Vga_Memory return Process_Result is
       use System.Storage_Elements;
-      use Cxos.Memory.Paging;
 
       --  The result of the mapping process.
-      Result : Cxos.Memory.Paging.Process_Result;
+      Result : Process_Result;
    begin
       Result := Cxos.Memory.Paging.Map_Page_Frame (To_Address (16#B8000#),
         To_Address (16#C03F_E000#));
       if Result /= Success then
-         return Failure;
+         return Unhandled_Exception;
       end if;
 
       return Success;
    exception
       when Constraint_Error =>
-         return Failure;
+         return Unhandled_Exception;
    end Map_Vga_Memory;
 
    ----------------------------------------------------------------------------
@@ -384,7 +392,7 @@ package body Cxos.Memory is
    --  Implementation Notes:
    --    - Marks the kernel's physical memory as being used.
    ----------------------------------------------------------------------------
-   function Mark_Kernel_Memory return Kernel_Process_Result is
+   function Mark_Kernel_Memory return Process_Result is
       use System.Storage_Elements;
       use Cxos.Memory.Map;
 
@@ -429,19 +437,19 @@ package body Cxos.Memory is
          Cxos.Serial.Put_String (
            "Error marking kernel code segment" & ASCII.LF);
 
-         return Failure;
+         return Unhandled_Exception;
       end if;
 
       return Success;
    exception
       when Constraint_Error =>
-         return Failure;
+         return Unhandled_Exception;
    end Mark_Kernel_Memory;
 
    ----------------------------------------------------------------------------
    --  Mark_Low_Memory
    ----------------------------------------------------------------------------
-   function Mark_Low_Memory return Kernel_Process_Result is
+   function Mark_Low_Memory return Process_Result is
       use System.Storage_Elements;
       use Cxos.Memory.Map;
 
@@ -452,13 +460,13 @@ package body Cxos.Memory is
         16#100000#, Allocated);
 
       if Result /= Success then
-         return Failure;
+         return Unhandled_Exception;
       end if;
 
       return Success;
    exception
       when Constraint_Error =>
-         return Failure;
+         return Unhandled_Exception;
    end Mark_Low_Memory;
 
    ----------------------------------------------------------------------------

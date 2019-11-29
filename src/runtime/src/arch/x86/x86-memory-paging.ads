@@ -19,7 +19,7 @@ with System;
 --    with paging on the x86 platform.
 -------------------------------------------------------------------------------
 package x86.Memory.Paging is
-   pragma Preelaborate (x86.Memory.Paging);
+   pragma Preelaborate;
 
    ----------------------------------------------------------------------------
    --  Paging Process Result
@@ -27,49 +27,11 @@ package x86.Memory.Paging is
    --  procedure.
    ----------------------------------------------------------------------------
    type Process_Result is (
-     Frame_Allocation_Error,
-     Frame_Not_Allocated,
-     Invalid_Argument,
      Invalid_Non_Aligned_Address,
-     Invalid_Page_Directory,
      Invalid_Table_Index,
      Invalid_Value,
-     Success,
-     Table_Not_Allocated
+     Success
    );
-
-   ----------------------------------------------------------------------------
-   --  Map_Page_Frame
-   --
-   --  Purpose:
-   --    This function maps an individual page frame within the current
-   --    virtual address space.
-   --    This maps an individual 4K aligned virtual address frame to a
-   --    physical address.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   function Map_Page_Frame (
-     Physical_Addr : System.Address;
-     Virtual_Addr  : System.Address
-   ) return Process_Result
-   with Volatile_Function;
-
-   ----------------------------------------------------------------------------
-   --  Enable_Paging
-   --
-   --  Purpose:
-   --    This procedure enables paging on the processor and loads the initial
-   --    kernel page directory address into the processor's control registers.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   procedure Load_Page_Directory (
-      Directory_Ptr : System.Address
-   )
-   with Import,
-     Convention    => Assembler,
-     External_Name => "__load_page_directory";
 
    ----------------------------------------------------------------------------
    --  Type to hold a 20bit address.
@@ -184,22 +146,6 @@ package x86.Memory.Paging is
      External_Name => "__flush_tlb";
 
    ----------------------------------------------------------------------------
-   --  Insert_Page_Table
-   --
-   --  Purpose:
-   --    This function inserts a new page table into the currently loaded page
-   --    directory at a specified index.
-   --    This will allocate a new page frame.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   function Insert_Page_Table (
-     Directory_Idx : Natural;
-     Supervisor    : Boolean := True
-   ) return Process_Result
-   with Pure_Function;
-
-   ----------------------------------------------------------------------------
    --  Individual Page Table type.
    --  This is an array of 1024 indiviudal Pages.
    ----------------------------------------------------------------------------
@@ -212,47 +158,6 @@ package x86.Memory.Paging is
    type Page_Directory is array (Natural range 0 .. 1023)
      of Page_Directory_Entry;
 
-   ----------------------------------------------------------------------------
-   --  Allocate_Page_Frame
-   --
-   --  Purpose:
-   --    This procedure allocates a page frame.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   function Allocate_Page_Frame (
-     Virtual_Address :     System.Address;
-     Frame_Address   : out Page_Aligned_Address
-   ) return Process_Result
-   with Volatile_Function;
-
-   ----------------------------------------------------------------------------
-   --  Initialise_Page_Directory
-   --
-   --  Purpose:
-   --    This initialises an individual Page Directory.
-   --    It will initialise every entry in the directory as being non-present.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   function Initialise_Page_Directory (
-     Page_Dir : in out Page_Directory
-   ) return Process_Result;
-
-   ----------------------------------------------------------------------------
-   --  Initialise_Page_Table
-   --
-   --  Purpose:
-   --    This initialises an individual Page Table.
-   --    The Table will be initialised with all entries marked as non-present.
-   --  Excecptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   function Initialise_Page_Table (
-     Table : in out Page_Table
-   ) return Process_Result;
-
-private
    ----------------------------------------------------------------------------
    --  Check_Address_Page_Aligned
    --
@@ -311,5 +216,31 @@ private
      Mapped_Addr  : out System.Address
    ) return Process_Result
    with Pure_Function;
+
+   ----------------------------------------------------------------------------
+   --  Initialise_Page_Directory
+   --
+   --  Purpose:
+   --    This initialises an individual Page Directory.
+   --    It will initialise every entry in the directory as being non-present.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   function Initialise_Page_Directory (
+     Page_Dir : in out Page_Directory
+   ) return Process_Result;
+
+   ----------------------------------------------------------------------------
+   --  Initialise_Page_Table
+   --
+   --  Purpose:
+   --    This initialises an individual Page Table.
+   --    The Table will be initialised with all entries marked as non-present.
+   --  Excecptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   function Initialise_Page_Table (
+     Table : in out Page_Table
+   ) return Process_Result;
 
 end x86.Memory.Paging;

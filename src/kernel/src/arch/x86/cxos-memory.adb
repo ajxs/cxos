@@ -9,6 +9,7 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
+with Cxos.Memory.Paging;
 with Cxos.Serial;
 with Multiboot;
 with System.Address_To_Access_Conversions;
@@ -139,7 +140,7 @@ package body Cxos.Memory is
       end if;
 
       Cxos.Serial.Put_String ("Loading kernel page directory" & ASCII.LF);
-      x86.Memory.Paging.Load_Page_Directory (Kernel_Page_Directory_Addr);
+      Cxos.Memory.Paging.Load_Page_Directory (Kernel_Page_Directory_Addr);
       Cxos.Serial.Put_String ("Kernel page directory loaded" & ASCII.LF);
 
       Cxos.Serial.Put_String ("Freeing boot page structures" & ASCII.LF);
@@ -356,12 +357,12 @@ package body Cxos.Memory is
    ----------------------------------------------------------------------------
    function Map_Vga_Memory return Kernel_Process_Result is
       use System.Storage_Elements;
-      use x86.Memory.Paging;
+      use Cxos.Memory.Paging;
 
       --  The result of the mapping process.
-      Result : x86.Memory.Paging.Process_Result;
+      Result : Cxos.Memory.Paging.Process_Result;
    begin
-      Result := x86.Memory.Paging.Map_Page_Frame (To_Address (16#B8000#),
+      Result := Cxos.Memory.Paging.Map_Page_Frame (To_Address (16#B8000#),
         To_Address (16#C03F_E000#));
       if Result /= Success then
          return Failure;
@@ -447,8 +448,6 @@ package body Cxos.Memory is
         16#100000#, Allocated);
 
       if Result /= Success then
-         Cxos.Serial.Put_String ("Error setting memory range" & ASCII.LF);
-
          return Failure;
       end if;
 

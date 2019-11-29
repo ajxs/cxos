@@ -9,7 +9,7 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-package body x86.Time_Keeping is
+package body Cxos.Time_Keeping is
    ----------------------------------------------------------------------------
    --  Clock
    ----------------------------------------------------------------------------
@@ -42,4 +42,4 @@ package body x86.Time_Keeping is
       System_Time := System_Time + SYSTEM_TICK_PERIOD;
    end System_Tick_Handler;
 
-end x86.Time_Keeping;
+end Cxos.Time_Keeping;

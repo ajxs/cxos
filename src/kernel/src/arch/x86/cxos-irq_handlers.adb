@@ -9,16 +9,16 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Ada.Interrupts.Names;
 with Interfaces;
 with System.Storage_Elements;
+with Cxos.Time_Keeping;
+with x86.Interrupts.Names;
 with x86.PIC;
-with x86.Time_Keeping;
 with x86.Port_IO;
 with x86.Serial;
 
-package body x86.IRQ_Handlers is
-   use Ada.Interrupts.Names;
+package body Cxos.IRQ_Handlers is
+   use x86.Interrupts.Names;
    use Interfaces;
    use System.Storage_Elements;
 
@@ -33,7 +33,7 @@ package body x86.IRQ_Handlers is
    begin
       --  Trigger the internal System Tick Handler to signal that a
       --  timer tick has occurred.
-      x86.Time_Keeping.System_Tick_Handler;
+      Cxos.Time_Keeping.System_Tick_Handler;
       x86.PIC.Send_EOI (IRQ0);
 
    end IRQ0_Internal_Handler;
@@ -177,4 +177,4 @@ package body x86.IRQ_Handlers is
 
    end IRQ9_Internal_Handler;
 
-end x86.IRQ_Handlers;
+end Cxos.IRQ_Handlers;

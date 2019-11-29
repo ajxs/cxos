@@ -13,28 +13,17 @@ with Ada.Unchecked_Conversion;
 with Interfaces;
 
 -------------------------------------------------------------------------------
---  SYSTEM.X86.PIT
+--  X86.PIT
 --
 --  Purpose:
 --    This package contains code for working with the x86 8253/8254
 --    Programmable Interval Timer.
 -------------------------------------------------------------------------------
 package x86.PIT is
-   pragma Preelaborate (x86.PIT);
+   pragma Preelaborate;
 
    use Interfaces;
 
-   ----------------------------------------------------------------------------
-   --  Initialise
-   --
-   --  Purpose:
-   --    This procedure initialises the x86 PIT.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   procedure Initialise;
-
-private
    ----------------------------------------------------------------------------
    --  PIT Channel type.
    --  Used in selecting which PIT Channel to perform an operation on.

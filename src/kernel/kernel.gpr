@@ -19,7 +19,10 @@ project Kernel is
    for Exec_Dir use "build";
    for Create_Missing_Dirs use "True";
 
-   for Languages use ("Ada");
+   for Languages use (
+     "Ada",
+     "Asm_Cpp"
+   );
 
    for Main use ("kernel_entry.adb");
 

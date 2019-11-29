@@ -9,21 +9,15 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Ada.Interrupts.Names;
 with x86.Exceptions;
 with x86.IDT;
 with x86.Interrupts;
-with x86.IRQ_Handlers;
 with x86.GDT;
 with x86.PIC;
-with x86.PIT;
 with x86.Serial;
-with x86.Time_Keeping;
 with x86.Vga;
 
 package body x86 is
-   use Ada.Interrupts.Names;
-
    ----------------------------------------------------------------------------
    --  Initialise
    ----------------------------------------------------------------------------
@@ -59,16 +53,6 @@ package body x86 is
         "Installing processor exception handlers" & ASCII.LF);
       Install_Exception_Handlers;
 
-      --  Install a handler for IRQ0.
-      x86.PIC.Set_Interrupt_Mask (IRQ0, False);
-      x86.IDT.Install_Descriptor (32,
-        x86.IRQ_Handlers.IRQ0_Handler'Address, 16#8#);
-
-      --  Install a handler for IRQ1.
-      x86.PIC.Set_Interrupt_Mask (IRQ1, False);
-      x86.IDT.Install_Descriptor (33,
-        x86.IRQ_Handlers.IRQ1_Handler'Address, 16#8#);
-
       x86.IDT.Finalise;
 
       x86.Serial.Put_String (x86.Serial.COM1,
@@ -81,16 +65,6 @@ package body x86 is
 
       x86.Serial.Put_String (x86.Serial.COM1,
         "Protected mode entered" & ASCII.LF);
-
-      --  Initialise system timer and PIT before re-enabling interrupt
-      --  generation.
-      x86.Serial.Put_String (x86.Serial.COM1,
-        "Initialising system timer" & ASCII.LF);
-      x86.Time_Keeping.Initialise;
-
-      x86.Serial.Put_String (x86.Serial.COM1,
-        "Initialising PIT" & ASCII.LF);
-      x86.PIT.Initialise;
 
       --  Enable interrupts.
       x86.Interrupts.Set_Interrupt_Flag (True);

@@ -12,7 +12,7 @@
 pragma Restrictions (No_Elaboration_Code);
 
 -------------------------------------------------------------------------------
---  SYSTEM.X86.TIME_KEEPING
+--  CXOS.TIME_KEEPING
 --
 --  Purpose:
 --    This package contains code for working with the system time.
@@ -20,8 +20,8 @@ pragma Restrictions (No_Elaboration_Code);
 --    reading the current system clock as well as the functionality for
 --    initialising and incrementing the timer.
 -------------------------------------------------------------------------------
-package x86.Time_Keeping is
-   pragma Preelaborate (x86.Time_Keeping);
+package Cxos.Time_Keeping is
+   pragma Preelaborate;
 
    ----------------------------------------------------------------------------
    --  Time type.
@@ -76,4 +76,4 @@ private
    System_Time : Time
    with Volatile;
 
-end x86.Time_Keeping;
+end Cxos.Time_Keeping;

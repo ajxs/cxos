@@ -10,7 +10,7 @@
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
---  SYSTEM.X86.IRQ_HANDLERS
+--  CXOS.IRQ_HANDLERS
 --
 --  Purpose:
 --    This package contains code for handling individual IRQ requests.
@@ -19,10 +19,10 @@
 --    'entry function' is responsible for preserving the machine state and
 --    restoring the proper machine state after the interrupt handler has
 --    successfully exited. Refer to the implementation of each 'entry function'
---    in 'x86-irq_handlers-entry.S'.
+--    in 'cxos-irq_handlers-entry.S'.
 -------------------------------------------------------------------------------
-package x86.IRQ_Handlers is
-   pragma Preelaborate (x86.IRQ_Handlers);
+package Cxos.IRQ_Handlers is
+   pragma Preelaborate;
 
    ----------------------------------------------------------------------------
    --  IRQ0_Handler
@@ -441,4 +441,4 @@ private
      Convention    => Assembler,
      External_Name => "__irq15_handler";
 
-end x86.IRQ_Handlers;
+end Cxos.IRQ_Handlers;

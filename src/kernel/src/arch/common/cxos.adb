@@ -9,9 +9,11 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
+with Cxos.Interrupts;
 with Cxos.Memory;
 with Cxos.Serial;
 with Cxos.PCI;
+with Cxos.PIT;
 with Cxos.VFS;
 with System.Machine_Code;
 
@@ -23,6 +25,33 @@ package body Cxos is
       --  The result of internal initialisation functions.
       Result : Kernel_Process_Result := Failure;
    begin
+      Initialise_Interrupts :
+         declare
+            use Cxos.Interrupts;
+
+            Init_Result : Cxos.Interrupts.Process_Result;
+         begin
+            Cxos.Serial.Put_String ("Initialising Interrupts" & ASCII.LF);
+
+            Init_Result := Cxos.Interrupts.Initialise;
+            if Init_Result /= Success then
+               return Failure;
+            end if;
+         end Initialise_Interrupts;
+
+      --  Initialise system timer and PIT before re-enabling interrupt
+      --  generation.
+      Initialise_Timers :
+         begin
+   --      x86.Serial.Put_String (x86.Serial.COM1,
+   --        "Initialising system timer" & ASCII.LF);
+   --      x86.Time_Keeping.Initialise;
+
+            Cxos.Serial.Put_String ("Initialising PIT" & ASCII.LF);
+            Cxos.PIT.Initialise;
+
+         end Initialise_Timers;
+
       Result := Cxos.VFS.Initialise;
       if Result /= Success then
          return Result;

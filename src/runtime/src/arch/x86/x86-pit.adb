@@ -46,21 +46,6 @@ package body x86.PIT is
    end Get_Register_Address;
 
    ----------------------------------------------------------------------------
-   --  Initialise
-   --
-   --  Implementation Notes:
-   --   - Only initialises Channel 0.
-   ----------------------------------------------------------------------------
-   procedure Initialise is
-      --  The predefined initial value to select for a 100hz rate.
-      INITIAL_VALUE_100HZ : constant Unsigned_16 := 11931;
-   begin
-      --  Initialise Channel 0 to pulse at 100hz, using operating mode 2,
-      --  raising an interrupt every 10ms.
-      Initialise_Channel (Channel_0, Rate_Generator, INITIAL_VALUE_100HZ);
-   end Initialise;
-
-   ----------------------------------------------------------------------------
    --  Initialise_Channel
    --
    --  Implementation Notes:

@@ -1,13 +1,26 @@
 -------------------------------------------------------------------------------
+--  Copyright (c) 2019, CXOS.
+--  This program is free software; you can redistribute it and/or modify it
+--  under the terms of the GNU General Public License as published by the
+--  Free Software Foundation; either version 3 of the License, or
+--  (at your option) any later version.
+--
+--  Authors:
+--     Anthony <ajxs [at] panoptic.online>
+-------------------------------------------------------------------------------
+
+with Ada.Interrupts;
+
+-------------------------------------------------------------------------------
 --  Ada.Interrupts.Names
 --
 --  Purpose:
 --    Contains the names for system interrupts.
 -------------------------------------------------------------------------------
-package Ada.Interrupts.Names is
-   pragma Preelaborate (Ada.Interrupts.Names);
+package x86.Interrupts.Names is
+   pragma Preelaborate;
 
-   pragma Implementation_Defined;
+   use Ada.Interrupts;
 
    IRQ0  : constant Interrupt_ID := 0;
    IRQ1  : constant Interrupt_ID := 1;
@@ -25,4 +38,4 @@ package Ada.Interrupts.Names is
    IRQ13 : constant Interrupt_ID := 13;
    IRQ14 : constant Interrupt_ID := 14;
    IRQ15 : constant Interrupt_ID := 15;
-end Ada.Interrupts.Names;
+end x86.Interrupts.Names;

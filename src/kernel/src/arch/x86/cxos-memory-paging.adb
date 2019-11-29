@@ -14,7 +14,6 @@ with x86.Memory.Map;
 
 package body Cxos.Memory.Paging is
    use System.Storage_Elements;
-   use x86.Memory.Paging;
 
    ----------------------------------------------------------------------------
    --  Allocate_Page_Frame
@@ -38,6 +37,7 @@ package body Cxos.Memory.Paging is
      Supervisor    : Boolean := True
    ) return Process_Result is
       use x86.Memory.Map;
+      use x86.Memory.Paging;
 
       --  The currently active page directory.
       Directory : Page_Directory
@@ -45,8 +45,6 @@ package body Cxos.Memory.Paging is
         Convention => Ada,
         Address    => To_Address (16#FFFF_F000#);
 
-      --  The process result of allocating a new page frame, if needed.
-      Allocate_Result    : x86.Memory.Map.Process_Result;
       --  The address of the newly allocated page frame, if applicable.
       Allocated_Addr     : System.Address;
       --  The virtual address of the newly created table.
@@ -57,12 +55,18 @@ package body Cxos.Memory.Paging is
          return Invalid_Argument;
       end if;
 
-      --  Allocate a page frame for the new page table.
-      Allocate_Result := x86.Memory.Map.Allocate_Frame (
-        Allocated_Addr);
-      if Allocate_Result /= Success then
-         return Frame_Allocation_Error;
-      end if;
+      --  Allocate the new page frame needed for the table.
+      Allocate_New_Frame :
+         declare
+            --  The process result of allocating a new page frame, if needed.
+            Allocate_Result : x86.Memory.Map.Process_Result;
+         begin
+            --  Allocate a page frame for the new page table.
+            Allocate_Result := x86.Memory.Map.Allocate_Frame (Allocated_Addr);
+            if Allocate_Result /= Success then
+               return Frame_Allocation_Error;
+            end if;
+         end Allocate_New_Frame;
 
       --  Set the address at the applicable index into the page
       --  directory to point to the newly allocated page table.
@@ -130,6 +134,8 @@ package body Cxos.Memory.Paging is
      Physical_Addr : System.Address;
      Virtual_Addr  : System.Address
    ) return Process_Result is
+      use x86.Memory.Paging;
+
       --  The currently loaded page directory.
       Directory : Page_Directory
       with Import,
@@ -139,8 +145,6 @@ package body Cxos.Memory.Paging is
       --  Index variables used when mapping  the page directory and table.
       Directory_Idx : Natural;
       Table_Idx     : Natural;
-      --  Result variable for internal processes.
-      Result        : x86.Memory.Paging.Process_Result;
       --  The virtual address of the table to map the page frame in.
       Table_Virtual_Addr : System.Address;
    begin
@@ -171,6 +175,9 @@ package body Cxos.Memory.Paging is
 
       --  Get the indexes into the page directory and page table.
       Get_Indexes :
+         declare
+            --  Result variable for internal processes.
+            Result : x86.Memory.Paging.Process_Result;
          begin
             Result := Get_Page_Directory_Index (Virtual_Addr, Directory_Idx);
             if Result /= Success then
@@ -190,6 +197,9 @@ package body Cxos.Memory.Paging is
       --  The virtual address will always be a constant referring to the
       --  recursively mapped table in the table index.
       Get_Table_Virtual_Address :
+         declare
+            --  Result variable for internal processes.
+            Result : x86.Memory.Paging.Process_Result;
          begin
             Result := Get_Page_Table_Mapped_Address (Virtual_Addr,
               Table_Virtual_Addr);
@@ -235,7 +245,7 @@ package body Cxos.Memory.Paging is
             Table (Table_Idx).Present      := True;
          exception
             when Constraint_Error =>
-               return Invalid_Table_Index;
+               return Unhandled_Exception;
          end Map_Entry;
 
       return Success;

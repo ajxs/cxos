@@ -35,7 +35,7 @@ library project Runtime is
         "-ggdb",
         "-gnat2012",
         "-gnatg",
-        "-gnatwadhl",
+        "-gnatwadehl",
         "-gnatVa",
         "-gnaty3abcdefhiklmnoprstux",
         "-Wl,--gc-sections"

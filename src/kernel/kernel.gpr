@@ -43,10 +43,9 @@ project Kernel is
         "-fno-omit-frame-pointer",
         "-ggdb",
         "-gnat2012",
-        "-gnatwadhl",
+        "-gnatwadehl",
         "-gnatVa",
-        "-gnaty3abcdefhiklmnoprstux",
-        "-gnatwae"
+        "-gnaty3abcdefhiklmnoprstux"
       );
 
       for Default_Switches ("Asm_Cpp") use (

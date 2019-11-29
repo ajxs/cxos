@@ -12,7 +12,7 @@
 with System;
 
 -------------------------------------------------------------------------------
---  SYSTEM.X86.MEMORY.PAGING
+--  X86.MEMORY.PAGING
 --
 --  Purpose:
 --    This package contains code and defintions for implementing and working

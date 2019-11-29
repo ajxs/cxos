@@ -10,7 +10,7 @@
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
---  SYSTEM.X86.INTERRUPTS
+--  X86.INTERRUPTS
 --
 --  Purpose:
 --    This package contains code for managing x86 processor interrupts.

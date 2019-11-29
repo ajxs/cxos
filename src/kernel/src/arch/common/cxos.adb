@@ -11,9 +11,10 @@
 
 with Cxos.Interrupts;
 with Cxos.Memory;
-with Cxos.Serial;
 with Cxos.PCI;
 with Cxos.PIT;
+with Cxos.Serial;
+with Cxos.Time_Keeping;
 with Cxos.VFS;
 with System.Machine_Code;
 
@@ -25,10 +26,12 @@ package body Cxos is
       --  The result of internal initialisation functions.
       Result : Kernel_Process_Result := Failure;
    begin
+      --  Initialise system interrupts.
       Initialise_Interrupts :
          declare
             use Cxos.Interrupts;
 
+            --  The result of the internal initialisation process.
             Init_Result : Cxos.Interrupts.Process_Result;
          begin
             Cxos.Serial.Put_String ("Initialising Interrupts" & ASCII.LF);
@@ -43,13 +46,11 @@ package body Cxos is
       --  generation.
       Initialise_Timers :
          begin
-   --      x86.Serial.Put_String (x86.Serial.COM1,
-   --        "Initialising system timer" & ASCII.LF);
-   --      x86.Time_Keeping.Initialise;
+            Cxos.Serial.Put_String ("Initialising system timer" & ASCII.LF);
+            Cxos.Time_Keeping.Initialise;
 
             Cxos.Serial.Put_String ("Initialising PIT" & ASCII.LF);
             Cxos.PIT.Initialise;
-
          end Initialise_Timers;
 
       Result := Cxos.VFS.Initialise;

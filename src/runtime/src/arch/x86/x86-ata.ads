@@ -69,17 +69,6 @@ package x86.ATA is
    );
 
    ----------------------------------------------------------------------------
-   --  Get_Device_Type
-   --
-   --  Purpose:
-   --    Returns the type of the specified ATA device.
-   ----------------------------------------------------------------------------
-   function Get_Device_Type (
-     Bus      : ATA_Bus;
-     Position : ATA_Device_Position
-   ) return ATA_Device_Type;
-
-   ----------------------------------------------------------------------------
    --  Get_Register_Address
    --
    --  Purpose:
@@ -91,25 +80,4 @@ package x86.ATA is
    ) return System.Address
    with Pure_Function;
 
-   ----------------------------------------------------------------------------
-   --  Reset_Bus
-   --
-   --  Purpose:
-   --    Performs a software reset of an ATA device bus.
-   ----------------------------------------------------------------------------
-   procedure Reset_Bus (
-     Bus : ATA_Bus
-   );
-
-   ----------------------------------------------------------------------------
-   --  Select_Device_Position
-   --
-   --  Purpose:
-   --    Selects which device position (Master/Slave) is selected on a
-   --    particular ATA bus.
-   ----------------------------------------------------------------------------
-   procedure Select_Device_Position (
-     Bus      : ATA_Bus;
-     Position : ATA_Device_Position
-   );
 end x86.ATA;

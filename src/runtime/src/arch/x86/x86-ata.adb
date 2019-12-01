@@ -9,62 +9,10 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Interfaces;
 with System.Storage_Elements;
-with x86.Port_IO;
 
 package body x86.ATA is
-   use Interfaces;
    use System.Storage_Elements;
-
-   ----------------------------------------------------------------------------
-   --  Get_Device_Type
-   ----------------------------------------------------------------------------
-   function Get_Device_Type (
-     Bus      : ATA_Bus;
-     Position : ATA_Device_Position
-   ) return ATA_Device_Type is
-      Cylinder_High_Port : System.Address;
-      Cylinder_Low_Port  : System.Address;
-      Alt_Status_Port    : System.Address;
-
-      pragma Warnings (Off);
-
-      Drive_Status        : Unsigned_8;
-      Drive_Cylinder_Low  : Unsigned_8;
-      Drive_Cylinder_High : Unsigned_8;
-   begin
-      Select_Device_Position (Bus, Position);
-
-      Cylinder_Low_Port  := Get_Register_Address (Bus, Cylinder_Low);
-      Cylinder_High_Port := Get_Register_Address (Bus, Cylinder_High);
-      Alt_Status_Port    := Get_Register_Address (Bus, Alt_Status);
-
-      Drive_Status := x86.Port_IO.Inb (Alt_Status_Port);
-      Drive_Status := x86.Port_IO.Inb (Alt_Status_Port);
-      Drive_Status := x86.Port_IO.Inb (Alt_Status_Port);
-      Drive_Status := x86.Port_IO.Inb (Alt_Status_Port);
-      Drive_Status := x86.Port_IO.Inb (Alt_Status_Port);
-      pragma Warnings (On);
-
-      Drive_Cylinder_High := x86.Port_IO.Inb (Cylinder_High_Port);
-      Drive_Cylinder_Low  := x86.Port_IO.Inb (Cylinder_Low_Port);
-
-      if Drive_Cylinder_Low = 16#14# and Drive_Cylinder_High = 16#EB# then
-         return PATAPI;
-      elsif Drive_Cylinder_Low = 16#69# and Drive_Cylinder_High = 16#96# then
-         return SATAPI;
-      elsif Drive_Cylinder_Low = 16#3C# and Drive_Cylinder_High = 16#C3# then
-         return SATA;
-      elsif Drive_Cylinder_Low = 0 and Drive_Cylinder_High = 0 then
-         return PATA;
-      end if;
-
-      return Unknown_ATA_Device;
-   exception
-      when Constraint_Error =>
-         return Unknown_ATA_Device;
-   end Get_Device_Type;
 
    ----------------------------------------------------------------------------
    --  Get_Register_Address
@@ -142,56 +90,5 @@ package body x86.ATA is
       when Constraint_Error =>
          return System.Null_Address;
    end Get_Register_Address;
-
-   ----------------------------------------------------------------------------
-   --  Reset_Bus
-   ----------------------------------------------------------------------------
-   procedure Reset_Bus (
-     Bus : ATA_Bus
-   ) is
-      --  The address of the device control register.
-      Control_Register_Address : System.Address;
-   begin
-      Control_Register_Address := Get_Register_Address (Bus, Device_Control);
-
-      x86.Port_IO.Outb (Control_Register_Address, 4);
-      x86.Port_IO.Outb (Control_Register_Address, 0);
-   exception
-      when Constraint_Error =>
-         return;
-   end Reset_Bus;
-
-   ----------------------------------------------------------------------------
-   --  Select_Device_Position
-   ----------------------------------------------------------------------------
-   procedure Select_Device_Position (
-     Bus      : ATA_Bus;
-     Position : ATA_Device_Position
-   ) is
-      Device_Select_Port : System.Address;
-   begin
-      --  Get the Device Select Port for this device.
-      Get_Device_Select_Port :
-         begin
-            Device_Select_Port := Get_Register_Address (Bus, Drive_Head);
-         exception
-            when Constraint_Error =>
-               return;
-         end Get_Device_Select_Port;
-
-      --  Sends the signal to select the specified device position.
-      Send_Device_Select_Signal :
-         begin
-            case Position is
-               when Master =>
-                  x86.Port_IO.Outb (Device_Select_Port, 16#A0#);
-               when Slave  =>
-                  x86.Port_IO.Outb (Device_Select_Port, 16#B0#);
-            end case;
-         exception
-            when Constraint_Error =>
-               return;
-         end Send_Device_Select_Signal;
-   end Select_Device_Position;
 
 end x86.ATA;

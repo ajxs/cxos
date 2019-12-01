@@ -17,6 +17,7 @@
 --    ATA devices.
 -------------------------------------------------------------------------------
 package Cxos.ATA is
-   pragma Preelaborate
-end Cxos.ATA;
+   pragma Preelaborate;
 
+   procedure Initialise;
+end Cxos.ATA;

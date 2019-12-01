@@ -11,6 +11,7 @@
 
 with Cxos.Interrupts;
 with Cxos.Memory;
+with Cxos.ATA;
 with Cxos.PCI;
 with Cxos.PIT;
 with Cxos.Serial;
@@ -91,6 +92,8 @@ package body Cxos is
                return Failure;
             end if;
          end Initialise_Devices;
+
+      Cxos.ATA.Initialise;
 
       return Success;
    exception

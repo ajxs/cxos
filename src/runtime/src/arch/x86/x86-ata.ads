@@ -17,5 +17,5 @@
 --    ATA devices.
 -------------------------------------------------------------------------------
 package x86.ATA is
-   pragma Preelaborate
+   pragma Preelaborate;
 end x86.ATA;

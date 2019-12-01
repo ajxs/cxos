@@ -30,30 +30,27 @@ package body Cxos.ATA is
       Result             : Process_Result;
       Cylinder_High_Port : System.Address;
       Cylinder_Low_Port  : System.Address;
-      Alt_Status_Port    : System.Address;
 
-      pragma Warnings (Off);
-
-      Drive_Status        : Unsigned_8;
       Drive_Cylinder_Low  : Unsigned_8;
       Drive_Cylinder_High : Unsigned_8;
    begin
+      --  Select the master/slave device.
       Result := Select_Device_Position (Bus, Position);
       if Result /= Success then
          return Result;
       end if;
 
+      --  Get the device port addresses used.
       Cylinder_Low_Port  := Get_Register_Address (Bus, Cylinder_Low);
       Cylinder_High_Port := Get_Register_Address (Bus, Cylinder_High);
-      Alt_Status_Port    := Get_Register_Address (Bus, Alt_Status);
 
-      Drive_Status := x86.Port_IO.Inb (Alt_Status_Port);
-      Drive_Status := x86.Port_IO.Inb (Alt_Status_Port);
-      Drive_Status := x86.Port_IO.Inb (Alt_Status_Port);
-      Drive_Status := x86.Port_IO.Inb (Alt_Status_Port);
-      Drive_Status := x86.Port_IO.Inb (Alt_Status_Port);
-      pragma Warnings (On);
+      --  Wait until the device is ready to receive commands.
+      Result := Wait_For_Device_Ready (Bus, 10000);
+      if Result /= Success then
+         return Result;
+      end if;
 
+      --  Read device identification info.
       Drive_Cylinder_High := x86.Port_IO.Inb (Cylinder_High_Port);
       Drive_Cylinder_Low  := x86.Port_IO.Inb (Cylinder_Low_Port);
 
@@ -164,4 +161,38 @@ package body Cxos.ATA is
       return Success;
    end Select_Device_Position;
 
+   ----------------------------------------------------------------------------
+   --  Wait_For_Device_Ready
+   ----------------------------------------------------------------------------
+   function Wait_For_Device_Ready (
+     Bus           : x86.ATA.ATA_Bus;
+     Attempt_Count : Integer := 2000
+   ) return Process_Result is
+      --  The address of the device alt status port.
+      Alt_Status_Port : System.Address;
+      --  The status value read from the device.
+      Drive_Status    : Unsigned_8;
+   begin
+      --  Get the port address of the alt status register.
+      Alt_Status_Port := Get_Register_Address (Bus, Alt_Status);
+
+      --  Read the device status register in a loop until either the
+      --  attempt count is exceeded and the function times out, or a non-busy
+      --  status is read.
+      Wait_While_Busy :
+         for I in Integer range 0 .. Attempt_Count loop
+            --  Read device status.
+            Drive_Status := x86.Port_IO.Inb (Alt_Status_Port);
+            if (Drive_Status and 16#80#) = 0 then
+               return Success;
+            end if;
+         end loop Wait_While_Busy;
+
+      --  If no value has been returned within the attempt threshold,
+      --  return this status.
+      return Device_Busy;
+   exception
+      when Constraint_Error =>
+         return Unhandled_Exception;
+   end Wait_For_Device_Ready;
 end Cxos.ATA;

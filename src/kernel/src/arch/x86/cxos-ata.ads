@@ -26,6 +26,7 @@ package Cxos.ATA is
    --  Used for tracking the result of package processes.
    ----------------------------------------------------------------------------
    type Process_Result is (
+     Device_Busy,
      Success,
      Unhandled_Exception
    );
@@ -70,4 +71,15 @@ private
    ) return Process_Result
    with Volatile_Function;
 
+   ----------------------------------------------------------------------------
+   --  Wait_For_Device_Ready
+   --
+   --  Purpose:
+   --    Waits until the specified Bus/Device is ready to receive commands.
+   ----------------------------------------------------------------------------
+   function Wait_For_Device_Ready (
+     Bus           : x86.ATA.ATA_Bus;
+     Attempt_Count : Integer := 2000
+   ) return Process_Result
+   with Volatile_Function;
 end Cxos.ATA;

@@ -66,7 +66,7 @@ package body x86.PIT is
       end if;
 
       --  Get the register address for the selected PIT channel.
-      Get_Regiser_Address :
+      Get_Channel_Register_Address :
          declare
             Channel_Register : PIT_Register;
          begin
@@ -84,7 +84,7 @@ package body x86.PIT is
          exception
             when Constraint_Error =>
                return;
-         end Get_Regiser_Address;
+         end Get_Channel_Register_Address;
 
       --  Select the channel the command is for.
       Set_Command_Channel :

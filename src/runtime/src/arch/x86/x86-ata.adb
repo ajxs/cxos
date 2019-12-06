@@ -19,7 +19,7 @@ package body x86.ATA is
    ----------------------------------------------------------------------------
    function Get_Register_Address (
      Bus      : ATA_Bus;
-     Register : ATA_Regiser_Type
+     Register : ATA_Register_Type
    ) return System.Address is
       --  Whether this register is located on the Base IO port.
       Bus_IO_Port     : Boolean         := False;
@@ -29,10 +29,10 @@ package body x86.ATA is
       Register_Offset : Integer_Address := 0;
    begin
       case Register is
-         when Data           =>
+         when Data_Reg       =>
             Bus_IO_Port     := True;
             Register_Offset := 0;
-         when Error          =>
+         when Error_Reg      =>
             Bus_IO_Port     := True;
             Register_Offset := 1;
          when Features       =>
@@ -56,7 +56,7 @@ package body x86.ATA is
          when Device_Status  =>
             Bus_IO_Port     := True;
             Register_Offset := 7;
-         when Command        =>
+         when Command_Reg    =>
             Bus_IO_Port     := True;
             Register_Offset := 7;
          when Alt_Status     =>

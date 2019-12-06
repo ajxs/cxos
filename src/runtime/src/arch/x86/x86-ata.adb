@@ -130,9 +130,9 @@ package body x86.ATA is
    --  Write_Byte_To_Register
    ----------------------------------------------------------------------------
    procedure Write_Byte_To_Register (
-     Value    : Unsigned_8;
      Bus      : ATA_Bus;
-     Register : ATA_Register_Type
+     Register : ATA_Register_Type;
+     Value    : Unsigned_8
    ) is
       Register_Port : System.Address;
    begin
@@ -148,9 +148,9 @@ package body x86.ATA is
    --  Write_Word_To_Register
    ----------------------------------------------------------------------------
    procedure Write_Word_To_Register (
-     Value    : Unsigned_16;
      Bus      : ATA_Bus;
-     Register : ATA_Register_Type
+     Register : ATA_Register_Type;
+     Value    : Unsigned_16
    ) is
       Register_Port : System.Address;
    begin

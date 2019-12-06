@@ -10,8 +10,6 @@
 -------------------------------------------------------------------------------
 
 with Cxos.Serial;
-with System;
-with x86.Port_IO;
 
 package body Cxos.ATA is
    use x86.ATA;
@@ -25,12 +23,7 @@ package body Cxos.ATA is
      Position    :     x86.ATA.ATA_Device_Position
    ) return Process_Result is
       --  The result of internal processes.
-      Result             : Process_Result;
-      --  The Cylinder high register port address.
-      Cylinder_High_Port : System.Address;
-      --  The Cylinder Low register port address.
-      Cylinder_Low_Port  : System.Address;
-
+      Result              : Process_Result;
       --  The cylinder low value.
       Drive_Cylinder_Low  : Unsigned_8;
       --  The cylinder high value.
@@ -42,10 +35,6 @@ package body Cxos.ATA is
          return Result;
       end if;
 
-      --  Get the device port addresses used.
-      Cylinder_Low_Port  := Get_Register_Address (Bus, Cylinder_Low);
-      Cylinder_High_Port := Get_Register_Address (Bus, Cylinder_High);
-
       --  Wait until the device is ready to receive commands.
       Result := Wait_For_Device_Ready (Bus, 10000);
       if Result /= Success then
@@ -53,8 +42,10 @@ package body Cxos.ATA is
       end if;
 
       --  Read device identification info.
-      Drive_Cylinder_High := x86.Port_IO.Inb (Cylinder_High_Port);
-      Drive_Cylinder_Low  := x86.Port_IO.Inb (Cylinder_Low_Port);
+      Drive_Cylinder_High := x86.ATA.
+        Read_Byte_From_Register (Bus, Cylinder_High);
+      Drive_Cylinder_Low  := x86.ATA.
+        Read_Byte_From_Register (Bus, Cylinder_Low);
 
       if Drive_Cylinder_Low = 16#14# and Drive_Cylinder_High = 16#EB# then
          Device_Type := PATAPI;
@@ -97,10 +88,10 @@ package body Cxos.ATA is
       Send_Identify_Command :
          begin
             --  Reset these to 0 as per the ATA spec.
-            x86.ATA.Write_Word_To_Register (0, Bus, Sector_Count);
-            x86.ATA.Write_Word_To_Register (0, Bus, Sector_Number);
-            x86.ATA.Write_Word_To_Register (0, Bus, Cylinder_High);
-            x86.ATA.Write_Word_To_Register (0, Bus, Cylinder_Low);
+            x86.ATA.Write_Word_To_Register (Bus, Sector_Count, 0);
+            x86.ATA.Write_Word_To_Register (Bus, Sector_Number, 0);
+            x86.ATA.Write_Word_To_Register (Bus, Cylinder_High, 0);
+            x86.ATA.Write_Word_To_Register (Bus, Cylinder_Low, 0);
 
             --  Select the master/slave device.
             Result := Select_Device_Position (Bus, Position);
@@ -240,14 +231,9 @@ package body Cxos.ATA is
    function Reset_Bus (
      Bus : x86.ATA.ATA_Bus
    ) return Process_Result is
-      --  The address of the device control register.
-      Control_Register_Address : System.Address;
    begin
-      Control_Register_Address := x86.ATA.Get_Register_Address (Bus,
-        Device_Control);
-
-      x86.Port_IO.Outb (Control_Register_Address, 4);
-      x86.Port_IO.Outb (Control_Register_Address, 0);
+      x86.ATA.Write_Byte_To_Register (Bus, Device_Control, 4);
+      x86.ATA.Write_Byte_To_Register (Bus, Device_Control, 0);
 
       return Success;
    exception
@@ -265,9 +251,9 @@ package body Cxos.ATA is
    begin
       case Position is
          when Master =>
-            x86.ATA.Write_Byte_To_Register (16#A0#, Bus, Drive_Head);
+            x86.ATA.Write_Byte_To_Register (Bus, Drive_Head, 16#A0#);
          when Slave  =>
-            x86.ATA.Write_Byte_To_Register (16#B0#, Bus, Drive_Head);
+            x86.ATA.Write_Byte_To_Register (Bus, Drive_Head, 16#B0#);
       end case;
 
       return Success;
@@ -283,8 +269,6 @@ package body Cxos.ATA is
      Bus          : x86.ATA.ATA_Bus;
      Command_Type : x86.ATA.ATA_Command
    ) return Process_Result is
-      --  The bus command register address.
-      Command_Register : System.Address;
       --  The byte value to send.
       Command_Byte     : Unsigned_8;
    begin
@@ -315,25 +299,15 @@ package body Cxos.ATA is
                when others =>
                   return Invalid_Command;
             end case;
-         exception
-            when Constraint_Error =>
-               return Invalid_Command;
          end Set_Command_Byte;
 
-         --  Get the command register address.
-      Get_Command_Register :
-         begin
-            Command_Register := x86.ATA.Get_Register_Address (Bus,
-              Command_Reg);
-         exception
-            when Constraint_Error =>
-               return Unhandled_Exception;
-         end Get_Command_Register;
-
          --  Send Command.
-         x86.Port_IO.Outb (Command_Register, Command_Byte);
+      x86.ATA.Write_Byte_To_Register (Bus, Command_Reg, Command_Byte);
 
       return Success;
+   exception
+      when Constraint_Error =>
+         return Unhandled_Exception;
    end Send_Command;
 
    ----------------------------------------------------------------------------
@@ -345,8 +319,6 @@ package body Cxos.ATA is
    ) return Process_Result is
       use Cxos.Time_Keeping;
 
-      --  The address of the device alt status port.
-      Alt_Status_Port : System.Address;
       --  The status value read from the device.
       Drive_Status    : x86.ATA.Device_Status_Record;
       --  The system time at the start of the function.
@@ -354,8 +326,6 @@ package body Cxos.ATA is
       --  The current system time.
       Current_Time    : Cxos.Time_Keeping.Time;
    begin
-      --  Get the port address of the alt status register.
-      Alt_Status_Port := Get_Register_Address (Bus, Alt_Status);
       --  Get the start time.
       Start_Time := Cxos.Time_Keeping.Clock;
 
@@ -366,7 +336,7 @@ package body Cxos.ATA is
          loop
             --  Read device status.
             Drive_Status := x86.ATA.Unsigned_8_To_Device_Status_Record (
-              x86.Port_IO.Inb (Alt_Status_Port));
+              x86.ATA.Read_Byte_From_Register (Bus, Alt_Status));
             if Drive_Status.BSY = False then
                return Success;
             end if;

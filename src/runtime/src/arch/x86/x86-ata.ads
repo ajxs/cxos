@@ -165,9 +165,9 @@ package x86.ATA is
    --    Writes a byte to a specific ATA register.
    ----------------------------------------------------------------------------
    procedure Write_Byte_To_Register (
-     Value    : Unsigned_8;
      Bus      : ATA_Bus;
-     Register : ATA_Register_Type
+     Register : ATA_Register_Type;
+     Value    : Unsigned_8
    );
 
    ----------------------------------------------------------------------------
@@ -177,9 +177,9 @@ package x86.ATA is
    --    Writes a word to a specific ATA register.
    ----------------------------------------------------------------------------
    procedure Write_Word_To_Register (
-     Value    : Unsigned_16;
      Bus      : ATA_Bus;
-     Register : ATA_Register_Type
+     Register : ATA_Register_Type;
+     Value    : Unsigned_16
    );
 
    ----------------------------------------------------------------------------

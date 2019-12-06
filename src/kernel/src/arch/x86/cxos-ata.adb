@@ -82,14 +82,6 @@ package body Cxos.ATA is
      Bus       :     x86.ATA.ATA_Bus;
      Position  :     x86.ATA.ATA_Device_Position
    ) return Process_Result is
-      --  The ATA device ports used in the device identification process.
-      Sector_Count_Port  : System.Address;
-      Sector_Number_Port : System.Address;
-      Cylinder_High_Port : System.Address;
-      Cylinder_Low_Port  : System.Address;
-      Alt_Status_Port    : System.Address;
-      Data_Port          : System.Address;
-
       --  The raw status value read from the device.
       Status_Read_Value   : Unsigned_8;
       --  The device cylinder high value, used to find device type/status.
@@ -102,24 +94,13 @@ package body Cxos.ATA is
       --  Buffer to read the device identification info into.
       Identification_Buffer : Device_Identification_Buffer;
    begin
-      --  Get the device port addresses used.
-      Get_Port_Addresses :
-         begin
-            Sector_Count_Port  := Get_Register_Address (Bus, Sector_Count);
-            Sector_Number_Port := Get_Register_Address (Bus, Sector_Number);
-            Cylinder_Low_Port  := Get_Register_Address (Bus, Cylinder_Low);
-            Cylinder_High_Port := Get_Register_Address (Bus, Cylinder_High);
-            Alt_Status_Port    := Get_Register_Address (Bus, Alt_Status);
-            Data_Port          := Get_Register_Address (Bus, Data_Reg);
-         end Get_Port_Addresses;
-
       Send_Identify_Command :
          begin
             --  Reset these to 0 as per the ATA spec.
-            x86.Port_IO.Outw (Sector_Count_Port, 0);
-            x86.Port_IO.Outw (Sector_Number_Port, 0);
-            x86.Port_IO.Outw (Cylinder_High_Port, 0);
-            x86.Port_IO.Outw (Cylinder_Low_Port, 0);
+            x86.ATA.Write_Word_To_Register (0, Bus, Sector_Count);
+            x86.ATA.Write_Word_To_Register (0, Bus, Sector_Number);
+            x86.ATA.Write_Word_To_Register (0, Bus, Cylinder_High);
+            x86.ATA.Write_Word_To_Register (0, Bus, Cylinder_Low);
 
             --  Select the master/slave device.
             Result := Select_Device_Position (Bus, Position);
@@ -134,13 +115,16 @@ package body Cxos.ATA is
             end if;
 
             --  Read the device status.
-            Status_Read_Value := x86.Port_IO.Inb (Alt_Status_Port);
+            Status_Read_Value := x86.ATA.
+              Read_Byte_From_Register (Bus, Alt_Status);
             if Status_Read_Value = 0 then
                return Device_Not_Present;
             end if;
 
-            Cylinder_High_Value := x86.Port_IO.Inw (Cylinder_High_Port);
-            Cylinder_Low_Value  := x86.Port_IO.Inw (Cylinder_Low_Port);
+            Cylinder_High_Value :=  x86.ATA.
+              Read_Word_From_Register (Bus, Cylinder_High);
+            Cylinder_Low_Value  :=  x86.ATA.
+              Read_Word_From_Register (Bus, Cylinder_Low);
 
             if (Cylinder_High_Value /= 0) or (Cylinder_Low_Value /= 0) then
                return Device_Non_ATA;
@@ -157,7 +141,8 @@ package body Cxos.ATA is
       Read_Identification :
          begin
             for I in Integer range 0 .. 255 loop
-               Identification_Buffer (I) := x86.Port_IO.Inw (Data_Port);
+               Identification_Buffer (I) := x86.ATA.
+                 Read_Word_From_Register (Bus, Data_Reg);
             end loop;
 
             --  Convert the raw buffer to the identification record.
@@ -277,34 +262,18 @@ package body Cxos.ATA is
      Bus      : x86.ATA.ATA_Bus;
      Position : x86.ATA.ATA_Device_Position
    ) return Process_Result is
-      --  The address of the Device Select port.
-      Device_Select_Port : System.Address;
    begin
-      --  Get the Device Select Port for this device.
-      Get_Device_Select_Port :
-         begin
-            Device_Select_Port := x86.ATA.Get_Register_Address (Bus,
-              Drive_Head);
-         exception
-            when Constraint_Error =>
-               return Unhandled_Exception;
-         end Get_Device_Select_Port;
-
-      --  Sends the signal to select the specified device position.
-      Send_Device_Select_Signal :
-         begin
-            case Position is
-               when Master =>
-                  x86.Port_IO.Outb (Device_Select_Port, 16#A0#);
-               when Slave  =>
-                  x86.Port_IO.Outb (Device_Select_Port, 16#B0#);
-            end case;
-         exception
-            when Constraint_Error =>
-               return Unhandled_Exception;
-         end Send_Device_Select_Signal;
+      case Position is
+         when Master =>
+            x86.ATA.Write_Byte_To_Register (16#A0#, Bus, Drive_Head);
+         when Slave  =>
+            x86.ATA.Write_Byte_To_Register (16#B0#, Bus, Drive_Head);
+      end case;
 
       return Success;
+   exception
+      when Constraint_Error =>
+         return Unhandled_Exception;
    end Select_Device_Position;
 
    ----------------------------------------------------------------------------

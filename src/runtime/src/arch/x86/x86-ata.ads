@@ -135,6 +135,54 @@ package x86.ATA is
    );
 
    ----------------------------------------------------------------------------
+   --  Read_Byte_From_Register
+   --
+   --  Purpose:
+   --    Reads a byte from a specific ATA register.
+   ----------------------------------------------------------------------------
+   function Read_Byte_From_Register (
+     Bus      : ATA_Bus;
+     Register : ATA_Register_Type
+   ) return Unsigned_8
+   with Volatile_Function;
+
+   ----------------------------------------------------------------------------
+   --  Read_Word_From_Register
+   --
+   --  Purpose:
+   --    Reads a word from a specific ATA register.
+   ----------------------------------------------------------------------------
+   function Read_Word_From_Register (
+     Bus      : ATA_Bus;
+     Register : ATA_Register_Type
+   ) return Unsigned_16
+   with Volatile_Function;
+
+   ----------------------------------------------------------------------------
+   --  Write_Byte_To_Regsiter
+   --
+   --  Purpose:
+   --    Writes a byte to a specific ATA register.
+   ----------------------------------------------------------------------------
+   procedure Write_Byte_To_Register (
+     Value    : Unsigned_8;
+     Bus      : ATA_Bus;
+     Register : ATA_Register_Type
+   );
+
+   ----------------------------------------------------------------------------
+   --  Write_Word_To_Register
+   --
+   --  Purpose:
+   --    Writes a word to a specific ATA register.
+   ----------------------------------------------------------------------------
+   procedure Write_Word_To_Register (
+     Value    : Unsigned_16;
+     Bus      : ATA_Bus;
+     Register : ATA_Register_Type
+   );
+
+   ----------------------------------------------------------------------------
    --  Get_Register_Address
    --
    --  Purpose:

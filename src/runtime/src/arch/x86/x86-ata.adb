@@ -10,6 +10,7 @@
 -------------------------------------------------------------------------------
 
 with System.Storage_Elements;
+with x86.Port_IO;
 
 package body x86.ATA is
    use System.Storage_Elements;
@@ -90,5 +91,75 @@ package body x86.ATA is
       when Constraint_Error =>
          return System.Null_Address;
    end Get_Register_Address;
+
+   ----------------------------------------------------------------------------
+   --  Read_Byte_From_Register
+   ----------------------------------------------------------------------------
+   function Read_Byte_From_Register (
+     Bus      : ATA_Bus;
+     Register : ATA_Register_Type
+   ) return Unsigned_8 is
+      Register_Port : System.Address;
+   begin
+      Register_Port := Get_Register_Address (Bus, Register);
+
+      return x86.Port_IO.Inb (Register_Port);
+   exception
+      when Constraint_Error =>
+         return 0;
+   end Read_Byte_From_Register;
+
+   ----------------------------------------------------------------------------
+   --  Read_Word_From_Register
+   ----------------------------------------------------------------------------
+   function Read_Word_From_Register (
+     Bus      : ATA_Bus;
+     Register : ATA_Register_Type
+   ) return Unsigned_16 is
+      Register_Port : System.Address;
+   begin
+      Register_Port := Get_Register_Address (Bus, Register);
+
+      return x86.Port_IO.Inw (Register_Port);
+   exception
+      when Constraint_Error =>
+         return 0;
+   end Read_Word_From_Register;
+
+   ----------------------------------------------------------------------------
+   --  Write_Byte_To_Register
+   ----------------------------------------------------------------------------
+   procedure Write_Byte_To_Register (
+     Value    : Unsigned_8;
+     Bus      : ATA_Bus;
+     Register : ATA_Register_Type
+   ) is
+      Register_Port : System.Address;
+   begin
+      Register_Port := Get_Register_Address (Bus, Register);
+
+      x86.Port_IO.Outb (Register_Port, Value);
+   exception
+      when Constraint_Error =>
+         return;
+   end Write_Byte_To_Register;
+
+   ----------------------------------------------------------------------------
+   --  Write_Word_To_Register
+   ----------------------------------------------------------------------------
+   procedure Write_Word_To_Register (
+     Value    : Unsigned_16;
+     Bus      : ATA_Bus;
+     Register : ATA_Register_Type
+   ) is
+      Register_Port : System.Address;
+   begin
+      Register_Port := Get_Register_Address (Bus, Register);
+
+      x86.Port_IO.Outw (Register_Port, Value);
+   exception
+      when Constraint_Error =>
+         return;
+   end Write_Word_To_Register;
 
 end x86.ATA;

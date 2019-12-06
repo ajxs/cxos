@@ -243,11 +243,19 @@ package body Cxos.ATA is
 
    ----------------------------------------------------------------------------
    --  Select_Device_Position
+   --
+   --  Implementation Notes:
+   --    - Introduces an articial 1ms delay after selecting the device to
+   --      ensure that the correct device is selected.
    ----------------------------------------------------------------------------
    function Select_Device_Position (
      Bus      : x86.ATA.ATA_Bus;
      Position : x86.ATA.ATA_Device_Position
    ) return Process_Result is
+      use Cxos.Time_Keeping;
+
+      --  The system time at the start of the timeout.
+      Start_Time : Cxos.Time_Keeping.Time;
    begin
       case Position is
          when Master =>
@@ -255,6 +263,15 @@ package body Cxos.ATA is
          when Slave  =>
             x86.ATA.Write_Byte_To_Register (Bus, Drive_Head, 16#B0#);
       end case;
+
+      --  Delay 400ns post drive selection, as per spec.
+      Drive_Select_Delay :
+         begin
+            Start_Time := Cxos.Time_Keeping.Clock;
+            while (Cxos.Time_Keeping.Clock - Start_Time) < 1 loop
+               null;
+            end loop;
+         end Drive_Select_Delay;
 
       return Success;
    exception

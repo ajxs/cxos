@@ -9,9 +9,6 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Interfaces;
-with System;
-
 -------------------------------------------------------------------------------
 --  CXOS.VFS
 --
@@ -21,8 +18,6 @@ with System;
 -------------------------------------------------------------------------------
 package Cxos.VFS is
    pragma Preelaborate;
-
-   use Interfaces;
 
    ----------------------------------------------------------------------------
    --  Process Result type.
@@ -43,17 +38,4 @@ package Cxos.VFS is
    ----------------------------------------------------------------------------
    function Initialise return Process_Result;
 
-private
-   ----------------------------------------------------------------------------
-   --  Parse_Multiboot_Drive_Map
-   --
-   --  Purpose:
-   --    This function parses the Multiboot information structure's drive map.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   function Parse_Multiboot_Drive_Map (
-     Drive_Map_Addr   : System.Address;
-     Drive_Map_Length : Unsigned_32
-   ) return Process_Result;
 end Cxos.VFS;

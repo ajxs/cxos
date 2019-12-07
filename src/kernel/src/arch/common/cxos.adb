@@ -11,15 +11,21 @@
 
 with Cxos.Interrupts;
 with Cxos.Memory;
+with Cxos.Memory.Map;
 with Cxos.ATA;
+with Cxos.Multiboot_Init;
 with Cxos.PCI;
 with Cxos.PIT;
 with Cxos.Serial;
 with Cxos.Time_Keeping;
 with Cxos.VFS;
+with Interfaces;
+with Multiboot;
 with System.Machine_Code;
 
 package body Cxos is
+   use Interfaces;
+
    ----------------------------------------------------------------------------
    --  Initialise
    ----------------------------------------------------------------------------
@@ -52,6 +58,65 @@ package body Cxos is
             Cxos.PIT.Initialise;
          end Initialise_Timers;
 
+      --  Initialise the kernel memory map.
+      Init_Memory_Map :
+         begin
+            --  Initialise the system memory map.
+            Cxos.Serial.Put_String ("Initialising Memory Map" & ASCII.LF);
+            Cxos.Memory.Map.Initialise;
+            Cxos.Serial.Put_String (
+              "Finished initialising Memory Map" & ASCII.LF);
+         end Init_Memory_Map;
+
+      --  Read the multiboot info structures.
+      --  If these are present, additional kernel init procedures will
+      --  be run, such as marking memory according to the multiboot
+      --  memory map.
+      Read_Multiboot_Info :
+         declare
+            use Cxos.Multiboot_Init;
+            use Multiboot;
+
+            --  The Multiboot magic number.
+            Magic_Number : Multiboot_Magic_Number
+            with Import,
+              Convention    => Assembler,
+              External_Name => "multiboot_magic";
+
+            --  The result of the initialisation process.
+            Init_Result : Cxos.Multiboot_Init.Process_Result;
+         begin
+            if Magic_Number = VALID_MAGIC_NUMBER then
+               Cxos.Serial.Put_String (
+                 "Multiboot info present" & ASCII.LF &
+                 "Parsing Multiboot info" & ASCII.LF);
+
+               Init_Result := Cxos.Multiboot_Init.Parse_Multiboot_Info;
+               if Init_Result /= Success then
+                  return Failure;
+               end if;
+
+               Cxos.Serial.Put_String (
+                 "Finished parsing multiboot info" & ASCII.LF);
+            end if;
+         end Read_Multiboot_Info;
+
+      --  Initialise System Memory.
+      Initialise_Memory :
+         declare
+            use Cxos.Memory;
+
+            --  The result of the internal initialisation process.
+            Init_Result : Cxos.Memory.Process_Result;
+         begin
+            Init_Result := Cxos.Memory.Initialise;
+            if Init_Result /= Success then
+               Cxos.Serial.Put_String (
+                 "Error initialising memory" & ASCII.LF);
+               return Failure;
+            end if;
+         end Initialise_Memory;
+
       --  Initialise the file system.
       Initialise_Filesystem :
          declare
@@ -66,20 +131,6 @@ package body Cxos is
             end if;
          end Initialise_Filesystem;
 
-      --  Initialise System Memory.
-      Initialise_Memory :
-         declare
-            use Cxos.Memory;
-
-            --  The result of the internal initialisation process.
-            Init_Result : Cxos.Memory.Process_Result;
-         begin
-            Init_Result := Cxos.Memory.Initialise;
-            if Init_Result /= Success then
-               return Failure;
-            end if;
-         end Initialise_Memory;
-
       Initialise_Devices :
          declare
             use Cxos.PCI;
@@ -91,9 +142,10 @@ package body Cxos is
             if Pci_Init_Result /= Success then
                return Failure;
             end if;
-         end Initialise_Devices;
 
-      Cxos.ATA.Initialise;
+            Cxos.ATA.Initialise;
+
+         end Initialise_Devices;
 
       return Success;
    exception

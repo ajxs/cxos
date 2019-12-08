@@ -53,6 +53,8 @@ package body Cxos is
          begin
             Cxos.Serial.Put_String ("Initialising system timer" & ASCII.LF);
             Cxos.Time_Keeping.Initialise;
+            Cxos.Serial.Put_String (
+              "Finished initialising system timer" & ASCII.LF);
 
             Cxos.Serial.Put_String ("Initialising PIT" & ASCII.LF);
             Cxos.PIT.Initialise;

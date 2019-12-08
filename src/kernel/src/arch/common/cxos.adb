@@ -12,7 +12,6 @@
 with Cxos.Interrupts;
 with Cxos.Memory;
 with Cxos.Memory.Map;
-with Cxos.ATA;
 with Cxos.Multiboot_Init;
 with Cxos.PCI;
 with Cxos.PIT;
@@ -144,9 +143,6 @@ package body Cxos is
             if Pci_Init_Result /= Success then
                return Failure;
             end if;
-
-            Cxos.ATA.Initialise;
-
          end Initialise_Devices;
 
       return Success;

@@ -9,12 +9,9 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with System.Storage_Elements;
 with Cxos.Memory.Map;
 
 package body Cxos.Memory.Paging is
-   use System.Storage_Elements;
-
    ----------------------------------------------------------------------------
    --  Allocate_Page_Frame
    ----------------------------------------------------------------------------

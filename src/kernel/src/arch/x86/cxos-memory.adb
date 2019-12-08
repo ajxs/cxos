@@ -65,6 +65,91 @@ package body Cxos.Memory is
    end Clear_Boot_Page_Structures;
 
    ----------------------------------------------------------------------------
+   --  Create_Page_Directory
+   ----------------------------------------------------------------------------
+   function Create_Page_Directory (
+     Page_Directory_Addr : out System.Address
+   ) return Process_Result is
+      use System.Storage_Elements;
+      use x86.Memory.Paging;
+   begin
+      --  Allocate all required structures.
+      Allocate_Frames :
+         declare
+            --  The result of the frame allocation operation.
+            Allocate_Result : Process_Result;
+         begin
+            --  Allocate the Kernel page directory frame.
+            --  This populates the Kernel page directory address with the
+            --  address of the newly allocated frame.
+            Allocate_Result := Cxos.Memory.Map.
+              Allocate_Frame (Page_Directory_Addr);
+            if Allocate_Result /= Success then
+               return Unhandled_Exception;
+            end if;
+         exception
+            when Constraint_Error =>
+               return Unhandled_Exception;
+         end Allocate_Frames;
+
+      Initialise_Structures :
+         declare
+            --  The currently loaded page directory.
+            --  The last page directory entry has been used to recursively map
+            --  the directory, so this constant address is used here.
+            Current_Page_Directory : Page_Directory
+            with Import,
+              Convention => Ada,
+              Address    => To_Address (
+                Cxos.Memory.Paging.PAGE_DIR_RECURSIVE_MAP_ADDR);
+
+            --  The first kernel page directory in the currently loaded
+            --  virtual address space.
+            Kernel_Page_Table      : Page_Table
+            with Import,
+              Convention => Ada,
+              Address    => Convert_To_System_Address
+                (Current_Page_Directory (768).Table_Address);
+
+            --  The newly allocated Page Directory.
+            --  This will be mapped to the second last entry in the currently
+            --  loaded kernel page table, mapping to 16#CO3F_F000#.
+            New_Page_Directory : Page_Directory
+            with Import,
+              Convention => Ada,
+              Address    => To_Address (16#C03F_F000#);
+
+            --  The result of initialising the newly allocated page directory.
+            Init_Result : x86.Memory.Paging.Process_Result;
+         begin
+            --  Temporarily map the kernel page dir to 0xC03FF000.
+            Kernel_Page_Table (1023).Page_Address :=
+              Convert_To_Page_Aligned_Address (Page_Directory_Addr);
+            Kernel_Page_Table (1023).Present    := True;
+            Kernel_Page_Table (1023).Read_Write := True;
+
+            --  Flush the TLB to load the new mapping.
+            Flush_Tlb;
+
+            Init_Result := Initialise_Page_Directory (New_Page_Directory);
+            if Init_Result /= Success then
+               return Unhandled_Exception;
+            end if;
+
+            --  Recursively map the page directory last entry.
+            New_Page_Directory (1023).Present := True;
+            New_Page_Directory (1023).Table_Address :=
+              Convert_To_Page_Aligned_Address (Page_Directory_Addr);
+
+         end Initialise_Structures;
+
+      return Success;
+   exception
+      when Constraint_Error =>
+         return Unhandled_Exception;
+   end Create_Page_Directory;
+
+   ----------------------------------------------------------------------------
    --  Initialise
    ----------------------------------------------------------------------------
    function Initialise return Process_Result is

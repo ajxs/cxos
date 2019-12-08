@@ -1,4 +1,4 @@
--------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 --  Copyright (c) 2019, CXOS.
 --  This program is free software; you can redistribute it and/or modify it
 --  under the terms of the GNU General Public License as published by the
@@ -51,6 +51,16 @@ package Cxos.Memory is
    --    None.
    ----------------------------------------------------------------------------
    function Initialise return Process_Result;
+
+   ----------------------------------------------------------------------------
+   --  Create_Page_Directory
+   --
+   --  Creates and initialises a new page directory, setting the address of
+   --  the newly allocated page directory.
+   ----------------------------------------------------------------------------
+   function Create_Page_Directory (
+     Page_Directory_Addr : out System.Address
+   ) return Process_Result;
 
 private
    ----------------------------------------------------------------------------

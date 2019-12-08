@@ -10,6 +10,7 @@
 -------------------------------------------------------------------------------
 
 with System;
+with System.Storage_Elements; use System.Storage_Elements;
 with x86.Memory.Paging;
 
 -------------------------------------------------------------------------------
@@ -20,6 +21,13 @@ with x86.Memory.Paging;
 -------------------------------------------------------------------------------
 package Cxos.Memory.Paging is
    pragma Preelaborate;
+
+   ----------------------------------------------------------------------------
+   --  Recursive Page Directory Address
+   --  The address at which the currently loaded page dir is recursively
+   --  mapped to itself.
+   ----------------------------------------------------------------------------
+   PAGE_DIR_RECURSIVE_MAP_ADDR : constant Integer_Address := 16#FFFF_F000#;
 
    ----------------------------------------------------------------------------
    --  Map_Page_Frame

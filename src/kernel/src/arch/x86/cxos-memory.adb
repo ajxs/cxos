@@ -94,22 +94,15 @@ package body Cxos.Memory is
 
       Initialise_Structures :
          declare
+            use Cxos.Memory.Paging;
+
             --  The currently loaded page directory.
             --  The last page directory entry has been used to recursively map
             --  the directory, so this constant address is used here.
             Current_Page_Directory : Page_Directory
             with Import,
               Convention => Ada,
-              Address    => To_Address (
-                Cxos.Memory.Paging.PAGE_DIR_RECURSIVE_MAP_ADDR);
-
-            --  The first kernel page directory in the currently loaded
-            --  virtual address space.
-            Kernel_Page_Table      : Page_Table
-            with Import,
-              Convention => Ada,
-              Address    => Convert_To_System_Address
-                (Current_Page_Directory (768).Table_Address);
+              Address    => To_Address (PAGE_DIR_RECURSIVE_MAP_ADDR);
 
             --  The newly allocated Page Directory.
             --  This will be mapped to the second last entry in the currently
@@ -117,16 +110,17 @@ package body Cxos.Memory is
             New_Page_Directory : Page_Directory
             with Import,
               Convention => Ada,
-              Address    => To_Address (16#C03F_F000#);
+              Address    => To_Address (ALT_PAGE_TABLE_MAP_ADDR);
 
             --  The result of initialising the newly allocated page directory.
             Init_Result : x86.Memory.Paging.Process_Result;
          begin
-            --  Temporarily map the kernel page dir to 0xC03FF000.
-            Kernel_Page_Table (1023).Page_Address :=
+            --  Temporarily map the new page directory into the current
+            --  address space.
+            Current_Page_Directory (ALT_PAGE_DIR_IDX).Table_Address :=
               Convert_To_Page_Aligned_Address (Page_Directory_Addr);
-            Kernel_Page_Table (1023).Present    := True;
-            Kernel_Page_Table (1023).Read_Write := True;
+            Current_Page_Directory (ALT_PAGE_DIR_IDX).Present    := True;
+            Current_Page_Directory (ALT_PAGE_DIR_IDX).Read_Write := True;
 
             --  Flush the TLB to load the new mapping.
             Flush_Tlb;
@@ -137,8 +131,8 @@ package body Cxos.Memory is
             end if;
 
             --  Recursively map the page directory last entry.
-            New_Page_Directory (1023).Present := True;
-            New_Page_Directory (1023).Table_Address :=
+            New_Page_Directory (PAGE_DIR_RECURSIVE_IDX).Present := True;
+            New_Page_Directory (PAGE_DIR_RECURSIVE_IDX).Table_Address :=
               Convert_To_Page_Aligned_Address (Page_Directory_Addr);
 
          end Initialise_Structures;

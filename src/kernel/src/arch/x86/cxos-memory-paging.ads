@@ -23,11 +23,44 @@ package Cxos.Memory.Paging is
    pragma Preelaborate;
 
    ----------------------------------------------------------------------------
+   --  The index into the page directory used for recursively mapping
+   --  a page directory to itself.
+   ----------------------------------------------------------------------------
+   PAGE_DIR_RECURSIVE_IDX : constant Natural := 1023;
+
+   ----------------------------------------------------------------------------
    --  Recursive Page Directory Address
    --  The address at which the currently loaded page dir is recursively
    --  mapped to itself.
    ----------------------------------------------------------------------------
    PAGE_DIR_RECURSIVE_MAP_ADDR : constant Integer_Address := 16#FFFF_F000#;
+
+   ----------------------------------------------------------------------------
+   --  Recursive Page Tables Address
+   --  The address at which the currently loaded page tables are recursively
+   --  mapped into the current address space.
+   ----------------------------------------------------------------------------
+   PAGE_TABLE_RECURSIVE_MAP_ADDR : constant Integer_Address := 16#FFFC_0000#;
+
+   ----------------------------------------------------------------------------
+   --  The index into the page directory used for mapping another page
+   --  directory into the current address space.
+   ----------------------------------------------------------------------------
+   ALT_PAGE_DIR_IDX : constant Natural := 1022;
+
+   ----------------------------------------------------------------------------
+   --  Recursive Alt Page Directory Address
+   --  The address at which a secondary page dir can be mapped into the
+   --  current address space.
+   ----------------------------------------------------------------------------
+   ALT_PAGE_DIR_MAP_ADDR : constant Integer_Address := 16#FFFF_E000#;
+
+   ----------------------------------------------------------------------------
+   --  Recursive Alt Page Tables Address
+   --  The address at which a secondary address space's tables can be  mapped
+   --  into the current address space.
+   ----------------------------------------------------------------------------
+   ALT_PAGE_TABLE_MAP_ADDR : constant Integer_Address := 16#FFF8_0000#;
 
    ----------------------------------------------------------------------------
    --  Map_Page_Frame

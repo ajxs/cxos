@@ -80,22 +80,6 @@ package Cxos.Memory.Paging is
    with Volatile_Function;
 
    ----------------------------------------------------------------------------
-   --  Enable_Paging
-   --
-   --  Purpose:
-   --    This procedure enables paging on the processor and loads the initial
-   --    kernel page directory address into the processor's control registers.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   procedure Load_Page_Directory (
-      Directory_Ptr : System.Address
-   )
-   with Import,
-     Convention    => Assembler,
-     External_Name => "__load_page_directory";
-
-   ----------------------------------------------------------------------------
    --  Allocate_Page_Frame
    --
    --  Purpose:

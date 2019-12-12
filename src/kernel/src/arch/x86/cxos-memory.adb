@@ -195,7 +195,7 @@ package body Cxos.Memory is
 
             Cxos.Serial.Put_String ("Loading kernel page directory"
               & ASCII.LF);
-            Cxos.Memory.Paging.Load_Page_Directory (
+            x86.Memory.Paging.Load_Page_Directory (
               Kernel_Page_Directory_Addr);
             Cxos.Serial.Put_String ("Kernel page directory loaded" & ASCII.LF);
 

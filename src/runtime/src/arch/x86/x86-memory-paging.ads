@@ -243,4 +243,21 @@ package x86.Memory.Paging is
      Table : in out Page_Table
    ) return Process_Result;
 
+   ----------------------------------------------------------------------------
+   --  Load_Page_Directory
+   --
+   --  Purpose:
+   --    This procedure loads the specified address into the processor's
+   --    CR3 register, loading this page directory as the new virtual
+   --    address space.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   procedure Load_Page_Directory (
+      Directory_Ptr : System.Address
+   )
+   with Import,
+     Convention    => Assembler,
+     External_Name => "__load_page_directory";
+
 end x86.Memory.Paging;

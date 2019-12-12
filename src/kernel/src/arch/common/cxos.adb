@@ -17,7 +17,6 @@ with Cxos.PCI;
 with Cxos.PIT;
 with Cxos.Serial;
 with Cxos.Time_Keeping;
-with Cxos.VFS;
 with Interfaces;
 with Multiboot;
 with System.Machine_Code;
@@ -117,20 +116,6 @@ package body Cxos is
                return Failure;
             end if;
          end Initialise_Memory;
-
-      --  Initialise the file system.
-      Initialise_Filesystem :
-         declare
-            use Cxos.VFS;
-
-            --  The result of initialising the virtual file system.
-            Vfs_Init_Result : Cxos.VFS.Process_Result;
-         begin
-            Vfs_Init_Result := Cxos.VFS.Initialise;
-            if Vfs_Init_Result /= Success then
-               return Failure;
-            end if;
-         end Initialise_Filesystem;
 
       Initialise_Devices :
          declare

@@ -9,8 +9,6 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with System;
-
 -------------------------------------------------------------------------------
 --  CXOS.MEMORY
 --
@@ -52,23 +50,7 @@ package Cxos.Memory is
    ----------------------------------------------------------------------------
    function Initialise return Process_Result;
 
-   ----------------------------------------------------------------------------
-   --  Create_Page_Directory
-   --
-   --  Creates and initialises a new page directory, setting the address of
-   --  the newly allocated page directory.
-   ----------------------------------------------------------------------------
-   function Create_Page_Directory (
-     Page_Directory_Addr : out System.Address
-   ) return Process_Result;
-
 private
-   ----------------------------------------------------------------------------
-   --  Kernel Page Directory Address.
-   --  This contains the physical address of the kernel page directory.
-   ----------------------------------------------------------------------------
-   Kernel_Page_Directory_Addr : System.Address;
-
    ----------------------------------------------------------------------------
    --  Clear_Boot_Page_Structures
    --
@@ -79,39 +61,6 @@ private
    --    None.
    ----------------------------------------------------------------------------
    function Clear_Boot_Page_Structures return Process_Result;
-
-   ----------------------------------------------------------------------------
-   --  Initialise_Kernel_Page_Directory
-   --
-   --  Purpose:
-   --    This function initialises the kernel's main page directory.
-   --    This populates the package-visible 'Kernel_Page_Directory_Addr'
-   --    variable.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   function Initialise_Kernel_Page_Directory return Process_Result;
-
-   ----------------------------------------------------------------------------
-   --  Map_Vga_Memory
-   --
-   --  Purpose:
-   --    Maps VGA memory to a usable virtual memory address.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   function Map_Vga_Memory return Process_Result;
-
-   ----------------------------------------------------------------------------
-   --  Mark_Low_Memory
-   --
-   --  Purpose:
-   --    This procedure marks all memory below 1M as being non-free in the
-   --    kernel memory map.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   function Mark_Low_Memory return Process_Result;
 
    ----------------------------------------------------------------------------
    --  Mark_Kernel_Memory

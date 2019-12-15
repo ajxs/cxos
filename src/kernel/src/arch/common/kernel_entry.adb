@@ -11,8 +11,6 @@
 
 with Cxos;
 with Cxos.Serial;
-with Interfaces;
-with Multiboot;
 
 -------------------------------------------------------------------------------
 --  Kernel_Entry
@@ -26,27 +24,10 @@ with Multiboot;
 -------------------------------------------------------------------------------
 procedure Kernel_Entry is
    use Cxos;
-   use Interfaces;
-   use Multiboot;
-
-   --  The Multiboot magic number. This is setup during boot.
-   Magic_Number : Multiboot_Magic_Number
-   with Import,
-     Convention    => Assembler,
-     External_Name => "multiboot_magic";
 
    --  The process result of initialising the kernel.
    Init_Result  : Cxos.Kernel_Init_Process_Result := Failure;
 begin
-   --  Check whether we were booted by a Multiboot compatible bootloader.
-   if Magic_Number = VALID_MAGIC_NUMBER then
-      Cxos.Serial.Put_String (
-        "Detected valid Multiboot magic number" & ASCII.LF);
-   else
-      Cxos.Serial.Put_String (
-        "Unable to detect valid Multiboot magic number" & ASCII.LF);
-   end if;
-
    Init_Result := Cxos.Initialise_Kernel;
    if Init_Result /= Success then
       Cxos.Serial.Put_String ("Kernel initialisation failed" & ASCII.LF);

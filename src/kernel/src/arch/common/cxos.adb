@@ -86,9 +86,11 @@ package body Cxos is
             --  The result of the initialisation process.
             Init_Result : Cxos.Multiboot_Init.Process_Result;
          begin
+            --  Check whether we were booted by a Multiboot compatible
+            --  bootloader.
             if Magic_Number = VALID_MAGIC_NUMBER then
                Cxos.Serial.Put_String (
-                 "Multiboot info present" & ASCII.LF &
+                 "Detected valid Multiboot magic number" & ASCII.LF &
                  "Parsing Multiboot info" & ASCII.LF);
 
                Init_Result := Cxos.Multiboot_Init.Parse_Multiboot_Info;
@@ -98,6 +100,9 @@ package body Cxos is
 
                Cxos.Serial.Put_String (
                  "Finished parsing multiboot info" & ASCII.LF);
+            else
+               Cxos.Serial.Put_String (
+                 "Unable to detect valid Multiboot magic number" & ASCII.LF);
             end if;
          end Read_Multiboot_Info;
 

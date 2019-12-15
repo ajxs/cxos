@@ -10,9 +10,9 @@
 -------------------------------------------------------------------------------
 
 with Cxos.Serial;
-with Interfaces;
-with System.Storage_Elements;
 with Cxos.Memory.Map;
+with Interfaces;
+with System.Storage_Elements; use System.Storage_Elements;
 
 package body Cxos.Memory is
    use Interfaces;
@@ -61,6 +61,21 @@ package body Cxos.Memory is
       when Constraint_Error =>
          return Unhandled_Exception;
    end Clear_Boot_Page_Structures;
+
+   ----------------------------------------------------------------------------
+   --  Create_Process_Address_Space
+   --
+   --  Purpose:
+   --    Creates a new virtual address space for a new process.
+   ----------------------------------------------------------------------------
+   function Create_Process_Address_Space (
+     Page_Directory_Addr : out System.Address
+   ) return Process_Result is
+   begin
+      Page_Directory_Addr := To_Address (0);
+
+      return Success;
+   end Create_Process_Address_Space;
 
    ----------------------------------------------------------------------------
    --  Initialise
@@ -115,7 +130,6 @@ package body Cxos.Memory is
    --    - Marks the kernel's physical memory as being used.
    ----------------------------------------------------------------------------
    function Mark_Kernel_Memory return Process_Result is
-      use System.Storage_Elements;
       use Cxos.Memory.Map;
 
       --  The length of the kernel code segment in bytes.

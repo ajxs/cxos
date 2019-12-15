@@ -9,6 +9,8 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
+with System;
+
 -------------------------------------------------------------------------------
 --  CXOS.MEMORY
 --
@@ -49,6 +51,16 @@ package Cxos.Memory is
    --    None.
    ----------------------------------------------------------------------------
    function Initialise return Process_Result;
+
+   ----------------------------------------------------------------------------
+   --  Create_Process_Address_Space
+   --
+   --  Purpose:
+   --    Creates a new virtual address space for a new process.
+   ----------------------------------------------------------------------------
+   function Create_Process_Address_Space (
+     Page_Directory_Addr : out System.Address
+   ) return Process_Result;
 
 private
    ----------------------------------------------------------------------------

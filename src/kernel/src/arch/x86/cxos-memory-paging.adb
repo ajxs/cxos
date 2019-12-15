@@ -9,7 +9,6 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Cxos.Memory.Map;
 with System.Storage_Elements; use System.Storage_Elements;
 
 package body Cxos.Memory.Paging is
@@ -21,7 +20,7 @@ package body Cxos.Memory.Paging is
    --    of the newly allocated directory in the provided parameter.
    ----------------------------------------------------------------------------
    function Create_New_Page_Directory (
-     Page_Directory_Addr : out System.Address;
+     Page_Directory_Addr : out System.Address
    ) return Process_Result is
    begin
       Page_Directory_Addr := To_Address (0);

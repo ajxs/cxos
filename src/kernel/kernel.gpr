@@ -36,10 +36,10 @@ project Kernel is
      "Asm_Cpp"
    );
 
-   for Main use ("kernel_entry.adb");
+   for Main use ("cxos-boot.S");
 
    package Builder is
-      for Executable ("kernel_entry.adb") use "cxos";
+      for Executable ("cxos-boot.S") use "cxos";
       for Executable_Suffix use ".elf";
       for Global_Configuration_Pragmas use "kernel.adc";
       for Global_Compilation_Switches ("Others") use (

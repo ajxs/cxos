@@ -52,11 +52,10 @@ private
 
    Current_Process : Natural;
 
-   System_Processes : Process_Control_Block_Array
+   System_Processes : Process_Control_Block_Array;
 
    ----------------------------------------------------------------------------
    ----------------------------------------------------------------------------
    procedure Idle;
 
 end Cxos.Process;
-

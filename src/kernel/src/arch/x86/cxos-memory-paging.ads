@@ -10,8 +10,6 @@
 -------------------------------------------------------------------------------
 
 with System;
-with System.Storage_Elements; use System.Storage_Elements;
-with x86.Memory.Paging;
 
 -------------------------------------------------------------------------------
 --  CXOS.MEMORY.PAGING
@@ -30,6 +28,6 @@ package Cxos.Memory.Paging is
    --    of the newly allocated directory in the provided parameter.
    ----------------------------------------------------------------------------
    function Create_New_Page_Directory (
-     Page_Directory_Addr : out System.Address;
+     Page_Directory_Addr : out System.Address
    ) return Process_Result;
 end Cxos.Memory.Paging;

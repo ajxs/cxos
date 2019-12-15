@@ -9,36 +9,23 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Cxos.Memory;
 with Cxos.Serial;
 with Cxos.Time_Keeping;
-with System.Machine_Code;
 
 package body Cxos.Process is
    ----------------------------------------------------------------------------
    --  Create_Task
    ----------------------------------------------------------------------------
    function Create_Process return Process_Result is
-      Task_Directory_Addr : System.Address;
    begin
       Allocate_Paging_Structures :
-         declare
-            use Cxos.Memory;
-
-            Allocate_Result : Cxos.Memory.Process_Result;
          begin
-            Allocate_Result := Cxos.Memory.
-              Create_Page_Directory (Task_Directory_Addr);
-            if Allocate_Result /= Success then
-               return Unhandled_Exception;
-            end if;
-         exception
-            when Constraint_Error =>
-               return Unhandled_Exception;
+            null;
          end Allocate_Paging_Structures;
 
       Map_Kernel :
          begin
+            null;
          end Map_Kernel;
 
       return Success;
@@ -63,20 +50,13 @@ package body Cxos.Process is
                end if;
             end loop Wait_Loop;
       end loop;
-
-   exception
-      when Constraint_Error =>
-         Cxos.Serial.Put_String ("Error idling" & ASCII.LF);
-
-         return;
    end Idle;
 
    procedure Initialise is
-      New_Proc_Page_Dir_Addr : System.Address;
    begin
       Allocate_Address :
          begin
-
+            null;
          end Allocate_Address;
    end Initialise;
 end Cxos.Process;

@@ -16,16 +16,7 @@
 --    This package contains the main Kernel code.
 -------------------------------------------------------------------------------
 package Cxos is
-   pragma Preelaborate (Cxos);
-
-   ----------------------------------------------------------------------------
-   --  Process Result type.
-   --  Used to track the result of the kernel initialisation process.
-   ----------------------------------------------------------------------------
-   type Kernel_Init_Process_Result is (
-     Failure,
-     Success
-   );
+   pragma Preelaborate;
 
    ----------------------------------------------------------------------------
    --  Initialise_Kernel
@@ -35,7 +26,10 @@ package Cxos is
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   function Initialise_Kernel return Kernel_Init_Process_Result;
+   procedure Initialise_Kernel
+   with Export,
+     Convention    => Assembler,
+     External_Name => "__kernel_init";
 
    ----------------------------------------------------------------------------
    --  Main

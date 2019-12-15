@@ -185,7 +185,7 @@ _start:
 	call __system_init
 
 	# Jump to the kernel entry.
-	call _ada_kernel_entry
+	call __kernel_init
 
 	cli
 	hlt

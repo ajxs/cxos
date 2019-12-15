@@ -27,7 +27,7 @@ package body Cxos is
    ----------------------------------------------------------------------------
    --  Initialise
    ----------------------------------------------------------------------------
-   function Initialise_Kernel return Kernel_Init_Process_Result is
+   procedure Initialise_Kernel is
    begin
       --  Initialise system interrupts.
       Initialise_Interrupts :
@@ -41,7 +41,7 @@ package body Cxos is
 
             Init_Result := Cxos.Interrupts.Initialise;
             if Init_Result /= Success then
-               return Failure;
+               return;
             end if;
          end Initialise_Interrupts;
 
@@ -95,7 +95,7 @@ package body Cxos is
 
                Init_Result := Cxos.Multiboot_Init.Parse_Multiboot_Info;
                if Init_Result /= Success then
-                  return Failure;
+                  return;
                end if;
 
                Cxos.Serial.Put_String (
@@ -118,7 +118,7 @@ package body Cxos is
             if Init_Result /= Success then
                Cxos.Serial.Put_String (
                  "Error initialising memory" & ASCII.LF);
-               return Failure;
+               return;
             end if;
          end Initialise_Memory;
 
@@ -131,14 +131,15 @@ package body Cxos is
          begin
             Pci_Init_Result := Cxos.PCI.Find_Pci_Devices;
             if Pci_Init_Result /= Success then
-               return Failure;
+               return;
             end if;
          end Initialise_Devices;
 
-      return Success;
+         --  Jump to the main kernel process.
+         Main;
    exception
       when Constraint_Error =>
-         return Failure;
+         return;
    end Initialise_Kernel;
 
    ----------------------------------------------------------------------------

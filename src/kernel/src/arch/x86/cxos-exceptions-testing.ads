@@ -10,14 +10,14 @@
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
---  SYSTEM.X86.EXCEPTIONS.TESTING
+--  CXOS.EXCEPTIONS.TESTING
 --
 --  Purpose:
 --    This package contains code for testing handling of x86 processor
 --    exceptions.
 -------------------------------------------------------------------------------
-package x86.Exceptions.Testing is
-   pragma Preelaborate (x86.Exceptions.Testing);
+package Cxos.Exceptions.Testing is
+   pragma Preelaborate;
 
    ----------------------------------------------------------------------------
    --  Test_Divide_By_Zero
@@ -32,4 +32,4 @@ package x86.Exceptions.Testing is
      Convention    => Assembler,
      External_Name => "__test_div0";
 
-end x86.Exceptions.Testing;
+end Cxos.Exceptions.Testing;

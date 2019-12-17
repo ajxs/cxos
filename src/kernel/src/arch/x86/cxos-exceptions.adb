@@ -9,9 +9,10 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
+with x86.IDT;
 with x86.Serial;
 
-package body x86.Exceptions is
+package body Cxos.Exceptions is
    ----------------------------------------------------------------------------
    --  Exception_0_Internal_Handler
    ----------------------------------------------------------------------------
@@ -566,4 +567,103 @@ package body x86.Exceptions is
       end loop;
    end Halt_Processor;
 
-end x86.Exceptions;
+   procedure Initialise is
+   begin
+      x86.IDT.Install_Descriptor (0,
+        Cxos.Exceptions.Exception_0_Handler'Address, 16#8#);
+
+      x86.IDT.Install_Descriptor (1,
+        Cxos.Exceptions.Exception_1_Handler'Address, 16#8#);
+
+      x86.IDT.Install_Descriptor (2,
+        Cxos.Exceptions.Exception_2_Handler'Address, 16#8#);
+
+      x86.IDT.Install_Descriptor (3,
+        Cxos.Exceptions.Exception_3_Handler'Address, 16#8#);
+
+      x86.IDT.Install_Descriptor (4,
+        Cxos.Exceptions.Exception_4_Handler'Address, 16#8#);
+
+      x86.IDT.Install_Descriptor (5,
+        Cxos.Exceptions.Exception_5_Handler'Address, 16#8#);
+
+      x86.IDT.Install_Descriptor (6,
+        Cxos.Exceptions.Exception_6_Handler'Address, 16#8#);
+
+      x86.IDT.Install_Descriptor (7,
+        Cxos.Exceptions.Exception_7_Handler'Address, 16#8#);
+
+      x86.IDT.Install_Descriptor (8,
+        Cxos.Exceptions.Exception_8_Handler'Address, 16#8#);
+
+      x86.IDT.Install_Descriptor (9,
+        Cxos.Exceptions.Exception_9_Handler'Address, 16#8#);
+
+      x86.IDT.Install_Descriptor (10,
+        Cxos.Exceptions.Exception_10_Handler'Address, 16#8#);
+
+      x86.IDT.Install_Descriptor (11,
+        Cxos.Exceptions.Exception_11_Handler'Address, 16#8#);
+
+      x86.IDT.Install_Descriptor (12,
+        Cxos.Exceptions.Exception_12_Handler'Address, 16#8#);
+
+      x86.IDT.Install_Descriptor (13,
+        Cxos.Exceptions.Exception_13_Handler'Address, 16#8#);
+
+      x86.IDT.Install_Descriptor (14,
+        Cxos.Exceptions.Exception_14_Handler'Address, 16#8#);
+
+      x86.IDT.Install_Descriptor (15,
+        Cxos.Exceptions.Exception_15_Handler'Address, 16#8#);
+
+      x86.IDT.Install_Descriptor (16,
+        Cxos.Exceptions.Exception_16_Handler'Address, 16#8#);
+
+      x86.IDT.Install_Descriptor (17,
+        Cxos.Exceptions.Exception_17_Handler'Address, 16#8#);
+
+      x86.IDT.Install_Descriptor (18,
+        Cxos.Exceptions.Exception_18_Handler'Address, 16#8#);
+
+      x86.IDT.Install_Descriptor (19,
+        Cxos.Exceptions.Exception_19_Handler'Address, 16#8#);
+
+      x86.IDT.Install_Descriptor (20,
+        Cxos.Exceptions.Exception_20_Handler'Address, 16#8#);
+
+      x86.IDT.Install_Descriptor (21,
+        Cxos.Exceptions.Exception_21_Handler'Address, 16#8#);
+
+      x86.IDT.Install_Descriptor (22,
+        Cxos.Exceptions.Exception_22_Handler'Address, 16#8#);
+
+      x86.IDT.Install_Descriptor (23,
+        Cxos.Exceptions.Exception_23_Handler'Address, 16#8#);
+
+      x86.IDT.Install_Descriptor (24,
+        Cxos.Exceptions.Exception_24_Handler'Address, 16#8#);
+
+      x86.IDT.Install_Descriptor (25,
+        Cxos.Exceptions.Exception_25_Handler'Address, 16#8#);
+
+      x86.IDT.Install_Descriptor (26,
+        Cxos.Exceptions.Exception_26_Handler'Address, 16#8#);
+
+      x86.IDT.Install_Descriptor (27,
+        Cxos.Exceptions.Exception_27_Handler'Address, 16#8#);
+
+      x86.IDT.Install_Descriptor (28,
+        Cxos.Exceptions.Exception_28_Handler'Address, 16#8#);
+
+      x86.IDT.Install_Descriptor (29,
+        Cxos.Exceptions.Exception_29_Handler'Address, 16#8#);
+
+      x86.IDT.Install_Descriptor (30,
+        Cxos.Exceptions.Exception_30_Handler'Address, 16#8#);
+
+      x86.IDT.Install_Descriptor (31,
+        Cxos.Exceptions.Exception_31_Handler'Address, 16#8#);
+   end Initialise;
+
+end Cxos.Exceptions;

@@ -12,15 +12,19 @@
 with Interfaces;
 
 -------------------------------------------------------------------------------
---  SYSTEM.X86.EXCEPTIONS
+--  CXOS.EXCEPTIONS
 --
 --  Purpose:
 --    This package contains code for handling x86 processor exceptions.
 -------------------------------------------------------------------------------
-package x86.Exceptions is
-   pragma Preelaborate (x86.Exceptions);
+package Cxos.Exceptions is
+   pragma Preelaborate (Cxos.Exceptions);
 
    use Interfaces;
+
+   ----------------------------------------------------------------------------
+   ----------------------------------------------------------------------------
+   procedure Initialise;
 
    ----------------------------------------------------------------------------
    --  Exception_0_Handler
@@ -994,4 +998,4 @@ private
    procedure Halt_Processor
    with No_Return;
 
-end x86.Exceptions;
+end Cxos.Exceptions;

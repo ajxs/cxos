@@ -14,9 +14,9 @@ with x86.Serial;
 
 package body Cxos.Exceptions is
    ----------------------------------------------------------------------------
-   --  Exception_0_Internal_Handler
+   --  Exception_0_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_0_Internal_Handler (
+   procedure Exception_0_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -24,12 +24,12 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 0 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_0_Internal_Handler;
+   end Exception_0_Handler;
 
    ----------------------------------------------------------------------------
-   --  Exception_10_Internal_Handler
+   --  Exception_10_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_10_Internal_Handler (
+   procedure Exception_10_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -37,12 +37,12 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 10 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_10_Internal_Handler;
+   end Exception_10_Handler;
 
    ----------------------------------------------------------------------------
-   --  Exception_11_Internal_Handler
+   --  Exception_11_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_11_Internal_Handler (
+   procedure Exception_11_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -50,12 +50,12 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 11 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_11_Internal_Handler;
+   end Exception_11_Handler;
 
    ----------------------------------------------------------------------------
-   --  Exception_12_Internal_Handler
+   --  Exception_12_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_12_Internal_Handler (
+   procedure Exception_12_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -63,12 +63,12 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 12 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_12_Internal_Handler;
+   end Exception_12_Handler;
 
    ----------------------------------------------------------------------------
-   --  Exception_13_Internal_Handler
+   --  Exception_13_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_13_Internal_Handler (
+   procedure Exception_13_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -76,12 +76,12 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 13 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_13_Internal_Handler;
+   end Exception_13_Handler;
 
    ----------------------------------------------------------------------------
-   --  Exception_14_Internal_Handler
+   --  Exception_14_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_14_Internal_Handler (
+   procedure Exception_14_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -89,12 +89,12 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 14 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_14_Internal_Handler;
+   end Exception_14_Handler;
 
    ----------------------------------------------------------------------------
-   --  Exception_15_Internal_Handler
+   --  Exception_15_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_15_Internal_Handler (
+   procedure Exception_15_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -102,12 +102,12 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 15 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_15_Internal_Handler;
+   end Exception_15_Handler;
 
    ----------------------------------------------------------------------------
-   --  Exception_16_Internal_Handler
+   --  Exception_16_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_16_Internal_Handler (
+   procedure Exception_16_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -115,12 +115,12 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 16 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_16_Internal_Handler;
+   end Exception_16_Handler;
 
    ----------------------------------------------------------------------------
-   --  Exception_17_Internal_Handler
+   --  Exception_17_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_17_Internal_Handler (
+   procedure Exception_17_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -128,12 +128,12 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 17 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_17_Internal_Handler;
+   end Exception_17_Handler;
 
    ----------------------------------------------------------------------------
-   --  Exception_18_Internal_Handler
+   --  Exception_18_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_18_Internal_Handler (
+   procedure Exception_18_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -141,12 +141,12 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 18 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_18_Internal_Handler;
+   end Exception_18_Handler;
 
    ----------------------------------------------------------------------------
-   --  Exception_19_Internal_Handler
+   --  Exception_19_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_19_Internal_Handler (
+   procedure Exception_19_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -154,12 +154,12 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 19 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_19_Internal_Handler;
+   end Exception_19_Handler;
 
    ----------------------------------------------------------------------------
-   --  Exception_1_Internal_Handler
+   --  Exception_1_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_1_Internal_Handler (
+   procedure Exception_1_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -167,12 +167,12 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 1 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_1_Internal_Handler;
+   end Exception_1_Handler;
 
    ----------------------------------------------------------------------------
-   --  Exception_20_Internal_Handler
+   --  Exception_20_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_20_Internal_Handler (
+   procedure Exception_20_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -180,12 +180,12 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 20 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_20_Internal_Handler;
+   end Exception_20_Handler;
 
    ----------------------------------------------------------------------------
-   --  Exception_21_Internal_Handler
+   --  Exception_21_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_21_Internal_Handler (
+   procedure Exception_21_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -193,12 +193,12 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 21 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_21_Internal_Handler;
+   end Exception_21_Handler;
 
    ----------------------------------------------------------------------------
-   --  Exception_22_Internal_Handler
+   --  Exception_22_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_22_Internal_Handler (
+   procedure Exception_22_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -206,12 +206,12 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 22 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_22_Internal_Handler;
+   end Exception_22_Handler;
 
    ----------------------------------------------------------------------------
-   --  Exception_23_Internal_Handler
+   --  Exception_23_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_23_Internal_Handler (
+   procedure Exception_23_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -219,12 +219,12 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 23 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_23_Internal_Handler;
+   end Exception_23_Handler;
 
    ----------------------------------------------------------------------------
-   --  Exception_24_Internal_Handler
+   --  Exception_24_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_24_Internal_Handler (
+   procedure Exception_24_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -232,12 +232,12 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 24 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_24_Internal_Handler;
+   end Exception_24_Handler;
 
    ----------------------------------------------------------------------------
-   --  Exception_25_Internal_Handler
+   --  Exception_25_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_25_Internal_Handler (
+   procedure Exception_25_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -245,12 +245,12 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 25 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_25_Internal_Handler;
+   end Exception_25_Handler;
 
    ----------------------------------------------------------------------------
-   --  Exception_26_Internal_Handler
+   --  Exception_26_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_26_Internal_Handler (
+   procedure Exception_26_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -258,12 +258,12 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 26 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_26_Internal_Handler;
+   end Exception_26_Handler;
 
    ----------------------------------------------------------------------------
-   --  Exception_27_Internal_Handler
+   --  Exception_27_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_27_Internal_Handler (
+   procedure Exception_27_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -271,12 +271,12 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 27 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_27_Internal_Handler;
+   end Exception_27_Handler;
 
    ----------------------------------------------------------------------------
-   --  Exception_28_Internal_Handler
+   --  Exception_28_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_28_Internal_Handler (
+   procedure Exception_28_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -284,12 +284,12 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 28 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_28_Internal_Handler;
+   end Exception_28_Handler;
 
    ----------------------------------------------------------------------------
-   --  Exception_29_Internal_Handler
+   --  Exception_29_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_29_Internal_Handler (
+   procedure Exception_29_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -297,12 +297,12 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 29 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_29_Internal_Handler;
+   end Exception_29_Handler;
 
    ----------------------------------------------------------------------------
-   --  Exception_2_Internal_Handler
+   --  Exception_2_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_2_Internal_Handler (
+   procedure Exception_2_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -310,12 +310,12 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 2 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_2_Internal_Handler;
+   end Exception_2_Handler;
 
    ----------------------------------------------------------------------------
-   --  Exception_30_Internal_Handler
+   --  Exception_30_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_30_Internal_Handler (
+   procedure Exception_30_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -323,12 +323,12 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 30 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_30_Internal_Handler;
+   end Exception_30_Handler;
 
    ----------------------------------------------------------------------------
-   --  Exception_31_Internal_Handler
+   --  Exception_31_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_31_Internal_Handler (
+   procedure Exception_31_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -336,12 +336,12 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 31 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_31_Internal_Handler;
+   end Exception_31_Handler;
 
    ----------------------------------------------------------------------------
-   --  Exception_3_Internal_Handler
+   --  Exception_3_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_3_Internal_Handler (
+   procedure Exception_3_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -349,12 +349,12 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 3 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_3_Internal_Handler;
+   end Exception_3_Handler;
 
    ----------------------------------------------------------------------------
-   --  Exception_4_Internal_Handler
+   --  Exception_4_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_4_Internal_Handler (
+   procedure Exception_4_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -362,12 +362,12 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 4 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_4_Internal_Handler;
+   end Exception_4_Handler;
 
    ----------------------------------------------------------------------------
-   --  Exception_5_Internal_Handler
+   --  Exception_5_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_5_Internal_Handler (
+   procedure Exception_5_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -375,12 +375,12 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 5 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_5_Internal_Handler;
+   end Exception_5_Handler;
 
    ----------------------------------------------------------------------------
-   --  Exception_6_Internal_Handler
+   --  Exception_6_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_6_Internal_Handler (
+   procedure Exception_6_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -388,12 +388,12 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 6 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_6_Internal_Handler;
+   end Exception_6_Handler;
 
    ----------------------------------------------------------------------------
-   --  Exception_7_Internal_Handler
+   --  Exception_7_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_7_Internal_Handler (
+   procedure Exception_7_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -401,12 +401,12 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 7 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_7_Internal_Handler;
+   end Exception_7_Handler;
 
    ----------------------------------------------------------------------------
-   --  Exception_8_Internal_Handler
+   --  Exception_8_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_8_Internal_Handler (
+   procedure Exception_8_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -414,12 +414,12 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 8 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_8_Internal_Handler;
+   end Exception_8_Handler;
 
    ----------------------------------------------------------------------------
-   --  Exception_9_Internal_Handler
+   --  Exception_9_Handler
    ----------------------------------------------------------------------------
-   procedure Exception_9_Internal_Handler (
+   procedure Exception_9_Handler (
      Saved_Registers : Exception_Stack_Frame
    ) is
    begin
@@ -427,7 +427,7 @@ package body Cxos.Exceptions is
       x86.Serial.Put_String (x86.Serial.COM1,
         "Exception 9 occurred. System Halted." & ASCII.LF);
       Halt_Processor;
-   end Exception_9_Internal_Handler;
+   end Exception_9_Handler;
 
    ----------------------------------------------------------------------------
    --  Exception_Handler
@@ -483,69 +483,69 @@ package body Cxos.Exceptions is
       --  Pass control to the relevant individual exception handler.
       case Interrupt_Number is
          when 0 =>
-            Exception_0_Internal_Handler (Stack_Frame);
+            Exception_0_Handler (Stack_Frame);
          when 1 =>
-            Exception_1_Internal_Handler (Stack_Frame);
+            Exception_1_Handler (Stack_Frame);
          when 2 =>
-            Exception_2_Internal_Handler (Stack_Frame);
+            Exception_2_Handler (Stack_Frame);
          when 3 =>
-            Exception_3_Internal_Handler (Stack_Frame);
+            Exception_3_Handler (Stack_Frame);
          when 4 =>
-            Exception_4_Internal_Handler (Stack_Frame);
+            Exception_4_Handler (Stack_Frame);
          when 5 =>
-            Exception_5_Internal_Handler (Stack_Frame);
+            Exception_5_Handler (Stack_Frame);
          when 6 =>
-            Exception_6_Internal_Handler (Stack_Frame);
+            Exception_6_Handler (Stack_Frame);
          when 7 =>
-            Exception_7_Internal_Handler (Stack_Frame);
+            Exception_7_Handler (Stack_Frame);
          when 8 =>
-            Exception_8_Internal_Handler (Stack_Frame);
+            Exception_8_Handler (Stack_Frame);
          when 9 =>
-            Exception_9_Internal_Handler (Stack_Frame);
+            Exception_9_Handler (Stack_Frame);
          when 10 =>
-            Exception_10_Internal_Handler (Stack_Frame);
+            Exception_10_Handler (Stack_Frame);
          when 11 =>
-            Exception_11_Internal_Handler (Stack_Frame);
+            Exception_11_Handler (Stack_Frame);
          when 12 =>
-            Exception_12_Internal_Handler (Stack_Frame);
+            Exception_12_Handler (Stack_Frame);
          when 13 =>
-            Exception_13_Internal_Handler (Stack_Frame);
+            Exception_13_Handler (Stack_Frame);
          when 14 =>
-            Exception_14_Internal_Handler (Stack_Frame);
+            Exception_14_Handler (Stack_Frame);
          when 15 =>
-            Exception_15_Internal_Handler (Stack_Frame);
+            Exception_15_Handler (Stack_Frame);
          when 16 =>
-            Exception_16_Internal_Handler (Stack_Frame);
+            Exception_16_Handler (Stack_Frame);
          when 17 =>
-            Exception_17_Internal_Handler (Stack_Frame);
+            Exception_17_Handler (Stack_Frame);
          when 18 =>
-            Exception_18_Internal_Handler (Stack_Frame);
+            Exception_18_Handler (Stack_Frame);
          when 19 =>
-            Exception_19_Internal_Handler (Stack_Frame);
+            Exception_19_Handler (Stack_Frame);
          when 20 =>
-            Exception_20_Internal_Handler (Stack_Frame);
+            Exception_20_Handler (Stack_Frame);
          when 21 =>
-            Exception_21_Internal_Handler (Stack_Frame);
+            Exception_21_Handler (Stack_Frame);
          when 22 =>
-            Exception_22_Internal_Handler (Stack_Frame);
+            Exception_22_Handler (Stack_Frame);
          when 23 =>
-            Exception_23_Internal_Handler (Stack_Frame);
+            Exception_23_Handler (Stack_Frame);
          when 24 =>
-            Exception_24_Internal_Handler (Stack_Frame);
+            Exception_24_Handler (Stack_Frame);
          when 25 =>
-            Exception_25_Internal_Handler (Stack_Frame);
+            Exception_25_Handler (Stack_Frame);
          when 26 =>
-            Exception_26_Internal_Handler (Stack_Frame);
+            Exception_26_Handler (Stack_Frame);
          when 27 =>
-            Exception_27_Internal_Handler (Stack_Frame);
+            Exception_27_Handler (Stack_Frame);
          when 28 =>
-            Exception_28_Internal_Handler (Stack_Frame);
+            Exception_28_Handler (Stack_Frame);
          when 29 =>
-            Exception_29_Internal_Handler (Stack_Frame);
+            Exception_29_Handler (Stack_Frame);
          when 30 =>
-            Exception_30_Internal_Handler (Stack_Frame);
+            Exception_30_Handler (Stack_Frame);
          when 31 =>
-            Exception_31_Internal_Handler (Stack_Frame);
+            Exception_31_Handler (Stack_Frame);
          when others =>
             x86.Serial.Put_String (x86.Serial.COM1,
               "Unknown Exception occurred. System Halted." & ASCII.LF);
@@ -567,6 +567,9 @@ package body Cxos.Exceptions is
       end loop;
    end Halt_Processor;
 
+   ----------------------------------------------------------------------------
+   --  Initialise
+   ----------------------------------------------------------------------------
    procedure Initialise is
    begin
       x86.IDT.Install_Descriptor (0,
@@ -600,70 +603,70 @@ package body Cxos.Exceptions is
         Cxos.Exceptions.Exception_9_Handler'Address, 16#8#);
 
       x86.IDT.Install_Descriptor (10,
-        Cxos.Exceptions.Exception_10_Handler'Address, 16#8#);
+        Cxos.Exceptions.Exception_10_Entry'Address, 16#8#);
 
       x86.IDT.Install_Descriptor (11,
-        Cxos.Exceptions.Exception_11_Handler'Address, 16#8#);
+        Cxos.Exceptions.Exception_11_Entry'Address, 16#8#);
 
       x86.IDT.Install_Descriptor (12,
-        Cxos.Exceptions.Exception_12_Handler'Address, 16#8#);
+        Cxos.Exceptions.Exception_12_Entry'Address, 16#8#);
 
       x86.IDT.Install_Descriptor (13,
-        Cxos.Exceptions.Exception_13_Handler'Address, 16#8#);
+        Cxos.Exceptions.Exception_13_Entry'Address, 16#8#);
 
       x86.IDT.Install_Descriptor (14,
-        Cxos.Exceptions.Exception_14_Handler'Address, 16#8#);
+        Cxos.Exceptions.Exception_14_Entry'Address, 16#8#);
 
       x86.IDT.Install_Descriptor (15,
-        Cxos.Exceptions.Exception_15_Handler'Address, 16#8#);
+        Cxos.Exceptions.Exception_15_Entry'Address, 16#8#);
 
       x86.IDT.Install_Descriptor (16,
-        Cxos.Exceptions.Exception_16_Handler'Address, 16#8#);
+        Cxos.Exceptions.Exception_16_Entry'Address, 16#8#);
 
       x86.IDT.Install_Descriptor (17,
-        Cxos.Exceptions.Exception_17_Handler'Address, 16#8#);
+        Cxos.Exceptions.Exception_17_Entry'Address, 16#8#);
 
       x86.IDT.Install_Descriptor (18,
-        Cxos.Exceptions.Exception_18_Handler'Address, 16#8#);
+        Cxos.Exceptions.Exception_18_Entry'Address, 16#8#);
 
       x86.IDT.Install_Descriptor (19,
-        Cxos.Exceptions.Exception_19_Handler'Address, 16#8#);
+        Cxos.Exceptions.Exception_19_Entry'Address, 16#8#);
 
       x86.IDT.Install_Descriptor (20,
-        Cxos.Exceptions.Exception_20_Handler'Address, 16#8#);
+        Cxos.Exceptions.Exception_20_Entry'Address, 16#8#);
 
       x86.IDT.Install_Descriptor (21,
-        Cxos.Exceptions.Exception_21_Handler'Address, 16#8#);
+        Cxos.Exceptions.Exception_21_Entry'Address, 16#8#);
 
       x86.IDT.Install_Descriptor (22,
-        Cxos.Exceptions.Exception_22_Handler'Address, 16#8#);
+        Cxos.Exceptions.Exception_22_Entry'Address, 16#8#);
 
       x86.IDT.Install_Descriptor (23,
-        Cxos.Exceptions.Exception_23_Handler'Address, 16#8#);
+        Cxos.Exceptions.Exception_23_Entry'Address, 16#8#);
 
       x86.IDT.Install_Descriptor (24,
-        Cxos.Exceptions.Exception_24_Handler'Address, 16#8#);
+        Cxos.Exceptions.Exception_24_Entry'Address, 16#8#);
 
       x86.IDT.Install_Descriptor (25,
-        Cxos.Exceptions.Exception_25_Handler'Address, 16#8#);
+        Cxos.Exceptions.Exception_25_Entry'Address, 16#8#);
 
       x86.IDT.Install_Descriptor (26,
-        Cxos.Exceptions.Exception_26_Handler'Address, 16#8#);
+        Cxos.Exceptions.Exception_26_Entry'Address, 16#8#);
 
       x86.IDT.Install_Descriptor (27,
-        Cxos.Exceptions.Exception_27_Handler'Address, 16#8#);
+        Cxos.Exceptions.Exception_27_Entry'Address, 16#8#);
 
       x86.IDT.Install_Descriptor (28,
-        Cxos.Exceptions.Exception_28_Handler'Address, 16#8#);
+        Cxos.Exceptions.Exception_28_Entry'Address, 16#8#);
 
       x86.IDT.Install_Descriptor (29,
-        Cxos.Exceptions.Exception_29_Handler'Address, 16#8#);
+        Cxos.Exceptions.Exception_29_Entry'Address, 16#8#);
 
       x86.IDT.Install_Descriptor (30,
-        Cxos.Exceptions.Exception_30_Handler'Address, 16#8#);
+        Cxos.Exceptions.Exception_30_Entry'Address, 16#8#);
 
       x86.IDT.Install_Descriptor (31,
-        Cxos.Exceptions.Exception_31_Handler'Address, 16#8#);
+        Cxos.Exceptions.Exception_31_Entry'Address, 16#8#);
    end Initialise;
 
 end Cxos.Exceptions;

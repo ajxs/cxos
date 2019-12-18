@@ -43,6 +43,7 @@ package Cxos.Multiboot_Init is
    ----------------------------------------------------------------------------
    function Parse_Multiboot_Info return Process_Result;
 
+private
    ----------------------------------------------------------------------------
    --  Parse_Multiboot_Memory_Map
    --

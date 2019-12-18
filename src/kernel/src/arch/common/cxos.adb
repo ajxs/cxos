@@ -9,6 +9,7 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
+with Cxos.Exceptions;
 with Cxos.Interrupts;
 with Cxos.Memory;
 with Cxos.Memory.Map;
@@ -38,11 +39,17 @@ package body Cxos is
             Init_Result : Cxos.Interrupts.Process_Result;
          begin
             Cxos.Serial.Put_String ("Initialising Interrupts" & ASCII.LF);
-
             Init_Result := Cxos.Interrupts.Initialise;
             if Init_Result /= Success then
                return;
             end if;
+            Cxos.Serial.Put_String ("Finished initialising interrupts" &
+              ASCII.LF);
+
+            Cxos.Serial.Put_String ("Initialising CPU exceptions" & ASCII.LF);
+            Cxos.Exceptions.Initialise;
+            Cxos.Serial.Put_String ("Finished initialising CPU exceptions" &
+              ASCII.LF);
          end Initialise_Interrupts;
 
       --  Initialise system timer and PIT before re-enabling interrupt

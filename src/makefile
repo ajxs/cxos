@@ -1,3 +1,10 @@
+.POSIX:
+.DELETE_ON_ERROR:
+MAKEFLAGS += --warn-undefined-variables
+MAKEFLAGS += --no-builtin-rules
+
+.PHONY: all clean debug emu runtime kernel
+
 KERNEL_DIR      := kernel
 KERNEL_BINARY   := ${KERNEL_DIR}/build/cxos.elf
 
@@ -17,9 +24,6 @@ QEMU_FLAGS :=                 \
 	-smp 1                      \
 	-usb                        \
 	-vga std
-
-.POSIX:
-.PHONY: clean debug emu runtime kernel
 
 all: ${ISO}
 

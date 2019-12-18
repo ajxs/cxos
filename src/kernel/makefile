@@ -1,7 +1,13 @@
-KERNEL_BINARY := ${KERNEL_DIR}/build/cxos.elf
+.POSIX:
+.DELETE_ON_ERROR:
+MAKEFLAGS += --warn-undefined-variables
+MAKEFLAGS += --no-builtin-rules
+
+BUILD_DIR     := build
+KERNEL_BINARY := ${BUILD_DIR}/cxos.elf
 KERNEL_PROJ   := kernel
 
-.PHONY: clean
+.PHONY: all clean
 
 all: ${KERNEL_BINARY}
 

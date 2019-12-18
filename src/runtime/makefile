@@ -1,18 +1,21 @@
+.POSIX:
+.DELETE_ON_ERROR:
+MAKEFLAGS += --warn-undefined-variables
+MAKEFLAGS += --no-builtin-rules
+
 ARCH           := x86
+
+BUILD_DIR      := build
+LIB_DIR        := ${BUILD_DIR}/adalib
+INCLUDE_DIR    := ${BUILD_DIR}/adainclude
+
 RUNTIME_BINARY := ${LIB_DIR}/libgnat.a
 RUNTIME_PROJ   := runtime
 
 ARCH_SRC_DIR   := src/arch/${ARCH}
 COMMON_SRC_DIR := src/arch/common
 
-BUILD_DIR      := build
-LIB_DIR        := ${BUILD_DIR}/adalib
-INCLUDE_DIR    := ${BUILD_DIR}/adainclude
-
-LINKER_SCRIPT  := x86-multiboot.ld
-RUNTIME_CONFIG := runtime.xml
-
-.PHONY: clean
+.PHONY: all clean
 
 all: ${RUNTIME_BINARY}
 

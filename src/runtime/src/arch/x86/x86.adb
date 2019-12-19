@@ -33,31 +33,31 @@ package body x86 is
       x86.Serial.Put_String (x86.Serial.COM1,
         "COM1 initialised" & ASCII.LF);
 
-      x86.Serial.Put_String (x86.Serial.COM1,
-        "Initialising PIC" & ASCII.LF);
+      x86.Serial.Put_String (x86.Serial.COM1, "Initialising PIC" & ASCII.LF);
       x86.PIC.Initialise;
 
       --  Clear interrupts.
       x86.Interrupts.Set_Interrupt_Flag (False);
 
-      x86.Serial.Put_String (x86.Serial.COM1,
-        "Initialising GDT" & ASCII.LF);
+      x86.Serial.Put_String (x86.Serial.COM1, "Initialising GDT" & ASCII.LF);
       x86.GDT.Initialise;
-
       x86.Serial.Put_String (x86.Serial.COM1,
-        "Initialising IDT" & ASCII.LF);
-      x86.IDT.Initialise;
+        "Finished initialising GDT" & ASCII.LF);
 
+      x86.Serial.Put_String (x86.Serial.COM1, "Initialising IDT" & ASCII.LF);
+      x86.IDT.Initialise;
+      x86.Serial.Put_String (x86.Serial.COM1,
+        "Finished initialising IDT" & ASCII.LF);
+
+      x86.Serial.Put_String (x86.Serial.COM1, "Loading IDT" & ASCII.LF);
       x86.IDT.Finalise;
 
-      x86.Serial.Put_String (x86.Serial.COM1,
-        "Flushing GDT" & ASCII.LF);
+      x86.Serial.Put_String (x86.Serial.COM1, "Flushing GDT" & ASCII.LF);
       x86.GDT.Finalise;
 
       x86.Serial.Put_String (x86.Serial.COM1,
         "Jumping to protected mode" & ASCII.LF);
       Protected_Mode_Init;
-
       x86.Serial.Put_String (x86.Serial.COM1,
         "Protected mode entered" & ASCII.LF);
 

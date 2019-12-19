@@ -66,6 +66,36 @@ package body x86.Memory.Paging is
    end Convert_To_System_Address;
 
    ----------------------------------------------------------------------------
+   --  Get_Page_Address
+   ----------------------------------------------------------------------------
+   function Get_Page_Address (
+     Table_Index :     Natural;
+     Page_Index  :     Natural;
+     Addr        : out System.Address
+   ) return Process_Result is
+      --  The base address of the page table.
+      Table_Addr : Integer_Address;
+
+      --  The address of the page frame itself.
+      Page_Addr  : Integer_Address;
+   begin
+      --  Compute the address of this page table in virtual memory.
+      Table_Addr := Integer_Address (Table_Index * 16#400000#);
+
+      --  Compute the address of the page frame.
+      Page_Addr := Integer_Address (Page_Index * 16#1000#);
+
+      --  The address of the page frame itself is the sum of the table
+      --  address base and the page address.
+      Addr := To_Address (Table_Addr + Page_Addr);
+
+      return Success;
+   exception
+      when Constraint_Error =>
+         return Unhandled_Exception;
+   end Get_Page_Address;
+
+   ----------------------------------------------------------------------------
    --  Get_Page_Directory_Index
    ----------------------------------------------------------------------------
    function Get_Page_Directory_Index (
@@ -143,58 +173,6 @@ package body x86.Memory.Paging is
 
       return Success;
    end Get_Page_Table_Index;
-
-   ----------------------------------------------------------------------------
-   --  Get_Page_Table_Mapped_Address
-   ----------------------------------------------------------------------------
-   function Get_Page_Table_Mapped_Address (
-     Virtual_Addr :     System.Address;
-     Mapped_Addr  : out System.Address
-   ) return Process_Result is
-      --  The index into the page directory that this virtual address
-      --  is mapped at.
-      Directory_Idx    : Natural;
-      --  The start address of the recursive page table mapping.
-      Table_Map_Base   : constant Integer_Address := 16#FFC0_0000#;
-      --  The offset from the base mapping offset.
-      Table_Map_Offset : Integer_Address := 0;
-      --  The result of internal processes.
-      Result           : Process_Result;
-   begin
-      --  Ensure that the provided address is properly page aligned.
-      Check_Address :
-         begin
-            if not Check_Address_Page_Aligned (Virtual_Addr) then
-               return Invalid_Non_Aligned_Address;
-            end if;
-         exception
-            when Constraint_Error =>
-               return Invalid_Non_Aligned_Address;
-         end Check_Address;
-
-      --  Get the directory index.
-      Get_Directory_Idx :
-         begin
-            Result := Get_Page_Directory_Index (Virtual_Addr, Directory_Idx);
-            if Result /= Success then
-               return Result;
-            end if;
-         exception
-            when Constraint_Error =>
-               return Invalid_Non_Aligned_Address;
-         end Get_Directory_Idx;
-
-      Calculate_Mapped_Address :
-         begin
-            Table_Map_Offset := Integer_Address (16#1000# * Directory_Idx);
-            Mapped_Addr := To_Address (Table_Map_Offset + Table_Map_Base);
-         exception
-            when Constraint_Error =>
-               return Invalid_Non_Aligned_Address;
-         end Calculate_Mapped_Address;
-
-      return Success;
-   end Get_Page_Table_Mapped_Address;
 
    ----------------------------------------------------------------------------
    --  Initialise_Page_Directory

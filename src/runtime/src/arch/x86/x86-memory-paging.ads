@@ -30,7 +30,8 @@ package x86.Memory.Paging is
      Invalid_Non_Aligned_Address,
      Invalid_Table_Index,
      Invalid_Value,
-     Success
+     Success,
+     Unhandled_Exception
    );
 
    ----------------------------------------------------------------------------
@@ -188,6 +189,22 @@ package x86.Memory.Paging is
    with Pure_Function;
 
    ----------------------------------------------------------------------------
+   --  Get_Page_Address
+   --
+   --  Purpose:
+   --    This function gets the virtual address represented by a page
+   --    directory and page table index combination.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   function Get_Page_Address (
+     Table_Index :     Natural;
+     Page_Index  :     Natural;
+     Addr        : out System.Address
+   ) return Process_Result
+   with Pure_Function;
+
+   ----------------------------------------------------------------------------
    --  Get_Page_Table_Index
    --
    --  Purpose:
@@ -199,21 +216,6 @@ package x86.Memory.Paging is
    function Get_Page_Table_Index (
      Addr  :     System.Address;
      Index : out Natural
-   ) return Process_Result
-   with Pure_Function;
-
-   ----------------------------------------------------------------------------
-   --  Get_Page_Table_Mapped_Address
-   --
-   --  Purpose:
-   --    This function returns the recursively mapped address of a page table.
-   --    This mapped address can be used to edit the page table within memory.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   function Get_Page_Table_Mapped_Address (
-     Virtual_Addr :     System.Address;
-     Mapped_Addr  : out System.Address
    ) return Process_Result
    with Pure_Function;
 

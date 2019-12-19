@@ -117,6 +117,7 @@ package body Cxos.Memory is
             Cxos.Serial.Put_String ("Finished freeing boot paging " &
               "structure memory" & ASCII.LF);
          end Mark_Boot_Memory;
+
       return Success;
    exception
       when Constraint_Error =>

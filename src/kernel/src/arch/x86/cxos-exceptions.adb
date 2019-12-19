@@ -431,6 +431,10 @@ package body Cxos.Exceptions is
 
    ----------------------------------------------------------------------------
    --  Exception_Handler
+   --
+   --  Implementation Notes:
+   --    Sets up the stack frame record from the parameters passed to this
+   --    function, then calls the appropriate handler.
    ----------------------------------------------------------------------------
    procedure Exception_Handler (
      GS               : Unsigned_32;
@@ -572,101 +576,38 @@ package body Cxos.Exceptions is
    ----------------------------------------------------------------------------
    procedure Initialise is
    begin
-      x86.IDT.Install_Descriptor (0,
-        Cxos.Exceptions.Exception_0_Handler'Address, 16#8#);
-
-      x86.IDT.Install_Descriptor (1,
-        Cxos.Exceptions.Exception_1_Handler'Address, 16#8#);
-
-      x86.IDT.Install_Descriptor (2,
-        Cxos.Exceptions.Exception_2_Handler'Address, 16#8#);
-
-      x86.IDT.Install_Descriptor (3,
-        Cxos.Exceptions.Exception_3_Handler'Address, 16#8#);
-
-      x86.IDT.Install_Descriptor (4,
-        Cxos.Exceptions.Exception_4_Handler'Address, 16#8#);
-
-      x86.IDT.Install_Descriptor (5,
-        Cxos.Exceptions.Exception_5_Handler'Address, 16#8#);
-
-      x86.IDT.Install_Descriptor (6,
-        Cxos.Exceptions.Exception_6_Handler'Address, 16#8#);
-
-      x86.IDT.Install_Descriptor (7,
-        Cxos.Exceptions.Exception_7_Handler'Address, 16#8#);
-
-      x86.IDT.Install_Descriptor (8,
-        Cxos.Exceptions.Exception_8_Handler'Address, 16#8#);
-
-      x86.IDT.Install_Descriptor (9,
-        Cxos.Exceptions.Exception_9_Handler'Address, 16#8#);
-
-      x86.IDT.Install_Descriptor (10,
-        Cxos.Exceptions.Exception_10_Entry'Address, 16#8#);
-
-      x86.IDT.Install_Descriptor (11,
-        Cxos.Exceptions.Exception_11_Entry'Address, 16#8#);
-
-      x86.IDT.Install_Descriptor (12,
-        Cxos.Exceptions.Exception_12_Entry'Address, 16#8#);
-
-      x86.IDT.Install_Descriptor (13,
-        Cxos.Exceptions.Exception_13_Entry'Address, 16#8#);
-
-      x86.IDT.Install_Descriptor (14,
-        Cxos.Exceptions.Exception_14_Entry'Address, 16#8#);
-
-      x86.IDT.Install_Descriptor (15,
-        Cxos.Exceptions.Exception_15_Entry'Address, 16#8#);
-
-      x86.IDT.Install_Descriptor (16,
-        Cxos.Exceptions.Exception_16_Entry'Address, 16#8#);
-
-      x86.IDT.Install_Descriptor (17,
-        Cxos.Exceptions.Exception_17_Entry'Address, 16#8#);
-
-      x86.IDT.Install_Descriptor (18,
-        Cxos.Exceptions.Exception_18_Entry'Address, 16#8#);
-
-      x86.IDT.Install_Descriptor (19,
-        Cxos.Exceptions.Exception_19_Entry'Address, 16#8#);
-
-      x86.IDT.Install_Descriptor (20,
-        Cxos.Exceptions.Exception_20_Entry'Address, 16#8#);
-
-      x86.IDT.Install_Descriptor (21,
-        Cxos.Exceptions.Exception_21_Entry'Address, 16#8#);
-
-      x86.IDT.Install_Descriptor (22,
-        Cxos.Exceptions.Exception_22_Entry'Address, 16#8#);
-
-      x86.IDT.Install_Descriptor (23,
-        Cxos.Exceptions.Exception_23_Entry'Address, 16#8#);
-
-      x86.IDT.Install_Descriptor (24,
-        Cxos.Exceptions.Exception_24_Entry'Address, 16#8#);
-
-      x86.IDT.Install_Descriptor (25,
-        Cxos.Exceptions.Exception_25_Entry'Address, 16#8#);
-
-      x86.IDT.Install_Descriptor (26,
-        Cxos.Exceptions.Exception_26_Entry'Address, 16#8#);
-
-      x86.IDT.Install_Descriptor (27,
-        Cxos.Exceptions.Exception_27_Entry'Address, 16#8#);
-
-      x86.IDT.Install_Descriptor (28,
-        Cxos.Exceptions.Exception_28_Entry'Address, 16#8#);
-
-      x86.IDT.Install_Descriptor (29,
-        Cxos.Exceptions.Exception_29_Entry'Address, 16#8#);
-
-      x86.IDT.Install_Descriptor (30,
-        Cxos.Exceptions.Exception_30_Entry'Address, 16#8#);
-
-      x86.IDT.Install_Descriptor (31,
-        Cxos.Exceptions.Exception_31_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (0,  Exception_0_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (1,  Exception_1_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (2,  Exception_2_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (3,  Exception_3_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (4,  Exception_4_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (5,  Exception_5_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (6,  Exception_6_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (7,  Exception_7_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (8,  Exception_8_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (9,  Exception_9_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (10, Exception_10_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (11, Exception_11_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (12, Exception_12_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (13, Exception_13_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (14, Exception_14_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (15, Exception_15_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (16, Exception_16_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (17, Exception_17_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (18, Exception_18_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (19, Exception_19_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (20, Exception_20_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (21, Exception_21_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (22, Exception_22_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (23, Exception_23_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (24, Exception_24_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (25, Exception_25_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (26, Exception_26_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (27, Exception_27_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (28, Exception_28_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (29, Exception_29_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (30, Exception_30_Entry'Address, 16#8#);
+      x86.IDT.Install_Descriptor (31, Exception_31_Entry'Address, 16#8#);
    end Initialise;
 
 end Cxos.Exceptions;

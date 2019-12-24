@@ -94,7 +94,7 @@ package body Cxos.Memory.Paging is
       use x86.Memory.Paging;
 
       --  The currently loaded kernel page_directory.
-      Kernel_Page_Dir : Page_Directory
+      Kernel_Page_Dir : constant Page_Directory
       with Import,
         Convention => Ada,
         Address    => To_Address (PAGE_DIR_RECURSIVE_ADDR);
@@ -103,9 +103,8 @@ package body Cxos.Memory.Paging is
       --  This will be set to the address that each page table being checked
       --  is recursively mapped into memory.
       Table_Addr : System.Address;
-
       --  The result of internal processes.
-      Result : Process_Result;
+      Result     : Process_Result;
    begin
       --  Loop over every page in the directory, checking only the entries
       --  which are marked as present.
@@ -212,20 +211,14 @@ package body Cxos.Memory.Paging is
      Table_Index :     Natural;
      Mapped_Addr : out System.Address
    ) return Process_Result is
-      --  The offset from the base mapping offset.
-      Table_Map_Offset : Integer_Address := 0;
    begin
-      Calculate_Mapped_Address :
-         begin
-            Table_Map_Offset := Integer_Address (16#1000# * Table_Index);
-            Mapped_Addr := To_Address (PAGE_TABLES_BASE_ADDR
-              + Table_Map_Offset);
-         exception
-            when Constraint_Error =>
-               return Unhandled_Exception;
-         end Calculate_Mapped_Address;
+      Mapped_Addr := To_Address (PAGE_TABLES_BASE_ADDR
+        + Integer_Address (16#1000# * Table_Index));
 
       return Success;
+   exception
+      when Constraint_Error =>
+         return Unhandled_Exception;
    end Get_Page_Table_Mapped_Address;
 
    ----------------------------------------------------------------------------
@@ -239,46 +232,37 @@ package body Cxos.Memory.Paging is
 
       --  The index into the page directory that this virtual address
       --  is mapped at.
-      Directory_Idx    : Natural;
+      Directory_Idx : Natural;
       --  The offset from the base mapping offset.
-      Table_Map_Offset : Integer_Address := 0;
-      --  The result of internal processes.
-      Result           : x86.Memory.Paging.Process_Result;
+      Table_Offset  : Integer_Address := 0;
    begin
       --  Ensure that the provided address is properly page aligned.
-      Check_Address :
-         begin
-            if not Check_Address_Page_Aligned (Virtual_Addr) then
-               return Invalid_Non_Aligned_Address;
-            end if;
-         exception
-            when Constraint_Error =>
-               return Invalid_Non_Aligned_Address;
-         end Check_Address;
+      if not Check_Address_Page_Aligned (Virtual_Addr) then
+         return Invalid_Non_Aligned_Address;
+      end if;
 
       --  Get the directory index.
       Get_Directory_Idx :
+         declare
+            --  The result of internal processes.
+            Result : x86.Memory.Paging.Process_Result;
          begin
             Result := Get_Page_Directory_Index (Virtual_Addr, Directory_Idx);
             if Result /= Success then
                return Unhandled_Exception;
             end if;
-         exception
-            when Constraint_Error =>
-               return Invalid_Non_Aligned_Address;
          end Get_Directory_Idx;
 
       Calculate_Mapped_Address :
          begin
-            Table_Map_Offset := Integer_Address (16#1000# * Directory_Idx);
-            Mapped_Addr := To_Address (PAGE_TABLES_BASE_ADDR
-              + Table_Map_Offset);
-         exception
-            when Constraint_Error =>
-               return Unhandled_Exception;
+            Table_Offset := Integer_Address (16#1000# * Directory_Idx);
+            Mapped_Addr := To_Address (PAGE_TABLES_BASE_ADDR + Table_Offset);
          end Calculate_Mapped_Address;
 
       return Success;
+   exception
+      when Constraint_Error =>
+         return Unhandled_Exception;
    end Get_Page_Table_Mapped_Address;
 
    ----------------------------------------------------------------------------
@@ -346,7 +330,7 @@ package body Cxos.Memory.Paging is
    ) return Process_Result is
       use x86.Memory.Paging;
 
-      --  The currently loaded kernel page_directory.
+      --  The temporary mapping page table.
       Temp_Page_Table : Page_Table
       with Import,
         Convention => Ada,

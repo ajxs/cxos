@@ -292,25 +292,22 @@ package body Cxos.Memory.Paging is
       --  Iterate over all 1024 directory entries.
       for Idx in 0 .. 1023 loop
          --  Initialise the individual entry.
-         Initialise_Entry :
-            begin
-               Page_Dir (Idx).Present       := False;
-               Page_Dir (Idx).Read_Write    := True;
-               Page_Dir (Idx).U_S           := False;
-               Page_Dir (Idx).PWT           := False;
-               Page_Dir (Idx).PCD           := False;
-               Page_Dir (Idx).A             := False;
-               Page_Dir (Idx).PS            := False;
-               Page_Dir (Idx).G             := False;
-               Page_Dir (Idx).Table_Address :=
-                 Convert_To_Page_Aligned_Address (System.Null_Address);
-            exception
-               when Constraint_Error =>
-                  return Invalid_Value;
-            end Initialise_Entry;
+         Page_Dir (Idx).Present       := False;
+         Page_Dir (Idx).Read_Write    := True;
+         Page_Dir (Idx).U_S           := False;
+         Page_Dir (Idx).PWT           := False;
+         Page_Dir (Idx).PCD           := False;
+         Page_Dir (Idx).A             := False;
+         Page_Dir (Idx).PS            := False;
+         Page_Dir (Idx).G             := False;
+         Page_Dir (Idx).Table_Address :=
+           Convert_To_Page_Aligned_Address (System.Null_Address);
       end loop;
 
       return Success;
+   exception
+      when Constraint_Error =>
+         return Unhandled_Exception;
    end Initialise_Page_Directory;
 
    ----------------------------------------------------------------------------
@@ -321,24 +318,23 @@ package body Cxos.Memory.Paging is
    ) return Process_Result is
       use x86.Memory.Paging;
    begin
+      --  Iterate over all 1024 table entries.
       for Idx in 0 .. 1023 loop
-         Initialise_Entry :
-            begin
-               Table (Idx).Present      := False;
-               Table (Idx).Read_Write   := True;
-               Table (Idx).U_S          := False;
-               Table (Idx).PWT          := False;
-               Table (Idx).PCD          := False;
-               Table (Idx).A            := False;
-               Table (Idx).Page_Address :=
-                 Convert_To_Page_Aligned_Address (System.Null_Address);
-            exception
-               when Constraint_Error =>
-                  return Invalid_Value;
-            end Initialise_Entry;
+         --  Initialise the individual entry.
+         Table (Idx).Present      := False;
+         Table (Idx).Read_Write   := True;
+         Table (Idx).U_S          := False;
+         Table (Idx).PWT          := False;
+         Table (Idx).PCD          := False;
+         Table (Idx).A            := False;
+         Table (Idx).Page_Address :=
+           Convert_To_Page_Aligned_Address (System.Null_Address);
       end loop;
 
       return Success;
+   exception
+      when Constraint_Error =>
+         return Unhandled_Exception;
    end Initialise_Page_Table;
 
    ----------------------------------------------------------------------------

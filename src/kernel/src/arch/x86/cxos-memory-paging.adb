@@ -14,10 +14,6 @@ with Cxos.Memory.Map;
 package body Cxos.Memory.Paging is
    ----------------------------------------------------------------------------
    --  Create_New_Page_Directory
-   --
-   --  Purpose:
-   --    Allocates and initialises a new page directory, placing the address
-   --    of the newly allocated directory in the provided parameter.
    ----------------------------------------------------------------------------
    function Create_New_Page_Directory (
      Page_Directory_Addr : out System.Address
@@ -28,35 +24,23 @@ package body Cxos.Memory.Paging is
       Allocated_Addr   : System.Address;
       --  The virtual address of the mapping to the new structure.
       Dir_Virtual_Addr : System.Address;
+      --  The result of internal processes.
+      Result           : Process_Result;
    begin
       --  Set to null address as a default fallback.
       Page_Directory_Addr := System.Null_Address;
 
-      --  Allocate the new page frame needed for the table.
-      Allocate_New_Frame :
-         declare
-            --  The process result of allocating a new page frame, if needed.
-            Allocate_Result : Process_Result;
-         begin
-            --  Allocate a page frame for the new page table.
-            Allocate_Result := Cxos.Memory.Map.Allocate_Frame (Allocated_Addr);
-            if Allocate_Result /= Success then
-               return Frame_Allocation_Error;
-            end if;
-         end Allocate_New_Frame;
+      --  Allocate a page frame for the new page table.
+      Result := Cxos.Memory.Map.Allocate_Frame (Allocated_Addr);
+      if Result /= Success then
+         return Result;
+      end if;
 
-      --  Map the new structure into memory.
-      Map_New_Structure :
-         declare
-            --  The result of the mapping process.
-            Map_Result : Process_Result;
-         begin
-            Map_Result := Temporarily_Map_Page (Allocated_Addr,
-              Dir_Virtual_Addr);
-            if Map_Result /= Success then
-               return Map_Result;
-            end if;
-         end Map_New_Structure;
+      --  Temporarily map the new structure into the current address space.
+      Result := Temporarily_Map_Page (Allocated_Addr, Dir_Virtual_Addr);
+      if Result /= Success then
+         return Result;
+      end if;
 
       --  Initialise the newly allocated page directory.
       Init_Page_Directory :
@@ -68,17 +52,14 @@ package body Cxos.Memory.Paging is
               Address    => Dir_Virtual_Addr;
 
             --  The currently loaded page directory.
-            Curr_Page_Dir : Page_Directory
+            Curr_Page_Dir : constant Page_Directory
             with Import,
               Convention => Ada,
               Address    => To_Address (PAGE_DIR_RECURSIVE_ADDR);
-
-            --  The result of initialising the page table.
-            Init_Result : Process_Result;
          begin
-            Init_Result := Initialise_Page_Directory (New_Page_Dir);
-            if Init_Result /= Success then
-               return Init_Result;
+            Result := Initialise_Page_Directory (New_Page_Dir);
+            if Result /= Success then
+               return Result;
             end if;
 
             --  Copy the kernel memory space from the currently loaded
@@ -89,17 +70,12 @@ package body Cxos.Memory.Paging is
          end Init_Page_Directory;
 
       --  Free the temporarily mapped structure.
-      Free_Temporary_Mapping :
-         declare
-            --  The result of the freeing process.
-            Free_Result : Process_Result;
-         begin
-            Free_Result := Free_Temporary_Page_Mapping (Dir_Virtual_Addr);
-            if Free_Result /= Success then
-               return Free_Result;
-            end if;
-         end Free_Temporary_Mapping;
+      Result := Free_Temporary_Page_Mapping (Dir_Virtual_Addr);
+      if Result /= Success then
+         return Result;
+      end if;
 
+      --  Set the output address to the address of the newly allocated frame.
       Page_Directory_Addr := Allocated_Addr;
 
       return Success;

@@ -27,7 +27,8 @@ package body Cxos.PCI is
       --  Whether debug device info should be printed to serial out.
       PRINT_INFO  : constant Boolean := True;
    begin
-      Cxos.Serial.Put_String ("Testing PCI Bus" & ASCII.LF);
+      Cxos.Serial.Put_String ("Testing PCI Bus" & ASCII.LF &
+        "------------------------" & ASCII.LF);
 
       for Bus in Unsigned_8 range 0 .. 255 loop
          for Device in x86.PCI.Pci_Device_Number range 0 .. 31 loop
@@ -78,7 +79,6 @@ package body Cxos.PCI is
       Device : Pci_Device
    ) is
    begin
-      Cxos.Serial.Put_String ("------------------------" & ASCII.LF);
       Cxos.Serial.Put_String ("Device:" & ASCII.LF);
       Cxos.Serial.Put_String ("  Bus:       "
         & Device.Bus_Number'Image & ASCII.LF);
@@ -253,6 +253,8 @@ package body Cxos.PCI is
          when others =>
             null;
       end case;
+
+      Cxos.Serial.Put_String ("------------------------" & ASCII.LF);
    exception
       when Constraint_Error =>
          Cxos.Serial.Put_String ("Error printing device: " &

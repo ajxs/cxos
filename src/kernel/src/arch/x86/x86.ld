@@ -49,6 +49,8 @@ SECTIONS {
     . += 0x1000;
     boot_page_table = .;
     . += 0x1000;
+		boot_mapping_table = .;
+		. += 0x1000;
 
     bss_end = .;
   }

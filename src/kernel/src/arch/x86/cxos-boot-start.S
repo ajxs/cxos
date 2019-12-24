@@ -113,8 +113,17 @@ init_boot_page_directory:
 	movl $boot_page_directory - 0xC0000000, %edx
 	# Apply flags: Supervisor x Present x Writeable.
 	orl $3, %edx
-	# Move to final entry in page directory.
+	# Move to final entry in the page directory.
 	movl %edx, boot_page_directory - 0xC0000000 + (1023 * 4)
+
+# Map the kernel mapping table to index 1022 in the page directory.
+.map_mapping_table:
+	# Load the mapping table address into EDX.
+	movl $boot_mapping_table - 0xC0000000, %edx
+	# Apply flags: Supervisor x Present x Writeable.
+	orl $3, %edx
+	# Move to the correct entry in the page directory.
+	movl %edx, boot_page_directory - 0xC0000000 + (1022 * 4)
 
 .load_mapped_page_tables:
 	# Move address of boot page table into EDX.
@@ -184,8 +193,11 @@ _start:
 	# Initialise the system.
 	call __system_init
 
-	# Jump to the kernel entry.
+	# Initialise the kernel.
 	call __kernel_init
+
+	# Jump to the kernel main loop.
+	call __main
 
 	cli
 	hlt

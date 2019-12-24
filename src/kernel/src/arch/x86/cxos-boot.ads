@@ -10,35 +10,25 @@
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
---  CXOS
+--  CXOS.BOOT
 --
 --  Purpose:
---    This package contains the main Kernel code.
+--    This package contains the kernel boot code.
 -------------------------------------------------------------------------------
-package Cxos is
+package Cxos.Boot is
    pragma Preelaborate;
 
    ----------------------------------------------------------------------------
-   --  Main
+   --  Initialise_Kernel
    --
    --  Purpose:
-   --    The main kernel loop.
+   --    Initialises the kernel.
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Main
-   with No_Return,
-     Export,
-     Convention    => Ada,
-     External_Name => "__main";
+   procedure Initialise_Kernel
+   with Export,
+     Convention    => Assembler,
+     External_Name => "__kernel_init";
 
-   ----------------------------------------------------------------------------
-   --  Print_Splash
-   --
-   --  Purpose:
-   --    Prints the CXOS test splash screen.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   procedure Print_Splash;
-end Cxos;
+end Cxos.Boot;

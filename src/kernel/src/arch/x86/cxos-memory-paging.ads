@@ -11,6 +11,7 @@
 
 with System;
 with System.Storage_Elements; use System.Storage_Elements;
+with x86.Memory.Paging;
 
 -------------------------------------------------------------------------------
 --  CXOS.MEMORY.PAGING
@@ -30,20 +31,33 @@ package Cxos.Memory.Paging is
    ----------------------------------------------------------------------------
    function Create_New_Page_Directory (
      Page_Directory_Addr : out System.Address
-   ) return Process_Result;
+   ) return Process_Result
+   with Volatile_Function;
 
 private
    ----------------------------------------------------------------------------
    --  The address at which the page directory is recursively mapped into
    --  the current address space.
    ----------------------------------------------------------------------------
-   PAGE_DIR_MAPPED_ADDR : constant Integer_Address := 16#FFFF_F000#;
+   PAGE_DIR_RECURSIVE_ADDR : constant Integer_Address := 16#FFFF_F000#;
 
    ----------------------------------------------------------------------------
    --  The address at which the currently loaded page tables are recursively
    --  mapped into the current address space.
    ----------------------------------------------------------------------------
-   PAGE_TABLES_MAPPED_ADDR : constant Integer_Address := 16#FFC0_0000#;
+   PAGE_TABLES_BASE_ADDR : constant Integer_Address := 16#FFC0_0000#;
+
+   ----------------------------------------------------------------------------
+   --  The address at which the temporary mapping table is recursively
+   --  mapped into the current address space.
+   ----------------------------------------------------------------------------
+   TEMP_TABLE_RECURSIVE_ADDR : constant Integer_Address := 16#FFFF_E000#;
+
+   ----------------------------------------------------------------------------
+   --  The base address at which the temporary mapping table contents are
+   --  mapped into the current addres space.
+   ----------------------------------------------------------------------------
+   TEMP_TABLE_BASE_ADDR : constant Integer_Address := 16#FF80_0000#;
 
    ----------------------------------------------------------------------------
    --  Find_Free_Kernel_Page
@@ -90,5 +104,64 @@ private
      Mapped_Addr  : out System.Address
    ) return Process_Result
    with Pure_Function;
+
+   ----------------------------------------------------------------------------
+   --  Initialise_Page_Directory
+   --
+   --  Purpose:
+   --    This initialises an individual Page Directory.
+   --    It will initialise every entry in the directory as being non-present.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   function Initialise_Page_Directory (
+     Page_Dir : in out x86.Memory.Paging.Page_Directory
+   ) return Process_Result;
+
+   ----------------------------------------------------------------------------
+   --  Initialise_Page_Table
+   --
+   --  Purpose:
+   --    This initialises an individual Page Table.
+   --    The Table will be initialised with all entries marked as non-present.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   function Initialise_Page_Table (
+     Table : in out x86.Memory.Paging.Page_Table
+   ) return Process_Result;
+
+   ----------------------------------------------------------------------------
+   --  Temporarily_Map_Page
+   --
+   --  Purpose:
+   --    This function temporarily maps a frame into the current address
+   --    space. The output parameter is set to the temporarily mapped virtual
+   --    address of the provided frame address.
+   --  Exceptions:
+   --    - An exception condition will be returned if there are no free
+   --      frames in the temporary mapping table.
+   ----------------------------------------------------------------------------
+   function Temporarily_Map_Page (
+     Frame_Addr   :     System.Address;
+     Virtual_Addr : out System.Address
+   ) return Process_Result
+   with Volatile_Function;
+
+   ----------------------------------------------------------------------------
+   --  Free_Temporary_Page_Mapping
+   --
+   --  Purpose:
+   --    This function frees a temporarily mapped address from the temporary
+   --    mapping table. It accepts an address corresponding to a mapping in
+   --    the table.
+   --  Exceptions:
+   --    - An exception condition will be returned if the mapped address is
+   --      not within the temporary mapping table.
+   ----------------------------------------------------------------------------
+   function Free_Temporary_Page_Mapping (
+     Virtual_Addr : System.Address
+   ) return Process_Result
+   with Volatile_Function;
 
 end Cxos.Memory.Paging;

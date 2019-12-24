@@ -9,6 +9,8 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
+with Cxos.Memory;
+with Cxos.Memory.Paging;
 with Cxos.Serial;
 with Cxos.Time_Keeping;
 
@@ -16,19 +18,39 @@ package body Cxos.Process is
    ----------------------------------------------------------------------------
    --  Create_Task
    ----------------------------------------------------------------------------
-   function Create_Process return Process_Result is
+   function Create_Process (
+      Process_Block : out Process_Control_Block
+   ) return Process_Result is
+      --  The newly allocated page directory to map the virtual address
+      --  space for the newly created process.
+      Page_Dir_Addr : System.Address;
    begin
-      Allocate_Paging_Structures :
-         begin
-            null;
-         end Allocate_Paging_Structures;
+      --  Allocate the page directory for the newly created process.
+      Allocate_Page_Directory :
+         declare
+            use Cxos.Memory;
 
-      Map_Kernel :
+            --  The result of allocating the new page directory.
+            Allocate_Result : Cxos.Memory.Process_Result;
          begin
-            null;
-         end Map_Kernel;
+            Allocate_Result := Cxos.Memory.Paging.
+              Create_New_Page_Directory (Page_Dir_Addr);
+            if Allocate_Result /= Success then
+               return Unhandled_Exception;
+            end if;
+         end Allocate_Page_Directory;
+
+      --  Allocate the process control block.
+      Allocate_Structure :
+         begin
+            Process_Block.Page_Dir_Ptr := Page_Dir_Addr;
+            Process_Block.Id := 337;
+         end Allocate_Structure;
 
       return Success;
+   exception
+      when Constraint_Error =>
+         return Unhandled_Exception;
    end Create_Process;
 
    ----------------------------------------------------------------------------
@@ -52,11 +74,24 @@ package body Cxos.Process is
       end loop;
    end Idle;
 
+   ----------------------------------------------------------------------------
+   --  Initialise
+   ----------------------------------------------------------------------------
    procedure Initialise is
+      Test_Block : Process_Control_Block;
+      Test_Result : Process_Result;
    begin
-      Allocate_Address :
+      Create_Idle_Process :
          begin
-            null;
-         end Allocate_Address;
+            Test_Result := Create_Process (Test_Block);
+            if Test_Result /= Success then
+               Cxos.Serial.Put_String ("Error" & ASCII.LF);
+            end if;
+            Cxos.Serial.Put_String ("Allocated process: " &
+              Test_Block.Id'Image & ASCII.LF);
+         end Create_Idle_Process;
+   exception
+      when Constraint_Error =>
+         null;
    end Initialise;
 end Cxos.Process;

@@ -69,8 +69,8 @@ package body x86.Memory.Paging is
    --  Get_Page_Address
    ----------------------------------------------------------------------------
    function Get_Page_Address (
-     Table_Index :     Natural;
-     Page_Index  :     Natural;
+     Table_Index :     Paging_Index;
+     Page_Index  :     Paging_Index;
      Addr        : out System.Address
    ) return Process_Result is
       --  The base address of the page table.
@@ -79,6 +79,10 @@ package body x86.Memory.Paging is
       --  The address of the page frame itself.
       Page_Addr  : Integer_Address;
    begin
+      if not Table_Index'Valid or not Page_Index'Valid then
+         return Invalid_Value;
+      end if;
+
       --  Compute the address of this page table in virtual memory.
       Table_Addr := Integer_Address (Table_Index * 16#400000#);
 
@@ -173,63 +177,5 @@ package body x86.Memory.Paging is
 
       return Success;
    end Get_Page_Table_Index;
-
-   ----------------------------------------------------------------------------
-   --  Initialise_Page_Directory
-   ----------------------------------------------------------------------------
-   function Initialise_Page_Directory (
-     Page_Dir : in out Page_Directory
-   ) return Process_Result is
-   begin
-      --  Iterate over all 1024 directory entries.
-      for Idx in 0 .. 1023 loop
-         --  Initialise the individual entry.
-         Initialise_Entry :
-            begin
-               Page_Dir (Idx).Present       := False;
-               Page_Dir (Idx).Read_Write    := True;
-               Page_Dir (Idx).U_S           := False;
-               Page_Dir (Idx).PWT           := False;
-               Page_Dir (Idx).PCD           := False;
-               Page_Dir (Idx).A             := False;
-               Page_Dir (Idx).PS            := False;
-               Page_Dir (Idx).G             := False;
-               Page_Dir (Idx).Table_Address :=
-                 Convert_To_Page_Aligned_Address (System.Null_Address);
-            exception
-               when Constraint_Error =>
-                  return Invalid_Value;
-            end Initialise_Entry;
-      end loop;
-
-      return Success;
-   end Initialise_Page_Directory;
-
-   ----------------------------------------------------------------------------
-   --  Initialise_Page_Table
-   ----------------------------------------------------------------------------
-   function Initialise_Page_Table (
-     Table : in out Page_Table
-   ) return Process_Result is
-   begin
-      for Idx in 0 .. 1023 loop
-         Initialise_Entry :
-            begin
-               Table (Idx).Present      := False;
-               Table (Idx).Read_Write   := True;
-               Table (Idx).U_S          := False;
-               Table (Idx).PWT          := False;
-               Table (Idx).PCD          := False;
-               Table (Idx).A            := False;
-               Table (Idx).Page_Address :=
-                 Convert_To_Page_Aligned_Address (System.Null_Address);
-            exception
-               when Constraint_Error =>
-                  return Invalid_Value;
-            end Initialise_Entry;
-      end loop;
-
-      return Success;
-   end Initialise_Page_Table;
 
 end x86.Memory.Paging;

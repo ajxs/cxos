@@ -147,17 +147,21 @@ package x86.Memory.Paging is
      External_Name => "__flush_tlb";
 
    ----------------------------------------------------------------------------
+   --  Page table/directory range type.
+   ----------------------------------------------------------------------------
+   subtype Paging_Index is Natural range 0 .. 1023;
+
+   ----------------------------------------------------------------------------
    --  Individual Page Table type.
    --  This is an array of 1024 indiviudal Pages.
    ----------------------------------------------------------------------------
-   type Page_Table is array (Natural range 0 .. 1023) of Page_Frame;
+   type Page_Table is array (Paging_Index) of Page_Frame;
 
    ----------------------------------------------------------------------------
    --  Page Directory.
    --  This type represents a a page directory, an array of individual entries.
    ----------------------------------------------------------------------------
-   type Page_Directory is array (Natural range 0 .. 1023)
-     of Page_Directory_Entry;
+   type Page_Directory is array (Paging_Index) of Page_Directory_Entry;
 
    ----------------------------------------------------------------------------
    --  Check_Address_Page_Aligned
@@ -198,8 +202,8 @@ package x86.Memory.Paging is
    --    None.
    ----------------------------------------------------------------------------
    function Get_Page_Address (
-     Table_Index :     Natural;
-     Page_Index  :     Natural;
+     Table_Index :     Paging_Index;
+     Page_Index  :     Paging_Index;
      Addr        : out System.Address
    ) return Process_Result
    with Pure_Function;
@@ -218,32 +222,6 @@ package x86.Memory.Paging is
      Index : out Natural
    ) return Process_Result
    with Pure_Function;
-
-   ----------------------------------------------------------------------------
-   --  Initialise_Page_Directory
-   --
-   --  Purpose:
-   --    This initialises an individual Page Directory.
-   --    It will initialise every entry in the directory as being non-present.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   function Initialise_Page_Directory (
-     Page_Dir : in out Page_Directory
-   ) return Process_Result;
-
-   ----------------------------------------------------------------------------
-   --  Initialise_Page_Table
-   --
-   --  Purpose:
-   --    This initialises an individual Page Table.
-   --    The Table will be initialised with all entries marked as non-present.
-   --  Excecptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   function Initialise_Page_Table (
-     Table : in out Page_Table
-   ) return Process_Result;
 
    ----------------------------------------------------------------------------
    --  Load_Page_Directory

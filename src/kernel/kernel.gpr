@@ -36,10 +36,17 @@ project Kernel is
      "Asm_Cpp"
    );
 
-   for Main use ("cxos-boot.S");
+   case ARCH is
+      when "x86" =>
+         for Main use ("cxos-boot-start.S");
+   end case;
 
    package Builder is
-      for Executable ("cxos-boot.S") use "cxos";
+      case ARCH is
+         when "x86" =>
+            for Executable ("cxos-boot-start.S") use "cxos";
+      end case;
+
       for Executable_Suffix use ".elf";
       for Global_Configuration_Pragmas use "kernel.adc";
       for Global_Compilation_Switches ("Others") use (

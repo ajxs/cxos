@@ -34,6 +34,27 @@ package Cxos.Memory.Paging is
    ) return Process_Result
    with Volatile_Function;
 
+   ----------------------------------------------------------------------------
+   --  Map_Virtual_Address
+   --
+   --  Purpose:
+   --    Maps a virtual address to a physical address in the specified page
+   --    directory. This function does not acknowledge whether or not the
+   --    provided virtual address is already mapped, and will overwrite any
+   --    existing entry if present.
+   --  Exceptions:
+   --    Exception conditions will be returned if the provided addresses are
+   --    not page-aligned.
+   ----------------------------------------------------------------------------
+   function Map_Virtual_Address (
+     Page_Dir      : x86.Memory.Paging.Page_Directory;
+     Virtual_Addr  : System.Address;
+     Physical_Addr : System.Address;
+     Read_Write    : Boolean := True;
+     User_Mode     : Boolean := False
+   ) return Process_Result
+   with Volatile_Function;
+
 private
    ----------------------------------------------------------------------------
    --  The address at which the page directory is recursively mapped into
@@ -58,6 +79,17 @@ private
    --  mapped into the current addres space.
    ----------------------------------------------------------------------------
    TEMP_TABLE_BASE_ADDR : constant Integer_Address := 16#FF80_0000#;
+
+   ----------------------------------------------------------------------------
+   --  Create_Page_Table
+   --
+   --  Purpose;
+   --    Creates and initialises a new blank page table.
+   ----------------------------------------------------------------------------
+   function Create_Page_Table (
+     Page_Table_Addr : out System.Address
+   ) return Process_Result
+   with Volatile_Function;
 
    ----------------------------------------------------------------------------
    --  Find_Free_Kernel_Page

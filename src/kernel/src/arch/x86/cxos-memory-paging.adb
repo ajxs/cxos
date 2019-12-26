@@ -20,7 +20,7 @@ package body Cxos.Memory.Paging is
    ) return Process_Result is
       use x86.Memory.Paging;
 
-      --  The address of the newly allocated page frame, if applicable.
+      --  The address of the newly allocated page frame.
       Allocated_Addr   : System.Address;
       --  The virtual address of the mapping to the new structure.
       Dir_Virtual_Addr : System.Address;
@@ -30,7 +30,7 @@ package body Cxos.Memory.Paging is
       --  Set to null address as a default fallback.
       Page_Directory_Addr := System.Null_Address;
 
-      --  Allocate a page frame for the new page table.
+      --  Allocate a page frame for the new page directory.
       Result := Cxos.Memory.Map.Allocate_Frame (Allocated_Addr);
       if Result /= Success then
          return Result;
@@ -83,6 +83,66 @@ package body Cxos.Memory.Paging is
       when Constraint_Error =>
          return Unhandled_Exception;
    end Create_New_Page_Directory;
+
+   ----------------------------------------------------------------------------
+   --  Create_Page_Table
+   ----------------------------------------------------------------------------
+   function Create_Page_Table (
+     Page_Table_Addr : out System.Address
+   ) return Process_Result is
+      use x86.Memory.Paging;
+
+      --  The address of the newly allocated page frame.
+      Allocated_Addr     : System.Address;
+      --  The virtual address of the mapping to the new structure.
+      Table_Virtual_Addr : System.Address;
+      --  The result of internal processes.
+      Result             : Process_Result;
+   begin
+      --  Set to null address as a default fallback.
+      Page_Table_Addr := System.Null_Address;
+
+      --  Allocate a page frame for the new page table.
+      Result := Cxos.Memory.Map.Allocate_Frame (Allocated_Addr);
+      if Result /= Success then
+         return Result;
+      end if;
+
+      --  Temporarily map the new structure into the current address space.
+      Result := Temporarily_Map_Page (Allocated_Addr, Table_Virtual_Addr);
+      if Result /= Success then
+         return Result;
+      end if;
+
+      --  Initialise the newly allocated page table.
+      Init_Page_Table :
+         declare
+            --  The new table mapped into virtual memory.
+            New_Page_Table : Page_Table
+            with Import,
+              Convention => Ada,
+              Address    => Table_Virtual_Addr;
+         begin
+            Result := Initialise_Page_Table (New_Page_Table);
+            if Result /= Success then
+               return Result;
+            end if;
+         end Init_Page_Table;
+
+      --  Free the temporarily mapped structure.
+      Result := Free_Temporary_Page_Mapping (Table_Virtual_Addr);
+      if Result /= Success then
+         return Result;
+      end if;
+
+      --  Set the output address to the address of the newly allocated frame.
+      Page_Table_Addr := Allocated_Addr;
+
+      return Success;
+   exception
+      when Constraint_Error =>
+         return Unhandled_Exception;
+   end Create_Page_Table;
 
    ----------------------------------------------------------------------------
    --  Find_Free_Kernel_Page
@@ -161,7 +221,7 @@ package body Cxos.Memory.Paging is
    ) return Process_Result is
       use x86.Memory.Paging;
 
-      --  The currently loaded kernel page_directory.
+      --  The table used for temporary mappings.
       Temp_Page_Table : Page_Table
       with Import,
         Convention => Ada,
@@ -320,6 +380,95 @@ package body Cxos.Memory.Paging is
       when Constraint_Error =>
          return Unhandled_Exception;
    end Initialise_Page_Table;
+
+   ----------------------------------------------------------------------------
+   --  Map_Virtual_Address
+   ----------------------------------------------------------------------------
+   function Map_Virtual_Address (
+     Page_Dir      : x86.Memory.Paging.Page_Directory;
+     Virtual_Addr  : System.Address;
+     Physical_Addr : System.Address;
+     Read_Write    : Boolean := True;
+     User_Mode     : Boolean := False
+   ) return Process_Result is
+      use x86.Memory.Paging;
+
+      --  The index into the page directory of the virtual address.
+      Directory_Idx : Natural;
+      --  The index into the relevant page table of the virtual address.
+      Table_Idx     : Natural;
+      --  The physical address of the relevant page table.
+      Table_Addr    : System.Address;
+      --  The result of internal processes.
+      Result        : Process_Result;
+   begin
+      --  Ensure that the provided addresses are 4K aligned.
+      if not Check_Address_Page_Aligned (Virtual_Addr) or
+        Check_Address_Page_Aligned (Physical_Addr)
+      then
+         return Invalid_Non_Aligned_Address;
+      end if;
+
+      --  Get the indexes into the paging structures.
+      Get_Indexes :
+         declare
+            Get_Idx_Result : x86.Memory.Paging.Process_Result;
+         begin
+            --  Get the index into the page directory needed to map this page.
+            Get_Idx_Result := Get_Page_Directory_Index (Virtual_Addr,
+              Directory_Idx);
+            if Get_Idx_Result /= Success then
+               return Unhandled_Exception;
+            end if;
+
+            --  Get the index into the relevant page table.
+            Get_Idx_Result := Get_Page_Table_Index (Virtual_Addr, Table_Idx);
+            if Get_Idx_Result /= Success then
+               return Unhandled_Exception;
+            end if;
+         end Get_Indexes;
+
+      --  Get the page table physical address.
+      --  If the table is not present in the directory, a new table will be
+      --  allocated and the physical address of the new table returned.
+      --  Otherwise, the recursively mapped table address will be used.
+      if Page_Dir (Directory_Idx).Present = False then
+         Result := Get_Page_Table_Mapped_Address (Directory_Idx, Table_Addr);
+      else
+         Result := Create_Page_Table (Table_Addr);
+      end if;
+
+      if Result /= Success then
+         return Result;
+      end if;
+
+      --  Map the virtual address.
+      Map_Frame :
+         declare
+            --  The table in which we will map the frame.
+            Entry_Table : Page_Table
+            with Import,
+              Convention => Ada,
+              Address    => Table_Addr;
+         begin
+            --  Initialise the entry.
+            --  Note: This function ignores whether this entry was already
+            --  mapped.
+            Entry_Table (Table_Idx).Present      := True;
+            Entry_Table (Table_Idx).Page_Address :=
+              Convert_To_Page_Aligned_Address (Physical_Addr);
+            Entry_Table (Table_Idx).Read_Write   := Read_Write;
+            Entry_Table (Table_Idx).U_S          := User_Mode;
+
+            --  Reload the TLB to load the new mapping.
+            Flush_Tlb;
+         end Map_Frame;
+
+      return Success;
+   exception
+      when Constraint_Error =>
+         return Unhandled_Exception;
+   end Map_Virtual_Address;
 
    ----------------------------------------------------------------------------
    --  Temporarily_Map_Page

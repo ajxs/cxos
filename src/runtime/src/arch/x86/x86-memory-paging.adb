@@ -69,10 +69,9 @@ package body x86.Memory.Paging is
    --  Get_Page_Address
    ----------------------------------------------------------------------------
    function Get_Page_Address (
-     Table_Index :     Paging_Index;
-     Page_Index  :     Paging_Index;
-     Addr        : out System.Address
-   ) return Process_Result is
+     Table_Index : Paging_Index;
+     Page_Index  : Paging_Index
+   ) return System.Address is
       --  The base address of the page table.
       Table_Addr : Integer_Address;
 
@@ -80,7 +79,7 @@ package body x86.Memory.Paging is
       Page_Addr  : Integer_Address;
    begin
       if not Table_Index'Valid or not Page_Index'Valid then
-         return Invalid_Value;
+         return System.Null_Address;
       end if;
 
       --  Compute the address of this page table in virtual memory.
@@ -91,91 +90,46 @@ package body x86.Memory.Paging is
 
       --  The address of the page frame itself is the sum of the table
       --  address base and the page address.
-      Addr := To_Address (Table_Addr + Page_Addr);
-
-      return Success;
+      return To_Address (Table_Addr + Page_Addr);
    exception
       when Constraint_Error =>
-         return Unhandled_Exception;
+         return System.Null_Address;
    end Get_Page_Address;
 
    ----------------------------------------------------------------------------
    --  Get_Page_Directory_Index
    ----------------------------------------------------------------------------
    function Get_Page_Directory_Index (
-     Addr  :     System.Address;
-     Index : out Natural
-   ) return Process_Result is
+     Addr : System.Address
+   ) return Paging_Index is
       Addr_As_Uint : Unsigned_32;
    begin
-      --  Ensure that the provided address is 4K aligned.
-      Check_Address :
-         begin
-            if not Check_Address_Page_Aligned (Addr) then
-               return Invalid_Non_Aligned_Address;
-            end if;
-         exception
-            when Constraint_Error =>
-               return Invalid_Non_Aligned_Address;
-         end Check_Address;
-
       --  Return only highest-order 10 bits.
       Addr_As_Uint := Unsigned_32 (To_Integer (Addr));
       Addr_As_Uint := Shift_Right (Addr_As_Uint, 22);
 
-      --  Convert the resulting value to a valid index value.
-      Convert_To_Natural :
-         begin
-            Index := Natural (Addr_As_Uint);
-
-            if not Index'Valid then
-               raise Constraint_Error;
-            end if;
-         exception
-            when Constraint_Error =>
-               return Invalid_Table_Index;
-         end Convert_To_Natural;
-
-      return Success;
+      return Paging_Index (Addr_As_Uint);
+   exception
+      when Constraint_Error =>
+         return 0;
    end Get_Page_Directory_Index;
 
    ----------------------------------------------------------------------------
    --  Get_Page_Table_Index
    ----------------------------------------------------------------------------
    function Get_Page_Table_Index (
-     Addr  :     System.Address;
-     Index : out Natural
-   ) return Process_Result is
+     Addr : System.Address
+   ) return Paging_Index is
       Addr_As_Uint : Unsigned_32;
    begin
-      --  Ensure that the provided address is 4K aligned.
-      Check_Address :
-         begin
-            if not Check_Address_Page_Aligned (Addr) then
-               return Invalid_Non_Aligned_Address;
-            end if;
-         exception
-            when Constraint_Error =>
-               return Invalid_Non_Aligned_Address;
-         end Check_Address;
-
+      --  Return only the middle 10 bits.
       Addr_As_Uint := Unsigned_32 (To_Integer (Addr));
       Addr_As_Uint := Shift_Right (Addr_As_Uint, 12) and 16#03FF#;
 
-      --  Convert the resulting value to a valid index value.
-      Convert_To_Natural :
-         begin
-            Index := Natural (Addr_As_Uint);
-
-            if not Index'Valid then
-               raise Constraint_Error;
-            end if;
-         exception
-            when Constraint_Error =>
-               return Invalid_Table_Index;
-         end Convert_To_Natural;
-
-      return Success;
+      return Paging_Index (Addr_As_Uint);
+   exception
+      when Constraint_Error =>
+         return 0;
    end Get_Page_Table_Index;
 
 end x86.Memory.Paging;

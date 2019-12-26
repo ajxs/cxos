@@ -302,16 +302,7 @@ package body Cxos.Memory.Paging is
       end if;
 
       --  Get the directory index.
-      Get_Directory_Idx :
-         declare
-            --  The result of internal processes.
-            Result : x86.Memory.Paging.Process_Result;
-         begin
-            Result := Get_Page_Directory_Index (Virtual_Addr, Directory_Idx);
-            if Result /= Success then
-               return Unhandled_Exception;
-            end if;
-         end Get_Directory_Idx;
+      Directory_Idx := Get_Page_Directory_Index (Virtual_Addr);
 
       Calculate_Mapped_Address :
          begin
@@ -409,24 +400,10 @@ package body Cxos.Memory.Paging is
          return Invalid_Non_Aligned_Address;
       end if;
 
-      --  Get the indexes into the paging structures.
-      Get_Indexes :
-         declare
-            Get_Idx_Result : x86.Memory.Paging.Process_Result;
-         begin
-            --  Get the index into the page directory needed to map this page.
-            Get_Idx_Result := Get_Page_Directory_Index (Virtual_Addr,
-              Directory_Idx);
-            if Get_Idx_Result /= Success then
-               return Unhandled_Exception;
-            end if;
-
-            --  Get the index into the relevant page table.
-            Get_Idx_Result := Get_Page_Table_Index (Virtual_Addr, Table_Idx);
-            if Get_Idx_Result /= Success then
-               return Unhandled_Exception;
-            end if;
-         end Get_Indexes;
+      --  Get the index into the page directory needed to map this page.
+      Directory_Idx := Get_Page_Directory_Index (Virtual_Addr);
+      --  Get the index into the relevant page table.
+      Table_Idx := Get_Page_Table_Index (Virtual_Addr);
 
       --  Get the page table physical address.
       --  If the table is not present in the directory, a new table will be

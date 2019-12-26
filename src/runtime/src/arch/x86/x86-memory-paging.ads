@@ -22,19 +22,6 @@ package x86.Memory.Paging is
    pragma Preelaborate;
 
    ----------------------------------------------------------------------------
-   --  Paging Process Result
-   --  Used for storing and returning the result of an internal paging
-   --  procedure.
-   ----------------------------------------------------------------------------
-   type Process_Result is (
-     Invalid_Non_Aligned_Address,
-     Invalid_Table_Index,
-     Invalid_Value,
-     Success,
-     Unhandled_Exception
-   );
-
-   ----------------------------------------------------------------------------
    --  Type to hold a 20bit address.
    --  These are truncated 32bit addresses that are assumed to be 4K aligned,
    --  as such there is no need to hold the lower-order 12bits.
@@ -178,21 +165,6 @@ package x86.Memory.Paging is
    with Pure_Function;
 
    ----------------------------------------------------------------------------
-   --  Get_Page_Directory_Index
-   --
-   --  Purpose:
-   --    This function gets the index of the page table in a page directory of
-   --    corresponding to a particular address.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   function Get_Page_Directory_Index (
-     Addr  :     System.Address;
-     Index : out Natural
-   ) return Process_Result
-   with Pure_Function;
-
-   ----------------------------------------------------------------------------
    --  Get_Page_Address
    --
    --  Purpose:
@@ -202,10 +174,23 @@ package x86.Memory.Paging is
    --    None.
    ----------------------------------------------------------------------------
    function Get_Page_Address (
-     Table_Index :     Paging_Index;
-     Page_Index  :     Paging_Index;
-     Addr        : out System.Address
-   ) return Process_Result
+     Table_Index : Paging_Index;
+     Page_Index  : Paging_Index
+   ) return System.Address
+   with Pure_Function;
+
+   ----------------------------------------------------------------------------
+   --  Get_Page_Directory_Index
+   --
+   --  Purpose:
+   --    This function gets the index of the page table in a page directory of
+   --    corresponding to a particular address.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   function Get_Page_Directory_Index (
+     Addr : System.Address
+   ) return Paging_Index
    with Pure_Function;
 
    ----------------------------------------------------------------------------
@@ -218,9 +203,8 @@ package x86.Memory.Paging is
    --    None.
    ----------------------------------------------------------------------------
    function Get_Page_Table_Index (
-     Addr  :     System.Address;
-     Index : out Natural
-   ) return Process_Result
+     Addr : System.Address
+   ) return Paging_Index
    with Pure_Function;
 
    ----------------------------------------------------------------------------
@@ -234,7 +218,7 @@ package x86.Memory.Paging is
    --    None.
    ----------------------------------------------------------------------------
    procedure Load_Page_Directory (
-      Directory_Ptr : System.Address
+     Directory_Ptr : System.Address
    )
    with Import,
      Convention    => Assembler,

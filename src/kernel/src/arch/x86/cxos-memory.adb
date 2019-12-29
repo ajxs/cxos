@@ -32,37 +32,28 @@ package body Cxos.Memory is
       --  The result of the frame status set process.
       Result : Process_Result := Success;
 
-      --  The start of the kernel code segment.
+      --  The start address of the kernel code.
       Kernel_Start     : constant Unsigned_32
       with Import,
         Convention    => Assembler,
         External_Name => "kernel_start";
-      --  The end of the kernel code segment.
+      --  The end address of the kernel code.
       Kernel_End       : constant Unsigned_32
       with Import,
         Convention    => Assembler,
         External_Name => "kernel_end";
-      --  The address of the kernel in virtual memory.
-      Kernel_Vma_Start : constant Unsigned_32
+      --  The physical starting address of the kernel.
+      Kernel_Physical_Start : constant Unsigned_32
       with Import,
         Convention    => Assembler,
-        External_name => "KERNEL_VMA_START";
-
-      --  The physical start of Kernel memory.
-      Kernel_Physical_Start : System.Address := To_Address (0);
+        External_name => "KERNEL_PHYS_START";
    begin
       Kernel_Length   := Unsigned_32 (
         To_Integer (Kernel_End'Address) -
         To_Integer (Kernel_Start'Address));
 
-      --  The kernel's physical start is the virtual memory logical start
-      --  subtracted from the kernel memory start.
-      Kernel_Physical_Start := To_Address (
-        To_Integer (Kernel_Start'Address) -
-        To_Integer (Kernel_Vma_Start'Address));
-
       Result := Cxos.Memory.Map.Mark_Memory_Range (
-        Kernel_Physical_Start, Kernel_Length, Allocated);
+        Kernel_Physical_Start'Address, Kernel_Length, Allocated);
       if Result /= Success then
          Cxos.Serial.Put_String (
            "Error marking kernel code segment" & ASCII.LF);

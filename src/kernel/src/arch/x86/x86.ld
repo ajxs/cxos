@@ -9,31 +9,39 @@
  *     Anthony <ajxs [at] panoptic.online>
  */
 
-KERNEL_VMA_START = 0xC0000000;
-STACK_SIZE       = 0x4000;
+/** The physical starting address of the kernel. */
+KERNEL_PHYS_START = 0x100000;
+/**
+ * The offset between the physical start and the start of the kernel's
+ * mapping in virtual memory.
+ */
+KERNEL_VMA_OFFSET = 0xC0000000;
+/** The size of the kernel stack. */
+KERNEL_STACK_SIZE = 0x4000;
 
 ENTRY (_start)
 SECTIONS {
-  . = 0xC0100000;
+  . = KERNEL_PHYS_START;
+  . += KERNEL_VMA_OFFSET;
   kernel_start = .;
 
-  .text ALIGN(4K) : AT (ADDR (.text) - KERNEL_VMA_START)
+  .text ALIGN(4K) : AT (ADDR (.text) - KERNEL_VMA_OFFSET)
   {
     *(.multiboot)
     *(.text*)
   }
 
-  .rodata ALIGN (4K) : AT (ADDR (.rodata) - KERNEL_VMA_START)
+  .rodata ALIGN (4K) : AT (ADDR (.rodata) - KERNEL_VMA_OFFSET)
   {
     *(.rodata*)
   }
 
-  .data ALIGN (4K) : AT (ADDR (.data) - KERNEL_VMA_START)
+  .data ALIGN (4K) : AT (ADDR (.data) - KERNEL_VMA_OFFSET)
   {
     *(.data*)
   }
 
-  .bss ALIGN (4K) : AT (ADDR (.bss) - KERNEL_VMA_START)
+  .bss ALIGN (4K) : AT (ADDR (.bss) - KERNEL_VMA_OFFSET)
   {
     bss_start = .;
     *(COMMON)
@@ -41,7 +49,7 @@ SECTIONS {
 
     . = ALIGN (16);
     stack_bottom = .;
-    . += STACK_SIZE;
+    . += KERNEL_STACK_SIZE;
     stack_top = .;
 
     . = ALIGN (4K);
@@ -49,8 +57,8 @@ SECTIONS {
     . += 0x1000;
     boot_page_table = .;
     . += 0x1000;
-		boot_mapping_table = .;
-		. += 0x1000;
+    boot_mapping_table = .;
+    . += 0x1000;
 
     bss_end = .;
   }

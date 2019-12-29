@@ -14,7 +14,6 @@
 .set FLAGS,      ALIGN | MEMINFO
 .set MAGIC,      0x1BADB002
 .set CHECKSUM,   -(MAGIC + FLAGS)
-.set STACK_SIZE, 0x4000
 
 
 .section .multiboot
@@ -55,10 +54,15 @@ multiboot_struct:
 #####################################################################
 .type init_boot_page_directory, @function
 init_boot_page_directory:
+	# Store the kernel's VMA offset in EAX.
+	movl $KERNEL_VMA_OFFSET, %eax
+
 # Identity map lowest 1MB.
 .map_low_memory:
 	# The page table entry address.
-	movl $(boot_page_table - 0xC0000000), %edi
+	movl $boot_page_table, %edi
+	# Subtract VMA offset.
+	subl %eax, %edi
 	# The page frame address.
 	movl $0, %esi
 	# The number of entries to map.
@@ -83,14 +87,21 @@ init_boot_page_directory:
 # Map kernel memory.
 # Creates both the identity and vma offset mapping.
 .map_kernel_memory:
+	# Store the physical end of the kernel in EBX for comparison later.
+	movl $kernel_end, %ebx
+	subl %eax, %ebx
+
 	# The page table entry address.
-	movl $(boot_page_table + 1024) - 0xC0000000, %edi
+	# The offset of 1024 corresponds to the physical start of the kernel at 1MB.
+	movl $boot_page_table + (256*4), %edi
+	subl %eax, %edi
 	# The page frame address.
-	movl $kernel_start - 0xC0000000, %esi
+	movl $kernel_start, %esi
+	subl %eax, %esi
 
 .map_kernel_frame:
 	# Check that we're only mapping the kernel.
-	cmpl $kernel_end - 0xC0000000, %esi
+	cmpl %ebx, %esi
 	jge .recursively_map_boot_directory
 
 	# Move physical address of page frame into EDX.
@@ -109,32 +120,83 @@ init_boot_page_directory:
 
 # Map the final entry in the page directory to itself.
 .recursively_map_boot_directory:
+	# Store target address in EBX.
+	movl $boot_page_directory, %ebx
+	# Subtract VMA offset.
+	subl %eax, %ebx
+	# Store offset into page dir in ECX.
+	movl $(1023 * 4), %ecx
+	# Add page dir offset to target address.
+	addl %ecx, %ebx
+
 	# Load page directory address into EDX.
-	movl $boot_page_directory - 0xC0000000, %edx
+	movl $boot_page_directory, %edx
+	# Subtract VMA offset.
+	subl %eax, %edx
 	# Apply flags: Supervisor x Present x Writeable.
 	orl $3, %edx
 	# Move to final entry in the page directory.
-	movl %edx, boot_page_directory - 0xC0000000 + (1023 * 4)
+	movl %edx, (%ebx)
 
 # Map the kernel mapping table to index 1022 in the page directory.
 .map_mapping_table:
-	# Load the mapping table address into EDX.
-	movl $boot_mapping_table - 0xC0000000, %edx
+	# Store target address in EBX.
+	movl $boot_page_directory, %ebx
+	# Subtract VMA offset.
+	subl %eax, %ebx
+	# Store offset into page dir in ECX.
+	movl $(1022 * 4), %ecx
+	# Add page dir offset to target address.
+	addl %ecx, %ebx
+
+# Load the mapping table address into EDX.
+	movl $boot_mapping_table, %edx
+	# Subtract VMA offset.
+	subl %eax, %edx
 	# Apply flags: Supervisor x Present x Writeable.
 	orl $3, %edx
 	# Move to the correct entry in the page directory.
-	movl %edx, boot_page_directory - 0xC0000000 + (1022 * 4)
+	movl %edx, (%ebx)
 
 .load_mapped_page_tables:
+
+	# Map the boot page table to virtual addresses 0x00000000 and 0xC0000000.
+	# This allows for execution to continue sequentially immediately
+	# after enabling paging.
+
+	# Store the offset into the page directory in ECX.
+	movl $KERNEL_VMA_OFFSET, %eax
+	movl $0, %edx
+	movl $0x100000, %ecx
+	# Divide the kernel VMA offset by the size of a page frame times 4.
+	# This will give us the correct byte offset into the page directory
+	# to map the kernel pages.
+	# e.g 0xC0000000 / 0x100000 = (768*4).
+	divl %ecx
+	# Move result back to ECX.
+	movl %eax, %ecx
+
 	# Move address of boot page table into EDX.
-	movl $boot_page_table - 0xC0000000, %edx
+	movl $KERNEL_VMA_OFFSET, %eax
+	movl $boot_page_table, %edx
+	# Subtract VMA offset.
+	subl %eax, %edx
 	# Apply flags: Supervisor x Present x Writeable.
 	orl $3, %edx
 
-	# Map the boot page table to virtual addresses 0x00000000 and 0xC0000000.
-	# This allows for execution to continue sequentially immediately after enabling paging.
-	movl %edx, boot_page_directory - 0xC0000000
-	movl %edx, boot_page_directory - 0xC0000000 + (768 * 4)
+	# Store boot page directory address in EBX.
+	movl $boot_page_directory, %ebx
+	# Subtract VMA offset.
+	subl %eax, %ebx
+
+	# Map low memory.
+	movl %edx, (%ebx)
+
+	# Add higher-half offset into the page directory to map to the
+	# appropriate higher-half kernel entry into the page directory.
+	addl %ecx, %ebx
+	# Map higher-half kernel address.
+	movl %edx, (%ebx)
 
 	ret
 
@@ -162,16 +224,38 @@ _start:
 	cli
 
 	# Save multiboot variables in global variables.
-	# These are used in the kernel start procedure to authenticate the bootloader.
+	# These are used in the kernel start procedure to authenticate
+	# the bootloader.
 	# See: https://www.gnu.org/software/grub/manual/multiboot/multiboot.html#Machine-state
-	movl %eax, multiboot_magic - 0xC0000000
-	movl %ebx, multiboot_struct - 0xC0000000
+
+	# Move kernel VMA offset into EDX.
+	movl $KERNEL_VMA_OFFSET, %edx
+
+	# Move multiboot_magic address into ECX.
+	movl $multiboot_magic, %ecx
+	# Subtract VMA offset.
+	subl %edx, %ecx
+	# Move magic number value into the reserved variable address.
+	movl %eax, (%ecx)
+
+	# Move multiboot_struct address into ECX.
+	movl $multiboot_struct, %ecx
+	# Subtract VMA offset.
+	subl %edx, %ecx
+	# Move struct address into the reserved variable address.
+	movl %ebx, (%ecx)
 
 	# Initialise the boot page structures.
 	call init_boot_page_directory
 
+	# Move VMA offset into EAX.
+	movl $KERNEL_VMA_OFFSET, %eax
+
 	# Load address of the page directory into CR3.
-	movl $boot_page_directory - 0xC0000000, %ecx
+	movl $boot_page_directory, %ecx
+	# Subtract VMA offset.
+	subl %eax, %ecx
+	# Move the address into CR3.
 	movl %ecx, %cr3
 
 	# Set write-protect and paging-enabled flags.

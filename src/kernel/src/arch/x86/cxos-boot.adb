@@ -26,11 +26,11 @@ package body Cxos.Boot is
    use Interfaces;
 
    ----------------------------------------------------------------------------
-   --  Initialise
+   --  Initialise_Kernel
    ----------------------------------------------------------------------------
    procedure Initialise_Kernel is
    begin
-      --  Initialise system interrupts.
+      --  Initialise system interrupts and processor exceptions.
       Initialise_Interrupts :
          declare
             use Cxos.Interrupts;
@@ -41,6 +41,8 @@ package body Cxos.Boot is
             Cxos.Serial.Put_String ("Initialising Interrupts" & ASCII.LF);
             Init_Result := Cxos.Interrupts.Initialise;
             if Init_Result /= Success then
+               Cxos.Serial.Put_String ("Error initialising Interrupts"
+                 & ASCII.LF);
                return;
             end if;
             Cxos.Serial.Put_String ("Finished initialising interrupts" &
@@ -63,6 +65,7 @@ package body Cxos.Boot is
 
             Cxos.Serial.Put_String ("Initialising PIT" & ASCII.LF);
             Cxos.PIT.Initialise;
+            Cxos.Serial.Put_String ("Finished initialising PIT" & ASCII.LF);
          end Initialise_Timers;
 
       --  Initialise the kernel memory map.
@@ -71,8 +74,7 @@ package body Cxos.Boot is
             --  Initialise the system memory map.
             Cxos.Serial.Put_String ("Initialising Memory Map" & ASCII.LF);
             Cxos.Memory.Map.Initialise;
-            Cxos.Serial.Put_String (
-              "Finished initialising Memory Map" & ASCII.LF);
+            Cxos.Serial.Put_String ("Finished Memory Map init" & ASCII.LF);
          end Init_Memory_Map;
 
       --  Read the multiboot info structures.
@@ -102,6 +104,8 @@ package body Cxos.Boot is
 
                Init_Result := Cxos.Multiboot_Init.Parse_Multiboot_Info;
                if Init_Result /= Success then
+                  Cxos.Serial.Put_String ("Error parsing multiboot info"
+                    & ASCII.LF);
                   return;
                end if;
 
@@ -113,22 +117,26 @@ package body Cxos.Boot is
             end if;
          end Read_Multiboot_Info;
 
-      --  Initialise System Memory.
-      Initialise_Memory :
+      --  Mark the memory used by the kernel as non-present.
+      Mark_Kernel_Memory :
          declare
             use Cxos.Memory;
 
-            --  The result of the internal initialisation process.
+            --  The result of the process.
             Init_Result : Cxos.Memory.Process_Result;
          begin
-            Init_Result := Cxos.Memory.Initialise;
+            Cxos.Serial.Put_String ("Marking kernel memory" & ASCII.LF);
+            Init_Result := Cxos.Memory.Mark_Kernel_Memory;
             if Init_Result /= Success then
-               Cxos.Serial.Put_String (
-                 "Error initialising memory" & ASCII.LF);
+               Cxos.Serial.Put_String ("Error marking kernel memory"
+                 & ASCII.LF);
                return;
             end if;
-         end Initialise_Memory;
+            Cxos.Serial.Put_String ("Finished marking kernel memory"
+              & ASCII.LF);
+         end Mark_Kernel_Memory;
 
+      --  Initialise peripheral devices.
       Initialise_Devices :
          declare
             use Cxos.PCI;

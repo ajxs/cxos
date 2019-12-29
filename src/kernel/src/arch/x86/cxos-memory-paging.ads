@@ -23,13 +23,15 @@ package Cxos.Memory.Paging is
    pragma Preelaborate;
 
    ----------------------------------------------------------------------------
-   --  Create_New_Page_Directory
+   --  Create_New_Address_Space
    --
    --  Purpose:
-   --    Allocates and initialises a new page directory, placing the address
-   --    of the newly allocated directory in the provided parameter.
+   --    Allocates and initialises a new virtual address space, placing the
+   --    address of the newly allocated directory in the provided parameter.
+   --    This function will copy the kernel address space contents from the
+   --    currently loaded page directory into the new address space.
    ----------------------------------------------------------------------------
-   function Create_New_Page_Directory (
+   function Create_New_Address_Space (
      Page_Directory_Addr : out System.Address
    ) return Process_Result
    with Volatile_Function;

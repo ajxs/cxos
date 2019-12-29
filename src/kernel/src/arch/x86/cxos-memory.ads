@@ -9,8 +9,6 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with System;
-
 -------------------------------------------------------------------------------
 --  CXOS.MEMORY
 --
@@ -40,39 +38,6 @@ package Cxos.Memory is
      Success,
      Unhandled_Exception
    );
-
-   ----------------------------------------------------------------------------
-   --  Initialise
-   --
-   --  Purpose:
-   --    Initialises the kernel's memory management system.
-   --    Performs the initial kernel memory mapping.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   function Initialise return Process_Result;
-
-   ----------------------------------------------------------------------------
-   --  Create_Process_Address_Space
-   --
-   --  Purpose:
-   --    Creates a new virtual address space for a new process.
-   ----------------------------------------------------------------------------
-   function Create_Process_Address_Space (
-     Page_Directory_Addr : out System.Address
-   ) return Process_Result;
-
-private
-   ----------------------------------------------------------------------------
-   --  Clear_Boot_Page_Structures
-   --
-   --  Purpose:
-   --    This procedure marks the boot page structures as being unallocated
-   --    memory, free for being overwritten.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   function Clear_Boot_Page_Structures return Process_Result;
 
    ----------------------------------------------------------------------------
    --  Mark_Kernel_Memory

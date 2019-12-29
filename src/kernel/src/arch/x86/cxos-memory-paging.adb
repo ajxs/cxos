@@ -15,7 +15,7 @@ package body Cxos.Memory.Paging is
    ----------------------------------------------------------------------------
    --  Create_New_Page_Directory
    ----------------------------------------------------------------------------
-   function Create_New_Page_Directory (
+   function Create_New_Address_Space (
      Page_Directory_Addr : out System.Address
    ) return Process_Result is
       use x86.Memory.Paging;
@@ -82,7 +82,7 @@ package body Cxos.Memory.Paging is
    exception
       when Constraint_Error =>
          return Unhandled_Exception;
-   end Create_New_Page_Directory;
+   end Create_New_Address_Space;
 
    ----------------------------------------------------------------------------
    --  Create_Page_Table

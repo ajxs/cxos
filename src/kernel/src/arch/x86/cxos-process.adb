@@ -34,7 +34,7 @@ package body Cxos.Process is
             Allocate_Result : Cxos.Memory.Process_Result;
          begin
             Allocate_Result := Cxos.Memory.Paging.
-              Create_New_Page_Directory (Page_Dir_Addr);
+              Create_New_Address_Space (Page_Dir_Addr);
             if Allocate_Result /= Success then
                return Unhandled_Exception;
             end if;

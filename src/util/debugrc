@@ -7,9 +7,10 @@ file src/kernel/build/cxos.elf -readnow
 # b x86-memory-paging.adb:557
 # x /32tg &memory_map
 # b __load_page_directory
-b image_unsigned
 # print_mmap_region
 
 # x /1xg &idt_pointer
 # x /5xg &global_descriptor_table
 # x /3xg &interrupt_descriptor_table+(256)
+#
+b map_section

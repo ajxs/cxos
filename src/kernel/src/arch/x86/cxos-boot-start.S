@@ -45,6 +45,30 @@ multiboot_struct:
 .section .text
 
 #####################################################################
+#####################################################################
+.type map_section, @function
+map_section:
+.map_section_frame:
+	# Move page address into EDX.
+	movl %esi, %edx
+	# Apply the permission flags.
+	orl %ebx, %edx
+	# Write page structure to entry address.
+	movl %edx, (%edi)
+
+.increment_section_frame_address:
+	# Add 4kb to the source address to point to the next frame.
+	addl $0x1000, %esi
+	# Size of entries in boot_page_tables is 4 bytes.
+	addl $4, %edi
+
+	# Loop until frame counter in ECX is 0.
+	loop .map_section_frame
+
+	ret
+
+
+#####################################################################
 #  Initialise Boot Page Directory
 #
 #  Initialises the paging structures necessary to map the kernel
@@ -54,69 +78,57 @@ multiboot_struct:
 #####################################################################
 .type init_boot_page_directory, @function
 init_boot_page_directory:
+# Identity map lowest 1MB.
+.map_low_memory:
 	# Store the kernel's VMA offset in EAX.
 	movl $KERNEL_VMA_OFFSET, %eax
 
-# Identity map lowest 1MB.
-.map_low_memory:
-	# The page table entry address.
+	# Store the page table entry address in the destination register.
 	movl $boot_page_tables, %edi
 	# Subtract VMA offset.
 	subl %eax, %edi
-	# The page frame address.
+	# Store the page frame address in the source register.
 	movl $0, %esi
 	# The number of entries to map.
 	movl $256, %ecx
+	# The permission bitmask for the page.
+	# Supervisor x Present x Writeable.
+	movl $3, %ebx
 
-.map_low_memory_frame:
-	# Move page address into EDX.
-	movl %esi, %edx
-	# Apply flags: Supervisor x Present x Writeable.
-	orl $0x3, %edx
-	# Write page structure to entry address.
-	movl %edx, (%edi)
+	call map_section
 
-.increment_low_frame_address:
-	# Size of page frame is 4096 bytes.
-	addl $0x1000, %esi
-	# Size of entries in boot_page_tables is 4 bytes.
-	addl $4, %edi
+.map_text_section:
+	# Compute length of text section.
+	movl $kernel_start, %ebx
+	movl $kernel_end, %eax
+	subl %ebx, %eax
+	# Length of text section is now in EAX.
+	# Divide length by 4kb to get number of page frames in section.
+	movl $0x1000, %ebx
+	movl $0, %edx
+	divl %ebx
+	# Number of page frames in text section is now in ECX.
+	movl %eax, %ecx
+	# Add 1 for the correct amount.
+	incl %ecx
 
-	loop .map_low_memory_frame
+	# Store the kernel's VMA offset in EAX.
+	movl $KERNEL_VMA_OFFSET, %eax
 
-# Map kernel memory.
-# Creates both the identity and vma offset mapping.
-.map_kernel_memory:
-	# Store the physical end of the kernel in EBX for comparison later.
-	movl $kernel_end, %ebx
-	subl %eax, %ebx             # Subtract VMA offset.
-
-	# The page table entry address.
+	# Store the page frame entry in the destination register.
 	# The offset of 1024 corresponds to the physical start of the kernel at 1MB.
 	movl $boot_page_tables + (256*4), %edi
 	subl %eax, %edi             # Subtract VMA offset.
-	# The page frame address.
+	# Store the page frame address in the source register.
 	movl $kernel_start, %esi
 	subl %eax, %esi             # Subtract VMA offset.
 
-.map_kernel_frame:
-	# Check that we're only mapping the kernel.
-	cmpl %ebx, %esi
-	jge .recursively_map_boot_directory
+	# The permission bitmask for the page.
+	# Supervisor x Present x Writeable.
+	movl $0x3, %ebx
 
-	# Move physical address of page frame into EDX.
-	movl %esi, %edx
-	# Apply flags: Supervisor x Preset x Writeable.
-	orl $3, %edx
-	movl %edx, (%edi)
+	call map_section
 
-.increment_frame_address:
-	# Size of page is 4096 bytes.
-	addl $0x1000, %esi
-	# Size of entries in boot_page_tables is 4 bytes.
-	addl $4, %edi
-
-	jmp .map_kernel_frame
 
 # Map the final entry in the page directory to itself.
 .recursively_map_boot_directory:

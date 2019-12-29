@@ -21,47 +21,51 @@ KERNEL_STACK_SIZE = 0x4000;
 
 ENTRY (_start)
 SECTIONS {
-  . = KERNEL_PHYS_START;
-  . += KERNEL_VMA_OFFSET;
-  kernel_start = .;
+	. = KERNEL_PHYS_START;
+	. += KERNEL_VMA_OFFSET;
+	kernel_start = .;
 
-  .text ALIGN(4K) : AT (ADDR (.text) - KERNEL_VMA_OFFSET)
-  {
-    *(.multiboot)
-    *(.text*)
-  }
+	.text ALIGN(4K) : AT (ADDR (.text) - KERNEL_VMA_OFFSET)
+	{
+		*(.multiboot)
+		*(.text*)
+	}
 
-  .rodata ALIGN (4K) : AT (ADDR (.rodata) - KERNEL_VMA_OFFSET)
-  {
-    *(.rodata*)
-  }
+	.rodata ALIGN (4K) : AT (ADDR (.rodata) - KERNEL_VMA_OFFSET)
+	{
+		*(.rodata*)
+	}
 
-  .data ALIGN (4K) : AT (ADDR (.data) - KERNEL_VMA_OFFSET)
-  {
-    *(.data*)
-  }
+	.data ALIGN (4K) : AT (ADDR (.data) - KERNEL_VMA_OFFSET)
+	{
+		*(.data*)
+	}
 
-  .bss ALIGN (4K) : AT (ADDR (.bss) - KERNEL_VMA_OFFSET)
-  {
-    bss_start = .;
-    *(COMMON)
-    *(.bss*)
+	.bss ALIGN (4K) : AT (ADDR (.bss) - KERNEL_VMA_OFFSET)
+	{
+		bss_start = .;
+		*(COMMON)
+		*(.bss*)
 
-    . = ALIGN (16);
-    stack_bottom = .;
-    . += KERNEL_STACK_SIZE;
-    stack_top = .;
+		. = ALIGN (16);
+		stack_bottom = .;
+		. += KERNEL_STACK_SIZE;
+		stack_top = .;
 
-    . = ALIGN (4K);
-    boot_page_directory = .;
-    . += 0x1000;
-    boot_page_table = .;
-    . += 0x1000;
-    boot_mapping_table = .;
-    . += 0x1000;
+		. = ALIGN (4K);
+		boot_page_directory = .;
+		. += 0x1000;
+		boot_page_tables = .;
+		/**
+		 * Calculate the number of page tables necessary to hold the kernel.
+		 * Skip the amount of space necessary to hold this amount of pages.
+		 */
+		. += (1 + ((KERNEL_PHYS_START + kernel_end - kernel_start) / 0x400000)) * 0x1000;
+		boot_mapping_table = .;
+		. += 0x1000;
 
-    bss_end = .;
-  }
+		bss_end = .;
+	}
 
-  kernel_end = .;
+	kernel_end = .;
 }

@@ -60,7 +60,7 @@ init_boot_page_directory:
 # Identity map lowest 1MB.
 .map_low_memory:
 	# The page table entry address.
-	movl $boot_page_table, %edi
+	movl $boot_page_tables, %edi
 	# Subtract VMA offset.
 	subl %eax, %edi
 	# The page frame address.
@@ -79,7 +79,7 @@ init_boot_page_directory:
 .increment_low_frame_address:
 	# Size of page frame is 4096 bytes.
 	addl $0x1000, %esi
-	# Size of entries in boot_page_table is 4 bytes.
+	# Size of entries in boot_page_tables is 4 bytes.
 	addl $4, %edi
 
 	loop .map_low_memory_frame
@@ -93,7 +93,7 @@ init_boot_page_directory:
 
 	# The page table entry address.
 	# The offset of 1024 corresponds to the physical start of the kernel at 1MB.
-	movl $boot_page_table + (256*4), %edi
+	movl $boot_page_tables + (256*4), %edi
 	subl %eax, %edi
 	# The page frame address.
 	movl $kernel_start, %esi
@@ -113,7 +113,7 @@ init_boot_page_directory:
 .increment_frame_address:
 	# Size of page is 4096 bytes.
 	addl $0x1000, %esi
-	# Size of entries in boot_page_table is 4 bytes.
+	# Size of entries in boot_page_tables is 4 bytes.
 	addl $4, %edi
 
 	jmp .map_kernel_frame
@@ -178,7 +178,7 @@ init_boot_page_directory:
 
 	# Move address of boot page table into EDX.
 	movl $KERNEL_VMA_OFFSET, %eax
-	movl $boot_page_table, %edx
+	movl $boot_page_tables, %edx
 	# Subtract VMA offset.
 	subl %eax, %edx
 	# Apply flags: Supervisor x Present x Writeable.

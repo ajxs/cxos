@@ -28,17 +28,23 @@ SECTIONS {
 	.text ALIGN(4K) : AT (ADDR (.text) - KERNEL_VMA_OFFSET)
 	{
 		*(.multiboot)
+		text_start = .;
 		*(.text*)
+		text_end = .;
 	}
 
 	.rodata ALIGN (4K) : AT (ADDR (.rodata) - KERNEL_VMA_OFFSET)
 	{
+		rodata_start = .;
 		*(.rodata*)
+		rodata_end = .;
 	}
 
 	.data ALIGN (4K) : AT (ADDR (.data) - KERNEL_VMA_OFFSET)
 	{
+		data_start = .;
 		*(.data*)
+		data_end = .;
 	}
 
 	.bss ALIGN (4K) : AT (ADDR (.bss) - KERNEL_VMA_OFFSET)

@@ -89,15 +89,15 @@ init_boot_page_directory:
 .map_kernel_memory:
 	# Store the physical end of the kernel in EBX for comparison later.
 	movl $kernel_end, %ebx
-	subl %eax, %ebx
+	subl %eax, %ebx             # Subtract VMA offset.
 
 	# The page table entry address.
 	# The offset of 1024 corresponds to the physical start of the kernel at 1MB.
 	movl $boot_page_tables + (256*4), %edi
-	subl %eax, %edi
+	subl %eax, %edi             # Subtract VMA offset.
 	# The page frame address.
 	movl $kernel_start, %esi
-	subl %eax, %esi
+	subl %eax, %esi             # Subtract VMA offset.
 
 .map_kernel_frame:
 	# Check that we're only mapping the kernel.

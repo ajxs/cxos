@@ -46,8 +46,48 @@ multiboot_struct:
 
 #####################################################################
 #####################################################################
+.type calculate_page_count, @function
+calculate_page_count:
+	pushl %ebp
+	movl %esp, %ebp
+
+	# The start of the section.
+	movl 8(%ebp), %ebx
+	# The end of the section.
+	movl 12(%ebp), %eax
+
+	# Compute length of text section.
+	subl %ebx, %eax
+	# Length of text section is now in EAX.
+	# Divide length by 4kb to get number of page frames in section.
+	movl $0x1000, %ebx
+	movl $0, %edx
+	divl %ebx
+	# Number of page frames in text section is now in EAX.
+	# Add 1 for the correct amount.
+	incl %eax
+
+	mov %ebp, %esp
+	pop %ebp
+	ret
+
+
+#####################################################################
+#####################################################################
 .type map_section, @function
 map_section:
+	pushl %ebp
+	movl %esp, %ebp
+
+	# The source address for the section.
+	movl 8(%ebp), %esi
+	# The page table to map the provided address into.
+	movl 12(%ebp), %edi
+	# The number of page frames to map.
+	movl 16(%ebp), %ecx
+	# The flags for the pages.
+	movl 20(%ebp), %ebx
+
 .map_section_frame:
 	# Move page address into EDX.
 	movl %esi, %edx
@@ -65,6 +105,8 @@ map_section:
 	# Loop until frame counter in ECX is 0.
 	loop .map_section_frame
 
+	mov %ebp, %esp
+	pop %ebp
 	ret
 
 
@@ -82,35 +124,30 @@ init_boot_page_directory:
 .map_low_memory:
 	# Store the kernel's VMA offset in EAX.
 	movl $KERNEL_VMA_OFFSET, %eax
-
 	# Store the page table entry address in the destination register.
 	movl $boot_page_tables, %edi
 	# Subtract VMA offset.
 	subl %eax, %edi
-	# Store the page frame address in the source register.
-	movl $0, %esi
-	# The number of entries to map.
-	movl $256, %ecx
+
 	# The permission bitmask for the page.
 	# Supervisor x Present x Writeable.
-	movl $3, %ebx
-
+	pushl $3
+	# The number of entries to map.
+	pushl $256
+	pushl %edi
+	# The page frame address to map.
+	pushl $0
 	call map_section
+	addl $16, %esp
 
 .map_text_section:
-	# Compute length of text section.
-	movl $kernel_start, %ebx
-	movl $kernel_end, %eax
-	subl %ebx, %eax
-	# Length of text section is now in EAX.
-	# Divide length by 4kb to get number of page frames in section.
-	movl $0x1000, %ebx
-	movl $0, %edx
-	divl %ebx
-	# Number of page frames in text section is now in ECX.
+	# Calculate the number of pages contained in this section.
+	# Page count is stored in EAX.
+	pushl $text_end
+	pushl $text_start
+	call calculate_page_count
+	addl $8, %esp
 	movl %eax, %ecx
-	# Add 1 for the correct amount.
-	incl %ecx
 
 	# Store the kernel's VMA offset in EAX.
 	movl $KERNEL_VMA_OFFSET, %eax
@@ -120,15 +157,87 @@ init_boot_page_directory:
 	movl $boot_page_tables + (256*4), %edi
 	subl %eax, %edi             # Subtract VMA offset.
 	# Store the page frame address in the source register.
-	movl $kernel_start, %esi
+	movl $text_start, %esi
+	subl %eax, %esi             # Subtract VMA offset.
+
+	# Supervisor x Present.
+	pushl $0x1
+	pushl %ecx
+	pushl %edi
+	pushl %esi
+	call map_section
+	addl $16, %esp
+
+.map_rodata_section:
+	# Page count is stored in ECX.
+	pushl $rodata_end
+	pushl $rodata_start
+	call calculate_page_count
+	addl $8, %esp
+	movl %eax, %ecx
+
+	# Store the kernel's VMA offset in EAX.
+	movl $KERNEL_VMA_OFFSET, %eax
+
+	# Store the page frame address in the source register.
+	movl $rodata_start, %esi
+	subl %eax, %esi             # Subtract VMA offset.
+
+	# Supervisor x Present.
+	pushl $0x1
+	pushl %ecx
+	pushl %edi
+	pushl %esi
+	call map_section
+	addl $16, %esp
+
+.map_data_section:
+	# Page count is stored in ECX.
+	pushl $data_end
+	pushl $data_start
+	call calculate_page_count
+	addl $8, %esp
+	movl %eax, %ecx
+
+	# Store the kernel's VMA offset in EAX.
+	movl $KERNEL_VMA_OFFSET, %eax
+
+	# Store the page frame address in the source register.
+	movl $data_start, %esi
 	subl %eax, %esi             # Subtract VMA offset.
 
 	# The permission bitmask for the page.
 	# Supervisor x Present x Writeable.
-	movl $0x3, %ebx
-
+	pushl $0x3
+	pushl %ecx
+	pushl %edi
+	pushl %esi
 	call map_section
+	addl $16, %esp
 
+.map_bss_section:
+	# Page count is stored in ECX.
+	pushl $bss_end
+	pushl $bss_start
+	call calculate_page_count
+	addl $8, %esp
+	movl %eax, %ecx
+
+	# Store the kernel's VMA offset in EAX.
+	movl $KERNEL_VMA_OFFSET, %eax
+
+	# Store the page frame address in the source register.
+	movl $bss_start, %esi
+	subl %eax, %esi             # Subtract VMA offset.
+
+	# The permission bitmask for the page.
+	# Supervisor x Present x Writeable.
+	pushl $0x3
+	pushl %ecx
+	pushl %edi
+	pushl %esi
+	call map_section
+	addl $16, %esp
 
 # Map the final entry in the page directory to itself.
 .recursively_map_boot_directory:

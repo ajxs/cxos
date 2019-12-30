@@ -45,6 +45,10 @@ multiboot_struct:
 .section .text
 
 #####################################################################
+# Calculate page count
+#
+# Calculates the number of page frames that exist between two
+# addresses and returns that value to the caller in EAX.
 #####################################################################
 .type calculate_page_count, @function
 calculate_page_count:
@@ -73,11 +77,22 @@ calculate_page_count:
 
 
 #####################################################################
+# Map Section
+#
+# void map_section(uint32_t source, uint32_t dest,
+#   uint32_t frame_count, uint32_t flags);
+# This function maps an individual section.
+# It maps the provided number of page frames from the source address
+# onwards into the page tables pointed to by dest.
 #####################################################################
 .type map_section, @function
 map_section:
 	pushl %ebp
 	movl %esp, %ebp
+
+	pushl %edi
+	pushl %esi
+	pushl %ebx
 
 	# The source address for the section.
 	movl 8(%ebp), %esi
@@ -104,6 +119,10 @@ map_section:
 
 	# Loop until frame counter in ECX is 0.
 	loop .map_section_frame
+
+	popl %ebx
+	popl %esi
+	popl %edi
 
 	mov %ebp, %esp
 	pop %ebp
@@ -140,7 +159,9 @@ init_boot_page_directory:
 	call map_section
 	addl $16, %esp
 
+
 .map_text_section:
+	# Map the text section.
 	# Calculate the number of pages contained in this section.
 	# Page count is stored in EAX.
 	pushl $text_end
@@ -165,6 +186,15 @@ init_boot_page_directory:
 	pushl %ecx
 	pushl %edi
 	pushl %esi
+
+	# Increment destination page table address by (page_count * 4).
+	# Calculate offset for the page table.
+	movl $4, %ebx
+	movl %ecx, %eax
+	mull %ebx
+	# Add offset to current destination value.
+	addl %eax, %edi
+
 	call map_section
 	addl $16, %esp
 
@@ -188,6 +218,13 @@ init_boot_page_directory:
 	pushl %ecx
 	pushl %edi
 	pushl %esi
+
+	# Increment destination page_table address.
+	movl $4, %ebx
+	movl %ecx, %eax
+	mull %ebx
+	addl %eax, %edi
+
 	call map_section
 	addl $16, %esp
 
@@ -212,6 +249,13 @@ init_boot_page_directory:
 	pushl %ecx
 	pushl %edi
 	pushl %esi
+
+	# Increment destination page_table address.
+	movl $4, %ebx
+	movl %ecx, %eax
+	mull %ebx
+	addl %eax, %edi
+
 	call map_section
 	addl $16, %esp
 
@@ -280,7 +324,6 @@ init_boot_page_directory:
 	movl %edx, (%ebx)
 
 .load_mapped_page_tables:
-
 	# Map the boot page table to virtual addresses 0x00000000 and 0xC0000000.
 	# This allows for execution to continue sequentially immediately
 	# after enabling paging.

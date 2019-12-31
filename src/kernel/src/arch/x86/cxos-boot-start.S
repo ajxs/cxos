@@ -41,6 +41,14 @@ multiboot_magic:
 multiboot_struct:
 	.skip 4
 
+.global multiboot_mmap_addr
+multiboot_mmap_addr:
+	.skip 4
+.global multiboot_mmap_len
+multiboot_mmap_len:
+	.skip 4
+
+
 
 .section .text
 
@@ -393,6 +401,51 @@ init_boot_page_directory:
 
 	loop .map_table
 
+.end_init_boot_page_directory:
+	ret
+
+#####################################################################
+#####################################################################
+.type save_multiboot_data, @function
+save_multiboot_data:
+	# First, check if the kernel has been loaded by a multiboot compatible
+	# bootloader by checking the magic number value.
+
+	# Move kernel VMA offset into EDX.
+	movl $KERNEL_VMA_OFFSET, %edx
+
+	# Compare the contents of the multiboot magic number variable with the
+	# expected valid result. If not equal, exit this subroutine.
+	movl $multiboot_magic, %eax
+	subl %edx, %eax                # Subtract VMA offset.
+	cmpl $0x2BADB002, (%eax)
+	jne .end_save_multiboot_data
+
+.save_mmap:
+	# Move mmap to globally accessible location.
+	movl $multiboot_struct, %eax       # Move multiboot_struct offset into EAX.
+	subl %edx, %eax                    # Subtract VMA offset.
+
+	movl (%eax), %esi                  # Load multiboot struct address into ESI.
+	addl $44, %esi                     # Add offset to mmap_len field.
+
+	movl (%esi), %ebx                  # Save data into EBX.
+
+	movl $multiboot_mmap_len, %edi     # Load address of mmap_len storage into EDI.
+	subl %edx, %edi                    # Subtract VMA offset.
+	movl %ebx, (%edi)                  # Move data to storage.
+
+	movl (%eax), %esi                  # Load multiboot struct address into ESI.
+	addl $48, %esi                     # Add offset to mmap_addr field.
+
+	movl (%esi), %ebx                  # Save data into EBX.
+
+	movl $multiboot_mmap_addr, %edi    # Move mmap_addr storage into EDI.
+	subl %edx, %edi                    # Subtract VMA offset.
+	movl %ebx, (%edi)                  # Move data to storage.
+
+.end_save_mmap:
+.end_save_multiboot_data:
 	ret
 
 
@@ -428,17 +481,17 @@ _start:
 
 	# Move multiboot_magic address into ECX.
 	movl $multiboot_magic, %ecx
-	# Subtract VMA offset.
-	subl %edx, %ecx
+	subl %edx, %ecx                # Subtract VMA offset.
 	# Move magic number value into the reserved variable address.
 	movl %eax, (%ecx)
 
 	# Move multiboot_struct address into ECX.
 	movl $multiboot_struct, %ecx
-	# Subtract VMA offset.
-	subl %edx, %ecx
+	subl %edx, %ecx                # Subtract VMA offset.
 	# Move struct address into the reserved variable address.
 	movl %ebx, (%ecx)
+
+	call save_multiboot_data
 
 	# Initialise the boot page structures.
 	call init_boot_page_directory

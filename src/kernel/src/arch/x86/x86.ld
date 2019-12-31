@@ -53,11 +53,18 @@ SECTIONS {
 		*(COMMON)
 		*(.bss*)
 
-		. = ALIGN (16);
+		. = ALIGN (4K);
 		stack_bottom = .;
 		. += KERNEL_STACK_SIZE;
 		stack_top = .;
 
+		/** Reserve 1MB for saving any needed multiboot data. */
+		. = ALIGN (4K);
+		multiboot_data_start = .;
+		. += 1M;
+		multiboot_data_end = .;
+
+		/** Boot paging structures. */
 		. = ALIGN (4K);
 		boot_page_directory = .;
 		. += 0x1000;
@@ -67,6 +74,9 @@ SECTIONS {
 		 * Skip the amount of space necessary to hold this amount of pages.
 		 */
 		. += (1 + ((KERNEL_PHYS_START + kernel_end - kernel_start) / 0x400000)) * 0x1000;
+
+		graphics_table = .;
+		. += 0x1000;
 		boot_mapping_table = .;
 		. += 0x1000;
 

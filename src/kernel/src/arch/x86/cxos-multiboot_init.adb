@@ -84,6 +84,18 @@ package body Cxos.Multiboot_Init is
         Address       => Boot_Info_Address,
         Volatile;
 
+      Mmap_Addr         : constant System.Address
+      with Import,
+        Convention    => Assembler,
+        External_Name => "multiboot_mmap_addr",
+        Volatile;
+
+      Mmap_Len          : constant Unsigned_32
+      with Import,
+        Convention    => Assembler,
+        External_Name => "multiboot_mmap_len",
+        Volatile;
+
       --  The result of internal processes.
       Result : Process_Result;
    begin
@@ -95,9 +107,7 @@ package body Cxos.Multiboot_Init is
 
          --  Parse the Multiboot provided memory map to mark memory
          --  regions that are free to use.
-         Result := Parse_Multiboot_Memory_Map (
-           To_Address (Integer_Address (Boot_Info.Mmap_Addr)),
-           Boot_Info.Mmap_Length);
+         Result := Parse_Multiboot_Memory_Map (Mmap_Addr, Mmap_Len);
          if Result /= Success then
             Cxos.Serial.Put_String ("Error parsing memory map" & ASCII.LF);
             return Unhandled_Exception;

@@ -55,6 +55,8 @@ calculate_page_count:
 	pushl %ebp
 	movl %esp, %ebp
 
+	pushl %ebx
+
 	# The start of the section.
 	movl 8(%ebp), %ebx
 	# The end of the section.
@@ -70,6 +72,8 @@ calculate_page_count:
 	# Number of page frames in text section is now in EAX.
 	# Add 1 for the correct amount.
 	incl %eax
+
+	popl %ebx
 
 	mov %ebp, %esp
 	pop %ebp
@@ -323,44 +327,71 @@ init_boot_page_directory:
 	# Move to the correct entry in the page directory.
 	movl %edx, (%ebx)
 
-.load_mapped_page_tables:
+.map_kernel_pages_in_directory:
 	# Map the boot page table to virtual addresses 0x00000000 and 0xC0000000.
 	# This allows for execution to continue sequentially immediately
 	# after enabling paging.
 
+.calculate_kernel_page_count:
+	# Calculate number of pages required to map the kernel.
+	# Store the length of the kernel in EAX.
+	movl $kernel_end, %eax
+	movl $kernel_start, %ebx
+	subl %ebx, %eax
+
+	# Divide by the size of a page frame.
+	movl $0, %edx
+	movl $0x400000, %ebx
+	divl %ebx
+	# Increment by 1, since we are calculating the page count.
+	incl %eax
+	# Store the page count in ECX.
+	movl %eax, %ecx
+
+.calculate_higher_half_directory_offset:
 	# Store the offset into the page directory in ECX.
 	movl $KERNEL_VMA_OFFSET, %eax
 	movl $0, %edx
-	movl $0x100000, %ecx
-	# Divide the kernel VMA offset by the size of a page frame times 4.
+	movl $0x100000, %ebx
+	# Divide the kernel VMA offset by the size of a page frame divided 4.
 	# This will give us the correct byte offset into the page directory
 	# to map the kernel pages.
-	# e.g 0xC0000000 / 0x100000 = (768*4).
-	divl %ecx
-	# Move result back to ECX.
-	movl %eax, %ecx
+	# e.g 0xC0000000 / (0x400000 /4) = (768*4 bytes).
+	divl %ebx
+	# Move result back to EBX.
+	movl %eax, %ebx
+
+.insert_kernel_pages:
+	movl $KERNEL_VMA_OFFSET, %eax
 
 	# Move address of boot page table into EDX.
-	movl $KERNEL_VMA_OFFSET, %eax
-	movl $boot_page_tables, %edx
-	# Subtract VMA offset.
-	subl %eax, %edx
+	movl $boot_page_tables, %esi
+	subl %eax, %esi                    # Subtract VMA offset.
 	# Apply flags: Supervisor x Present x Writeable.
-	orl $3, %edx
+	orl $3, %esi
 
-	# Store boot page directory address in EBX.
-	movl $boot_page_directory, %ebx
-	# Subtract VMA offset.
-	subl %eax, %ebx
+	# Store boot page directory offset 0 address in EDI.
+	movl $boot_page_directory, %edi
+	subl %eax, %edi                    # Subtract VMA offset.
 
-	# Map low memory.
-	movl %edx, (%ebx)
-
+	# Store boot page directory higher-half address in EDX.
+	movl $boot_page_directory, %edx
+	subl %eax, %edx                    # Subtract VMA offset.
 	# Add higher-half offset into the page directory to map to the
 	# appropriate higher-half kernel entry into the page directory.
-	addl %ecx, %ebx
+	addl %ebx, %edx
+
+.map_table:
+	# Identity map low memory.
+	movl %esi, (%edi)
 	# Map higher-half kernel address.
-	movl %edx, (%ebx)
+	movl %esi, (%edx)
+
+	addl $0x1000, %esi
+	addl $4, %edi
+	addl $4, %edx
+
+	loop .map_table
 
 	ret
 

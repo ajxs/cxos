@@ -41,10 +41,10 @@ multiboot_magic:
 multiboot_struct:
 	.skip 4
 
-.global multiboot_mmap_addr
+.global multiboot_mmap_info
+multiboot_mmap_info:
 multiboot_mmap_addr:
 	.skip 4
-.global multiboot_mmap_len
 multiboot_mmap_len:
 	.skip 4
 
@@ -428,7 +428,7 @@ save_multiboot_data:
 
 	movl (%eax), %ebx
 	andl $0x40, %ebx
-	cmpl $1, %ebx
+	cmpl $0x40, %ebx
 	jne .end_save_mmap
 
 	movl (%eax), %esi                  # Load multiboot struct address into ESI.

@@ -45,6 +45,23 @@ package Cxos.Multiboot_Init is
 
 private
    ----------------------------------------------------------------------------
+   --  Multiboot section information type.
+   --  Contains information necessary to load a particular multiboot section
+   --  that has been copied to an alternate location during boot.
+   ----------------------------------------------------------------------------
+   type Multiboot_Section_Info is
+      record
+         Section_Addr   : System.Address;
+         Section_Length : Unsigned_32;
+      end record
+   with Size => 64;
+   for Multiboot_Section_Info use
+      record
+         Section_Addr   at 0 range 0 .. 31;
+         Section_Length at 4 range 0 .. 31;
+      end record;
+
+   ----------------------------------------------------------------------------
    --  Parse_Multiboot_Memory_Map
    --
    --  Purpose:

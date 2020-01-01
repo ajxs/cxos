@@ -426,6 +426,11 @@ save_multiboot_data:
 	movl $multiboot_struct, %eax       # Move multiboot_struct offset into EAX.
 	subl %edx, %eax                    # Subtract VMA offset.
 
+	movl (%eax), %ebx
+	andl $0x40, %ebx
+	cmpl $1, %ebx
+	jne .end_save_mmap
+
 	movl (%eax), %esi                  # Load multiboot struct address into ESI.
 	addl $44, %esi                     # Add offset to mmap_len field.
 

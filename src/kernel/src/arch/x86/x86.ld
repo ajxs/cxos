@@ -75,7 +75,7 @@ SECTIONS {
 		 */
 		. += (1 + ((KERNEL_PHYS_START + kernel_end - kernel_start) / 0x400000)) * 0x1000;
 
-		graphics_table = .;
+		boot_graphics_table = .;
 		. += 0x1000;
 		boot_mapping_table = .;
 		. += 0x1000;

@@ -126,16 +126,13 @@ _start:
 	# the bootloader.
 	# See: https://www.gnu.org/software/grub/manual/multiboot/multiboot.html#Machine-state
 
-	# Move kernel VMA offset into EDX.
-	movl $KERNEL_VMA_OFFSET, %edx
+	movl $KERNEL_VMA_OFFSET, %edx            # Move kernel VMA offset into EDX.
 
-	# Move multiboot_magic address into ECX.
-	movl $multiboot_magic, %ecx
+	movl $multiboot_magic, %ecx              # Move multiboot_magic address into ECX.
 	subl %edx, %ecx                          # Subtract VMA offset.
 	movl %eax, (%ecx)                        # Move magic number into the reserved address.
 
-	# Move multiboot_struct address into ECX.
-	movl $multiboot_struct, %ecx
+	movl $multiboot_struct, %ecx             # Move multiboot_struct address into ECX.
 	subl %edx, %ecx                          # Subtract VMA offset.
 	movl %ebx, (%ecx)                        # Move struct to the reserved address.
 
@@ -147,8 +144,8 @@ _start:
 	# Move VMA offset into EAX.
 	movl $KERNEL_VMA_OFFSET, %eax
 
-	# Load address of the page directory into CR3.
-	movl $boot_page_directory, %ecx
+	# Load page directory.
+	movl $boot_page_directory, %ecx          # Load address of the page dir into CR3.
 	subl %eax, %ecx                          # Subtract VMA offset.
 	movl %ecx, %cr3                          # Move the address into CR3.
 
@@ -169,6 +166,9 @@ _start:
 	call adainit
 
 	# Initialise the system.
+	# This procedure is defined within the runtime. It performs the initial
+	# initialisation of the x86 platform required by the kernel, such as loading
+	# the GDT/IDT.
 	call __system_init
 
 	# Initialise the kernel.

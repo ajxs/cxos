@@ -40,6 +40,9 @@ multiboot_drive_present:
 
 #####################################################################
 # Copy Multiboot Data
+#
+# Copies individual multiboot section data into a reserved area of
+# memory so that it remains mapped into virtual memory.
 #####################################################################
 .global copy_multiboot_data
 .type copy_multiboot_data, @function

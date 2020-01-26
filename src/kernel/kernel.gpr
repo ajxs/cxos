@@ -38,13 +38,13 @@ project Kernel is
 
    case ARCH is
       when "x86" =>
-         for Main use ("cxos-boot-start.S");
+         for Main use ("cxos-boot-entry.S");
    end case;
 
    package Builder is
       case ARCH is
          when "x86" =>
-            for Executable ("cxos-boot-start.S") use "cxos";
+            for Executable ("cxos-boot-entry.S") use "cxos";
       end case;
 
       for Executable_Suffix use ".elf";

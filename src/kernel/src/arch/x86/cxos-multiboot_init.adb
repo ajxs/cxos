@@ -75,7 +75,7 @@ package body Cxos.Multiboot_Init is
       Boot_Info_Address : constant System.Address
       with Import,
         Convention    => Assembler,
-        External_Name => "multiboot_struct",
+        External_Name => "multiboot_struct_ptr",
         Volatile;
       --  Create multiboot info structure overlaid at boot info address.
       Boot_Info         : constant Multiboot_Info
@@ -95,7 +95,7 @@ package body Cxos.Multiboot_Init is
       Result : Process_Result;
    begin
       --  Check whether we have a valid Multiboot memory map.
-      if Boot_Info.Flags.Memory_Map_Fields_Valid then
+      if Mmap_Info.Section_Present then
          Cxos.Serial.Put_String (
            "Multiboot memory map present" & ASCII.LF &
            "Parsing Multiboot memory map" & ASCII.LF);

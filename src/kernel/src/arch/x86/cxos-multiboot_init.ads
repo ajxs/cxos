@@ -51,14 +51,16 @@ private
    ----------------------------------------------------------------------------
    type Multiboot_Section_Info is
       record
-         Section_Addr   : System.Address;
-         Section_Length : Unsigned_32;
+         Section_Addr    : System.Address;
+         Section_Length  : Unsigned_32;
+         Section_Present : Boolean;
       end record
-   with Size => 64;
+   with Size => 72;
    for Multiboot_Section_Info use
       record
-         Section_Addr   at 0 range 0 .. 31;
-         Section_Length at 4 range 0 .. 31;
+         Section_Addr    at 0 range 0 .. 31;
+         Section_Length  at 4 range 0 .. 31;
+         Section_Present at 8 range 0 .. 7;
       end record;
 
    ----------------------------------------------------------------------------

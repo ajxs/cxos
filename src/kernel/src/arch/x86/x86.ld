@@ -60,9 +60,9 @@ SECTIONS {
 
 		/** Reserve 1MB for saving any needed multiboot data. */
 		. = ALIGN (4K);
-		multiboot_data_start = .;
+		multiboot_reserved_start = .;
 		. += 1M;
-		multiboot_data_end = .;
+		multiboot_reserved_end = .;
 
 		/** Boot paging structures. */
 		. = ALIGN (4K);

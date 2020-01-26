@@ -34,70 +34,22 @@
 .global multiboot_magic
 multiboot_magic:
 	.skip 4
-.global multiboot_struct
-multiboot_struct:
+.global multiboot_struct_ptr
+multiboot_struct_ptr:
 	.skip 4
 
 .global multiboot_mmap_info
 multiboot_mmap_info:
 multiboot_mmap_addr:
 	.skip 4
-multiboot_mmap_len:
+multiboot_mmap_length:
 	.skip 4
+multiboot_mmap_present:
+	.skip 1
 
 
 
 .section .text
-
-#####################################################################
-#####################################################################
-.type save_multiboot_data, @function
-save_multiboot_data:
-	# First, check if the kernel has been loaded by a multiboot compatible
-	# bootloader by checking the magic number value.
-
-	# Move kernel VMA offset into EDX.
-	movl $KERNEL_VMA_OFFSET, %edx
-
-	# Compare the contents of the multiboot magic number variable with the
-	# expected valid result. If not equal, exit this subroutine.
-	movl $multiboot_magic, %eax
-	subl %edx, %eax                # Subtract VMA offset.
-	cmpl $0x2BADB002, (%eax)
-	jne .end_save_multiboot_data
-
-.save_mmap:
-	# Move mmap to globally accessible location.
-	movl $multiboot_struct, %eax       # Move multiboot_struct offset into EAX.
-	subl %edx, %eax                    # Subtract VMA offset.
-
-	movl (%eax), %ebx
-	andl $0x40, %ebx
-	cmpl $0x40, %ebx
-	jne .end_save_mmap
-
-	movl (%eax), %esi                  # Load multiboot struct address into ESI.
-	addl $44, %esi                     # Add offset to mmap_len field.
-
-	movl (%esi), %ebx                  # Save data into EBX.
-
-	movl $multiboot_mmap_len, %edi     # Load address of mmap_len storage into EDI.
-	subl %edx, %edi                    # Subtract VMA offset.
-	movl %ebx, (%edi)                  # Move data to storage.
-
-	movl (%eax), %esi                  # Load multiboot struct address into ESI.
-	addl $48, %esi                     # Add offset to mmap_addr field.
-
-	movl (%esi), %ebx                  # Save data into EBX.
-
-	movl $multiboot_mmap_addr, %edi    # Move mmap_addr storage into EDI.
-	subl %edx, %edi                    # Subtract VMA offset.
-	movl %ebx, (%edi)                  # Move data to storage.
-
-.end_save_mmap:
-.end_save_multiboot_data:
-	ret
-
 
 #####################################################################
 #  Boot Hang
@@ -108,6 +60,53 @@ save_multiboot_data:
 .boot_hang:
 	jmp .boot_hang
 
+
+#####################################################################
+# Copy Multiboot Data
+#####################################################################
+.global _start
+.type copy_multiboot_data, @function
+copy_multiboot_data:
+
+# Copy the mmap to a reserved area of memory in bss.
+.copy_multiboot_mmap:
+	movl $KERNEL_VMA_OFFSET, %edx            # Store higher-half offset in EDX.
+	movl $multiboot_struct_ptr, %esi
+	subl %edx, %esi                          # Subtract higher-half offset.
+
+	movl (%esi), %esi                        # Copy pointer address into ESI.
+
+	# Check flags for mmap being present.
+	movl (%esi), %eax                        # Copy multiboot flags into EAX.
+	andl $0x20, %eax
+	cmpl $0, %eax
+	je .end_copy_multiboot_mmap
+
+	addl $44, %esi                           # Add offset to the mmap length.
+
+	movl $multiboot_mmap_length, %edi        # Store length var address in EDI.
+	movl (%esi), %eax                        # Copy length into reserved var.
+	movl %eax, (%edi)                        # Copy length to address in EDI.
+
+	movl %eax, %ecx                          # Copy length into ECX.
+	movl $multiboot_reserved_start, %edi     # Move the reserved memory addr to EDI.
+
+	addl $4, %esi                            # Increment ESI to point to mmap addr.
+	movl (%esi), %eax                        # Move value contained at ESI to EAX.
+
+	movl %eax, %esi                          # Move value back to ESI.
+
+	movl $multiboot_mmap_addr, %eax          # Copy mmap target to EAX.
+	movl %edi, (%eax)                        # Copy memory address to global var.
+
+	movl $multiboot_mmap_present, %eax       # Copy target addr to EAX.
+	movl $1, (%eax)                          # Write a true value.
+
+	rep movsb                                # Copy from ESI to EDI
+.end_copy_multiboot_mmap:
+
+.end_copy_multiboot_data:
+	ret
 
 #####################################################################
 #  Boot entry point
@@ -132,11 +131,9 @@ _start:
 	subl %edx, %ecx                          # Subtract VMA offset.
 	movl %eax, (%ecx)                        # Move magic number into the reserved address.
 
-	movl $multiboot_struct, %ecx             # Move multiboot_struct address into ECX.
+	movl $multiboot_struct_ptr, %ecx         # Move multiboot_struct address into ECX.
 	subl %edx, %ecx                          # Subtract VMA offset.
 	movl %ebx, (%ecx)                        # Move struct to the reserved address.
-
-	call save_multiboot_data
 
 	# Initialise the boot page structures.
 	call init_boot_page_directory
@@ -170,6 +167,8 @@ _start:
 	# initialisation of the x86 platform required by the kernel, such as loading
 	# the GDT/IDT.
 	call __system_init
+
+	call copy_multiboot_data
 
 	# Initialise the kernel.
 	call __kernel_init

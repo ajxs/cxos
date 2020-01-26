@@ -114,6 +114,10 @@ package body Cxos.Boot is
             else
                Cxos.Serial.Put_String (
                  "Unable to detect valid Multiboot magic number" & ASCII.LF);
+
+               --  Exit here in the instance that we can't find a valid
+               --  Multiboot identity.
+               return;
             end if;
          end Read_Multiboot_Info;
 

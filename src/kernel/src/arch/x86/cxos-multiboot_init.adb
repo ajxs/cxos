@@ -17,7 +17,6 @@ with System.Address_To_Access_Conversions;
 with System.Storage_Elements;
 
 package body Cxos.Multiboot_Init is
-   use Multiboot;
    use System.Storage_Elements;
 
    ----------------------------------------------------------------------------
@@ -71,17 +70,11 @@ package body Cxos.Multiboot_Init is
    ----------------------------------------------------------------------------
    --  Parse_Multiboot_Info
    function Parse_Multiboot_Info return Process_Result is
-      --  Multiboot info struct address.
-      Boot_Info_Address : constant System.Address
+      --  The multiboot drive map info struct.
+      Drive_Info : constant Multiboot_Section_Info
       with Import,
         Convention    => Assembler,
-        External_Name => "multiboot_struct_ptr",
-        Volatile;
-      --  Create multiboot info structure overlaid at boot info address.
-      Boot_Info         : constant Multiboot_Info
-      with Import,
-        Convention    => Assembler,
-        Address       => Boot_Info_Address,
+        External_Name => "multiboot_drive_info",
         Volatile;
 
       --  The multiboot memory map info struct.
@@ -115,14 +108,15 @@ package body Cxos.Multiboot_Init is
            "Multiboot memory map not present" & ASCII.LF);
       end if;
 
-      if Boot_Info.Flags.Drives_Fields_Valid then
+      --  As per Multiboot spec, the drive map section length can be valid
+      --  with a length of 0.
+      if Drive_Info.Section_Present and Drive_Info.Section_Length > 0 then
          Cxos.Serial.Put_String (
            "Multiboot drives map present" & ASCII.LF &
            "Parsing drive entries" & ASCII.LF);
 
-         Result := Parse_Multiboot_Drive_Map (
-           To_Address (Integer_Address (Boot_Info.Drives_Addr)),
-           Boot_Info.Drives_Length);
+         Result := Parse_Multiboot_Drive_Map (Drive_Info.Section_Addr,
+           Drive_Info.Section_Length);
          if Result /= Success then
             Cxos.Serial.Put_String ("Error parsing drive map" & ASCII.LF);
             return Unhandled_Exception;

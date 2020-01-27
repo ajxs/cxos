@@ -47,17 +47,18 @@ multiboot_drive_present:
 .global copy_multiboot_data
 .type copy_multiboot_data, @function
 copy_multiboot_data:
+	movl $KERNEL_VMA_OFFSET, %edx            # Store higher-half offset in EDX.
+
 	# Move the reserved memory addr to EDI.
 	# This will stay constant throughout so that we can save the value of EDI
 	# as the pointers to individual sections.
 	movl $multiboot_reserved_start, %edi
+	subl %edx, %edi                          # Subtract higher-half offset.
 
 # Copy the mmap to a reserved area of memory in bss.
 .copy_multiboot_mmap:
-	movl $KERNEL_VMA_OFFSET, %edx            # Store higher-half offset in EDX.
 	movl $multiboot_struct_ptr, %esi
 	subl %edx, %esi                          # Subtract higher-half offset.
-
 	movl (%esi), %esi                        # Copy pointer address into ESI.
 
 	# Check flags for mmap being present.
@@ -70,8 +71,8 @@ copy_multiboot_data:
 	addl $44, %esi                           # Add offset to the mmap length.
 
 	movl $multiboot_mmap_length, %ebx        # Store length var address in EBX.
+	subl %edx, %ebx                          # Subtract higher-half offset.
 	movl (%esi), %eax                        # Copy length into reserved var.
-
 	movl %eax, (%ebx)                        # Copy length to address in EDI.
 
 	movl %eax, %ecx                          # Copy length into ECX.
@@ -81,20 +82,22 @@ copy_multiboot_data:
 
 	movl %eax, %esi                          # Move value back to ESI.
 
+	movl %edi, %ebx                          # Temporarily move EDI to EBX.
+	addl %edx, %ebx                          # Add higher-half offset to address.
 	movl $multiboot_mmap_addr, %eax          # Copy mmap target to EAX.
-	movl %edi, (%eax)                        # Copy memory address to global var.
+	subl %edx, %eax                          # Subtract higher-half offset.
+	movl %ebx, (%eax)                        # Copy memory address to global var.
 
 	movl $multiboot_mmap_present, %eax       # Copy target addr to EAX.
+	subl %edx, %eax                          # Subtract higher-half offset.
 	movl $1, (%eax)                          # Write a true value.
 
 	rep movsb                                # Copy from ESI to EDI
 .end_copy_multiboot_mmap:
 
 .copy_multiboot_drive_map:
-	movl $KERNEL_VMA_OFFSET, %edx            # Store higher-half offset in EDX.
 	movl $multiboot_struct_ptr, %esi
 	subl %edx, %esi                          # Subtract higher-half offset.
-
 	movl (%esi), %esi                        # Copy pointer address into ESI.
 
 	# Check flags for drive map being present.
@@ -107,6 +110,7 @@ copy_multiboot_data:
 	addl $52, %esi                           # Add offset to the drive map length.
 
 	movl $multiboot_drive_length, %ebx       # Store length var address in EBX.
+	subl %edx, %ebx                          # Subtract higher-half offset.
 	movl (%esi), %eax                        # Copy length into reserved var.
 	movl %eax, (%ebx)                        # Copy length to address in EDI.
 
@@ -117,10 +121,14 @@ copy_multiboot_data:
 
 	movl %eax, %esi                          # Move value back to ESI.
 
+	movl %edi, %ebx                          # Temporarily move EDI to EBX.
+	addl %edx, %ebx                          # Add higher-half offset to address.
 	movl $multiboot_drive_addr, %eax         # Copy drive map target to EAX.
-	movl %edi, (%eax)                        # Copy memory address to global var.
+	subl %edx, %eax                          # Subtract higher-half offset.
+	movl %ebx, (%eax)                        # Copy memory address to global var.
 
 	movl $multiboot_drive_present, %eax      # Copy target addr to EAX.
+	subl %edx, %eax                          # Subtract higher-half offset.
 	movl $1, (%eax)                          # Write a true value.
 
 	rep movsb                                # Copy from ESI to EDI

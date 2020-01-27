@@ -78,6 +78,10 @@ _start:
 	subl %edx, %ecx                          # Subtract VMA offset.
 	movl %ebx, (%ecx)                        # Move struct to the reserved address.
 
+	# Copy Multiboot data to a reserved location where it can be accessed by the
+	# kernel after paging has been enabled.
+	call copy_multiboot_data
+
 	# Initialise the boot page structures.
 	call init_boot_page_directory
 
@@ -102,6 +106,9 @@ _start:
 	# Setup stack.
 	movl $stack_top, %esp
 
+	# Remove the boot paging identity mapping.
+	call remove_identity_mapping
+
 	# Initialise Ada runtime.
 	call adainit
 
@@ -110,13 +117,6 @@ _start:
 	# initialisation of the x86 platform required by the kernel, such as loading
 	# the GDT/IDT.
 	call __system_init
-
-	# Copy Multiboot data to a reserved location where it can be accessed by the
-	# kernel after low memory mapping is removed.
-	call copy_multiboot_data
-
-	# Remove the boot paging identity mapping.
-	call remove_identity_mapping
 
 	# Initialise the kernel.
 	call __kernel_init

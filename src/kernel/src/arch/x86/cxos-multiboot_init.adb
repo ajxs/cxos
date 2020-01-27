@@ -20,6 +20,55 @@ package body Cxos.Multiboot_Init is
    use System.Storage_Elements;
 
    ----------------------------------------------------------------------------
+   --  Clear_Multiboot_Reserved_Data
+   ----------------------------------------------------------------------------
+   function Clear_Multiboot_Reserved_Data return Process_Result is
+      use Cxos.Memory;
+      use Cxos.Memory.Map;
+
+      --  Marker to the start of the multiboot reserved memory area.
+      Multiboot_Reserved_Memory_Start : constant System.Address
+      with Import,
+        Convention    => Ada,
+        External_Name => "multiboot_reserved_start";
+
+      --  Marker to the end of the multiboot reserved memory area.
+      Multiboot_Reserved_Memory_End   : constant System.Address
+      with Import,
+        Convention    => Ada,
+        External_Name => "multiboot_reserved_end";
+
+      --  The number of 4kb memory frames contained within the multiboot
+      --  reserved memory area.
+      Frame_Count : Unsigned_32;
+
+      --  The result of internal processes.
+      Result : Cxos.Memory.Process_Result;
+   begin
+      Cxos.Serial.Put_String ("Freeing multiboot memory" & ASCII.LF);
+
+      --  Get the number of memory frames within the multiboot reserved area.
+      Frame_Count := Unsigned_32 (
+        Multiboot_Reserved_Memory_End'Address -
+        Multiboot_Reserved_Memory_Start'Address) / 16#1000#;
+
+      --  Mark the reserved memory area as unallocated.
+      Result := Cxos.Memory.Map.Mark_Memory_Range (
+        Multiboot_Reserved_Memory_Start, Frame_Count, Unallocated);
+      if Result /= Success then
+         Cxos.Serial.Put_String ("Error marking multiboot memory" & ASCII.LF);
+         return Unhandled_Exception;
+      end if;
+
+      Cxos.Serial.Put_String ("Finished freeing multiboot memory" & ASCII.LF);
+
+      return Success;
+   exception
+      when Constraint_Error =>
+         return Unhandled_Exception;
+   end Clear_Multiboot_Reserved_Data;
+
+   ----------------------------------------------------------------------------
    --  Parse_Multiboot_Drive_Map
    ----------------------------------------------------------------------------
    function Parse_Multiboot_Drive_Map (

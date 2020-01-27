@@ -121,6 +121,14 @@ package body Cxos.Boot is
                   return;
                end if;
 
+               Init_Result :=
+                 Cxos.Multiboot_Init.Clear_Multiboot_Reserved_Data;
+               if Init_Result /= Success then
+                  Cxos.Serial.Put_String ("Error freeing multiboot memory"
+                    & ASCII.LF);
+                  return;
+               end if;
+
                Cxos.Serial.Put_String (
                  "Finished parsing multiboot info" & ASCII.LF);
             else

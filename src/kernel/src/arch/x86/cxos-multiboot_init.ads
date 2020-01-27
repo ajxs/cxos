@@ -43,6 +43,15 @@ package Cxos.Multiboot_Init is
    ----------------------------------------------------------------------------
    function Parse_Multiboot_Info return Process_Result;
 
+   ----------------------------------------------------------------------------
+   --  Clear_Multiboot_Reserved_Data
+   --
+   --  Purpose:
+   --    Marks the memory reserved for the multiboot data as being free and
+   --    reusable.
+   ----------------------------------------------------------------------------
+   function Clear_Multiboot_Reserved_Data return Process_Result;
+
 private
    ----------------------------------------------------------------------------
    --  Multiboot section information type.

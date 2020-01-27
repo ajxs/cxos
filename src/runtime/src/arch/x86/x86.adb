@@ -14,7 +14,6 @@ with x86.Interrupts;
 with x86.GDT;
 with x86.PIC;
 with x86.Serial;
-with x86.Vga;
 
 package body x86 is
    ----------------------------------------------------------------------------
@@ -22,11 +21,6 @@ package body x86 is
    ----------------------------------------------------------------------------
    procedure Initialise is
    begin
-      --  Initialise VGA system.
-      x86.Vga.Clear (x86.Vga.Black);
-      x86.Vga.Put_String (0, 0, x86.Vga.Light_Green, x86.Vga.Black,
-        "VGA Text Mode Initialised");
-
       --  Initialise the COM1 Serial port, which will be used for all
       --  subsequent debugging output.
       x86.Serial.Initialise (x86.Serial.COM1, 38400);

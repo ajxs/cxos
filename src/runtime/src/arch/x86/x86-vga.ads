@@ -9,20 +9,15 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with System.Storage_Elements;
-
 -------------------------------------------------------------------------------
 --  X86.VGA
 --
 --  Purpose:
---    This package contains a basic VGA text-mode driver.
---    The procedures and type definitions contained within this module can be
---    used for printing text to the system VGA text-mode buffer.
+--    This package contains the basic types necessary to implement a
+--    VGA text-mode driver.
 -------------------------------------------------------------------------------
 package x86.Vga is
-   pragma Preelaborate (x86.Vga);
-
-   use System.Storage_Elements;
+   pragma Preelaborate;
 
    ----------------------------------------------------------------------------
    --  The predefined VGA color codes.
@@ -72,38 +67,6 @@ package x86.Vga is
    subtype Row is Natural range 0 .. VGA_ROW_COUNT - 1;
 
    ----------------------------------------------------------------------------
-   --  Put_String
-   --
-   --  Purpose:
-   --    This procedure prints a string to an arbitrary position within
-   --    the VGA text-mode buffer.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   procedure Put_String (
-     X  : Col;
-     Y  : Row;
-     Fg : Color;
-     Bg : Color;
-     S  : String
-   );
-
-   ----------------------------------------------------------------------------
-   --  Clear
-   --
-   --  Purpose:
-   --    This procedure clears the VGA text-mode buffer.
-   --    Calling this function will clear the screen, filling it with the
-   --    supplied background colour.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   procedure Clear (
-     Bg : Color
-   );
-
-private
-   ----------------------------------------------------------------------------
    --  Represents the encoding of an individual character entry in the
    --  VGA screen buffer.
    ----------------------------------------------------------------------------
@@ -121,32 +84,8 @@ private
          Background at 1 range 4 .. 7;
       end record;
 
+   ----------------------------------------------------------------------------
+   --  Vga Buffer type.
+   ----------------------------------------------------------------------------
    type Vga_Buffer is array (Natural range <>) of Vga_Buffer_Char;
-
-   ----------------------------------------------------------------------------
-   --  Put_Char
-   --
-   --  Purpose:
-   --    This procedure prints a character to an arbitrary position within
-   --    the VGA text-mode buffer.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   procedure Put_Char (
-     X  : Col;
-     Y  : Row;
-     Fg : Color;
-     Bg : Color;
-     Ch : Character
-   );
-
-   ----------------------------------------------------------------------------
-   --  The actual VGA screen buffer memory.
-   ----------------------------------------------------------------------------
-   Vga_Output_Buffer : Vga_Buffer (0 .. (VGA_COL_COUNT * VGA_ROW_COUNT) - 1)
-   with Import,
-     Convention => Ada,
-     Address    => To_Address (16#B8000#),
-     Volatile;
-
 end x86.Vga;

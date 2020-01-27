@@ -10,6 +10,7 @@
 -------------------------------------------------------------------------------
 
 with Cxos.Exceptions;
+with Cxos.Graphics.Vga;
 with Cxos.Interrupts;
 with Cxos.Memory;
 with Cxos.Memory.Map;
@@ -21,6 +22,7 @@ with Cxos.Serial;
 with Cxos.Time_Keeping;
 with Interfaces;
 with Multiboot;
+with x86.Vga;
 
 package body Cxos.Boot is
    use Interfaces;
@@ -30,6 +32,16 @@ package body Cxos.Boot is
    ----------------------------------------------------------------------------
    procedure Initialise_Kernel is
    begin
+      --  Initialise VGA graphics buffer.
+      Initialise_Vga :
+         declare
+            use x86.Vga;
+         begin
+            Cxos.Graphics.Vga.Clear (Black);
+            Cxos.Graphics.Vga.Put_String (0, 0, Light_Green, Black,
+              "VGA Text Mode Initialised");
+         end Initialise_Vga;
+
       --  Initialise system interrupts and processor exceptions.
       Initialise_Interrupts :
          declare

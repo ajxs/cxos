@@ -111,7 +111,12 @@ _start:
 	# the GDT/IDT.
 	call __system_init
 
+	# Copy Multiboot data to a reserved location where it can be accessed by the
+	# kernel after low memory mapping is removed.
 	call copy_multiboot_data
+
+	# Remove the boot paging identity mapping.
+	call remove_identity_mapping
 
 	# Initialise the kernel.
 	call __kernel_init

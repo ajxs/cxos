@@ -54,9 +54,9 @@ SECTIONS {
 		*(.bss*)
 
 		. = ALIGN (4K);
-		stack_bottom = .;
+		kernel_stack_bottom = .;
 		. += KERNEL_STACK_SIZE;
-		stack_top = .;
+		kernel_stack_top = .;
 
 		/** Reserve 1MB for saving any needed multiboot data. */
 		. = ALIGN (4K);
@@ -75,6 +75,8 @@ SECTIONS {
 		 */
 		. += (1 + ((KERNEL_PHYS_START + kernel_end - kernel_start) / 0x400000)) * 0x1000;
 
+		kernel_stack_table = .;
+		. += 0x1000;
 		boot_graphics_table = .;
 		. += 0x1000;
 		boot_mapping_table = .;

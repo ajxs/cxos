@@ -78,6 +78,11 @@ _start:
 	subl %edx, %ecx                          # Subtract VMA offset.
 	movl %ebx, (%ecx)                        # Move struct to the reserved address.
 
+	# Setup stack.
+	movl $kernel_stack_top, %eax             # Load stack top in EAX.
+	subl %edx, %eax                          # Subtract higher-half offset.
+	movl %eax, %esp                          # Load stack.
+
 	# Copy Multiboot data to a reserved location where it can be accessed by the
 	# kernel after paging has been enabled.
 	call copy_multiboot_data
@@ -103,8 +108,10 @@ _start:
 	jmp *%ecx
 
 .higher_half_jump:
-	# Setup stack.
-	movl $stack_top, %esp
+	# Load kernel stack
+	movl $0xFF000000, %eax                   # Load the stack base in EAX.
+	addl $KERNEL_STACK_SIZE, %eax            # Add the stack size to EAX.
+	movl %eax, %esp                          # Load stack.
 
 	# Remove the boot paging identity mapping.
 	call remove_identity_mapping

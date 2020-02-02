@@ -312,10 +312,40 @@ init_boot_page_directory:
 	movl $(1022 * 4), %ecx                   # Store offset into page dir in ECX.
 	addl %ecx, %ebx                          # Add page dir offset to target address.
 
-	movl $boot_mapping_table, %edx           # Load page directory address into EDX.
+	movl $boot_mapping_table, %edx           # Load page table address into EDX.
 	subl %eax, %edx                          # Subtract VMA offset.
 	orl $3, %edx                             # Flags: Supervisor x Present x Writeable.
 	movl %edx, (%ebx)                        # Move to ideal entry in the page directory.
+
+# Map the kernel stack table.
+.map_kernel_stack_table:
+	movl $boot_page_directory, %ebx          # Store target address in EBX.
+	subl %eax, %ebx                          # Subtract VMA offset.
+	movl $(1020 * 4), %ecx                   # Store offset into page dir in ECX.
+	addl %ecx, %ebx                          # Add page dir offset to target address.
+
+	movl $kernel_stack_table, %edx           # Load page table address into EDX.
+	subl %eax, %edx                          # Subtract VMA offset.
+	orl $3, %edx                             # Flags: Supervisor x Present x Writeable.
+	movl %edx, (%ebx)                        # Move to ideal entry in the page directory.
+
+# Map the kernel stack into the stack table.
+.map_kernel_stack:
+	movl $kernel_stack_table, %edi             # Move system table address into EDI.
+	subl %eax, %edi                          # Subtract VMA offset.
+
+	movl $kernel_stack_bottom, %esi                 # Move the stack bottom address into ESI.
+	subl %eax, %esi                          # Subtract VMA offset.
+	orl $3, %esi                             # Apply flags.
+
+	movl $4, %ecx                            # Map 4 stack frames.
+.map_kernel_stack_frame:
+	movl %esi, (%edi)
+	addl $4, %edi
+	addl $0x1000, %esi
+	loop .map_kernel_stack_frame
+
+.end_kernel_stack_frame:
 
 # Map the final entry in the page directory to itself.
 .recursively_map_boot_directory:

@@ -9,6 +9,8 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
+with System;
+
 -------------------------------------------------------------------------------
 --  CXOS.MEMORY
 --
@@ -38,6 +40,18 @@ package Cxos.Memory is
      Success,
      Unhandled_Exception
    );
+
+   ----------------------------------------------------------------------------
+   --  Get_Stack_Top
+   --
+   --  Purpose:
+   --    This function returns a pointer to the currently loaded task's stack
+   --    top.
+   ----------------------------------------------------------------------------
+   function Get_Stack_Top return System.Address
+   with Import,
+     Convention    => Assembler,
+     External_Name => "cxos_memory_get_stack_top";
 
    ----------------------------------------------------------------------------
    --  Mark_Kernel_Memory

@@ -145,6 +145,22 @@ package body Cxos.Memory.Paging is
    end Create_Page_Table;
 
    ----------------------------------------------------------------------------
+   --  Current_Page_Dir_Ptr
+   ----------------------------------------------------------------------------
+   function Current_Page_Dir_Ptr return System.Address is
+      use x86.Memory.Paging;
+
+      --  The currently loaded kernel page_directory.
+      Kernel_Page_Dir : constant Page_Directory
+      with Import,
+        Convention => Ada,
+        Address    => To_Address (PAGE_DIR_RECURSIVE_ADDR);
+   begin
+      --  Return the final entry in the currently loaded page directory.
+      return Convert_To_System_Address (Kernel_Page_Dir (1023).Table_Address);
+   end Current_Page_Dir_Ptr;
+
+   ----------------------------------------------------------------------------
    --  Find_Free_Kernel_Page
    ----------------------------------------------------------------------------
    function Find_Free_Kernel_Page (

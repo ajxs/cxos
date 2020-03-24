@@ -30,6 +30,13 @@ package Cxos.Process is
          Id           : Integer;
          Stack_Top    : System.Address;
          Page_Dir_Ptr : System.Address;
+      end record
+   with Size => 96;
+   for Process_Control_Block use
+      record
+         Id           at 0 range 0 .. 31;
+         Stack_Top    at 4 range 0 .. 31;
+         Page_Dir_Ptr at 8 range 0 .. 31;
       end record;
 
    ----------------------------------------------------------------------------
@@ -54,9 +61,16 @@ package Cxos.Process is
    --    Creates the process control block for a new process.
    ----------------------------------------------------------------------------
    function Create_Process (
-      Process_Block : out Process_Control_Block
+     Process_Block : out Process_Control_Block
    ) return Process_Result;
 
+   ----------------------------------------------------------------------------
+   ----------------------------------------------------------------------------
+   procedure Switch_To_Process (
+     Target_Process : Process_Control_Block
+   ) with Import,
+     Convention    => C,
+     External_Name => "__process_switch_to_process";
 private
    ----------------------------------------------------------------------------
    --  Array type to contain the currently loaded system processes.
@@ -81,5 +95,15 @@ private
    --    This function serves as the system idle process.
    ----------------------------------------------------------------------------
    procedure Idle;
+
+   ----------------------------------------------------------------------------
+   --  Create_Initial_Kernel_Task
+   --
+   --  Purpose:
+   --    ffff
+   ----------------------------------------------------------------------------
+   function Create_Initial_Kernel_Task (
+     Process_Block : out Process_Control_Block
+   ) return Process_Result;
 
 end Cxos.Process;

@@ -9,12 +9,29 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
+with System.Storage_Elements;
 with Cxos.Memory;
 with Cxos.Memory.Paging;
 with Cxos.Serial;
 with Cxos.Time_Keeping;
 
 package body Cxos.Process is
+   ----------------------------------------------------------------------------
+   --  Create_Initial_Kernel_Task
+   ----------------------------------------------------------------------------
+   function Create_Initial_Kernel_Task (
+     Process_Block : out Process_Control_Block
+   ) return Process_Result is
+   begin
+      --  Set the page directory pointer to the currently loaded page
+      --  directory pointer.
+      Process_Block.Page_Dir_Ptr := Cxos.Memory.Paging.Current_Page_Dir_Ptr;
+      Process_Block.Stack_Top    := Cxos.Memory.Get_Stack_Top;
+      Process_Block.Id           := 0;
+
+      return Success;
+   end Create_Initial_Kernel_Task;
+
    ----------------------------------------------------------------------------
    --  Create_Task
    ----------------------------------------------------------------------------
@@ -23,7 +40,7 @@ package body Cxos.Process is
    ) return Process_Result is
       --  The newly allocated page directory to map the virtual address
       --  space for the newly created process.
-      Page_Dir_Addr : System.Address;
+      Page_Dir_Addr     : System.Address;
    begin
       --  Allocate the page directory for the newly created process.
       Allocate_Page_Directory :
@@ -34,17 +51,22 @@ package body Cxos.Process is
             Allocate_Result : Cxos.Memory.Process_Result;
          begin
             Allocate_Result := Cxos.Memory.Paging.
-              Create_New_Address_Space (Page_Dir_Addr);
+              Create_New_Address_Space (Page_Dir_Addr, Idle'Address);
             if Allocate_Result /= Success then
+               Cxos.Serial.Put_String ("Error allocating new address block" &
+                 ASCII.LF);
                return Unhandled_Exception;
             end if;
          end Allocate_Page_Directory;
 
       --  Allocate the process control block.
       Allocate_Structure :
+         declare
+            use System.Storage_Elements;
          begin
             Process_Block.Page_Dir_Ptr := Page_Dir_Addr;
-            Process_Block.Id := 337;
+            Process_Block.Stack_Top    := To_Address (16#FF000FE8#);
+            Process_Block.Id           := 337;
          end Allocate_Structure;
 
       return Success;
@@ -79,17 +101,60 @@ package body Cxos.Process is
    ----------------------------------------------------------------------------
    procedure Initialise is
       Test_Block : Process_Control_Block;
-      Test_Result : Process_Result;
+
+      Create_Task_Result : Process_Result;
+      Idle_Task_Block    : Process_Control_Block;
    begin
+      --  Create the system idle process from the pseudo-process currently
+      --  running from boot.
       Create_Idle_Process :
          begin
-            Test_Result := Create_Process (Test_Block);
-            if Test_Result /= Success then
+            Create_Task_Result := Create_Initial_Kernel_Task (Idle_Task_Block);
+            if Create_Task_Result /= Success then
+               Cxos.Serial.Put_String ("Error creating idle task" & ASCII.LF);
+            end if;
+
+            Cxos.Serial.Put_String ("Allocated idle process: " &
+              Idle_Task_Block.Id'Image & ASCII.LF);
+
+            Test_Out :
+               declare
+                  use System.Storage_Elements;
+
+                  CR3 : constant Integer_Address := To_Integer (
+                    Idle_Task_Block.Page_Dir_Ptr);
+                  ESP : constant Integer_Address := To_Integer (
+                    Idle_Task_Block.Stack_Top);
+               begin
+                  Cxos.Serial.Put_String ("Idle CR3: " & CR3'Image & ASCII.LF);
+                  Cxos.Serial.Put_String ("Idle ESP: " & ESP'Image & ASCII.LF);
+               end Test_Out;
+         end Create_Idle_Process;
+
+      Create_Test_Process :
+         begin
+            Create_Task_Result := Create_Process (Test_Block);
+            if Create_Task_Result /= Success then
                Cxos.Serial.Put_String ("Error" & ASCII.LF);
             end if;
             Cxos.Serial.Put_String ("Allocated process: " &
               Test_Block.Id'Image & ASCII.LF);
-         end Create_Idle_Process;
+
+            Test_Block_Debug :
+               declare
+                  use System.Storage_Elements;
+
+                  CR3 : constant Integer_Address := To_Integer (
+                    Test_Block.Page_Dir_Ptr);
+                  ESP : constant Integer_Address := To_Integer (
+                    Test_Block.Stack_Top);
+               begin
+                  Cxos.Serial.Put_String ("New CR3: " & CR3'Image & ASCII.LF);
+                  Cxos.Serial.Put_String ("New ESP: " & ESP'Image & ASCII.LF);
+               end Test_Block_Debug;
+         end Create_Test_Process;
+
+      Switch_To_Process (Test_Block);
    exception
       when Constraint_Error =>
          null;

@@ -13,4 +13,6 @@ file src/kernel/build/cxos.elf -readnow
 # x /5xg &global_descriptor_table
 # x /3xg &interrupt_descriptor_table+(256)
 #
-b map_section
+
+# b __process_switch_to_process
+b cxos-process-switch.S:44

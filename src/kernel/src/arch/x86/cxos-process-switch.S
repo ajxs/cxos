@@ -16,8 +16,29 @@
 #
 #  Switches to the provided process.
 #####################################################################
-.type switch_to_process, @function
-.global switch_to_process
-switch_to_process:
-	cli
-	hlt
+.type __process_switch_to_process, @function
+.global __process_switch_to_process
+__process_switch_to_process:
+   pushl %ebp
+   movl %esp, %ebp
+
+   pushl %ebx
+   pushl %esi
+   pushl %edi
+   pushl %ebp
+
+   movl 8(%ebp), %esi                       # The address of the process block.
+
+   movl 4(%esi), %eax                       # Move next task's ESP to EAX.
+   movl 8(%esi), %ebx                       # Move next task's CR3 to EBX.
+
+   movl %eax, %esp
+   movl %ebx, %cr3
+
+.end_process_switch:
+   pop %ebp
+   pop %edi
+   pop %esi
+   pop %ebx
+
+   ret

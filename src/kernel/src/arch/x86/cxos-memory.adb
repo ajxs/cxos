@@ -11,11 +11,68 @@
 
 with Cxos.Serial;
 with Cxos.Memory.Map;
+with Cxos.Memory.Paging;
 with Interfaces;
 with System.Storage_Elements; use System.Storage_Elements;
 
 package body Cxos.Memory is
    use Interfaces;
+
+   ----------------------------------------------------------------------------
+   --  Create_New_Kernel_Stack
+   ----------------------------------------------------------------------------
+   function Create_New_Kernel_Stack (
+     Stack_Addr  : out System.Address;
+     Initial_EIP :     System.Address
+   ) return Process_Result is
+      --  Virtual address of the stack's temporary mapping into the current
+      --  address space. Used during initialisation.
+      Stack_Virt_Addr : System.Address;
+      --  Result of internal operations.
+      Result : Process_Result;
+   begin
+      --  Allocate a page frame for the new stack frame.
+      Result := Cxos.Memory.Map.Allocate_Frames (Stack_Addr);
+      if Result /= Success then
+         return Result;
+      end if;
+
+      --  Temporarily map the newly allocated stack into the current
+      --  address space.
+      Result := Cxos.Memory.Paging.Temporarily_Map_Page (Stack_Addr,
+        Stack_Virt_Addr);
+      if Result /= Success then
+         return Result;
+      end if;
+
+      --  Initialise the kernel stack.
+      --  Sets the initial stack EIP.
+      Initialise_Kernel_Stack :
+         declare
+            --  Stack frame type.
+            type Stack_Frame is
+              array (Natural range 1 .. 1023) of System.Address;
+
+            New_Kernel_Stack : Stack_Frame
+            with Import,
+              Address => Stack_Virt_Addr;
+         begin
+            --  Set the top of the stack frame to the initial EIP.
+            New_Kernel_Stack (1023) := Initial_EIP;
+         end Initialise_Kernel_Stack;
+
+      --  Free the temporarily mapped structure.
+      Result := Cxos.Memory.Paging.
+        Free_Temporary_Page_Mapping (Stack_Virt_Addr);
+      if Result /= Success then
+         return Result;
+      end if;
+
+      return Success;
+   exception
+      when Constraint_Error =>
+         return Unhandled_Exception;
+   end Create_New_Kernel_Stack;
 
    ----------------------------------------------------------------------------
    --  Mark_Kernel_Memory

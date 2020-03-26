@@ -16,23 +16,14 @@ package body Cxos.Memory.Paging is
    --  Create_New_Page_Directory
    ----------------------------------------------------------------------------
    function Create_New_Address_Space (
-     Page_Directory_Addr : out System.Address;
-     Initial_EIP         :     System.Address
+     Page_Directory_Addr : out System.Address
    ) return Process_Result is
       use x86.Memory.Paging;
 
       --  The address of the newly allocated page frame.
       Allocated_Addr   : System.Address;
-      --  The address of the newly allocated stack frame.
-      Stack_Frame_Addr : System.Address;
-      --  The address of the newly allocated stack page table.
-      Stack_Table_Addr : System.Address;
-
-   --  The virtual address of the mapping to the new stack table.
-      Frame_Virtual_Addr : System.Address;
-   --  The virtual address of the mapping to the new stack table.
-      Stack_Virtual_Addr : System.Address;
-      --  The virtual address of the mapping to the new structure.
+      --  The temporary virtual address of the mapping to the new structure.
+      --  This is used to initialise the newly allocated directory.
       Dir_Virtual_Addr   : System.Address;
       --  The result of internal processes.
       Result             : Process_Result;
@@ -40,59 +31,14 @@ package body Cxos.Memory.Paging is
       --  Set to null address as a default fallback.
       Page_Directory_Addr := System.Null_Address;
 
-      --  Allocate a page frame for the new stack frame.
-      Result := Cxos.Memory.Map.Allocate_Frame (Stack_Frame_Addr);
-      if Result /= Success then
-         return Result;
-      end if;
-
-      --  Temporarily map the new structure into the current address space.
-      Result := Temporarily_Map_Page (Stack_Frame_Addr, Frame_Virtual_Addr);
-      if Result /= Success then
-         return Result;
-      end if;
-
-      --  Initialise the kernel stack.
-      --  Sets the initial stack EIP.
-      Initialise_Kernel_Stack :
-         declare
-            --  Stack frame type.
-            type Stack_Frame is
-              array (Natural range 1 .. 1023) of System.Address;
-
-            New_Kernel_Stack : Stack_Frame
-            with Import,
-              Address => Frame_Virtual_Addr;
-         begin
-            --  Set the top of the stack frame to the initial EIP.
-            New_Kernel_Stack (1023) := Initial_EIP;
-         end Initialise_Kernel_Stack;
-
-      --  Free the temporarily mapped structure.
-      Result := Free_Temporary_Page_Mapping (Frame_Virtual_Addr);
-      if Result /= Success then
-         return Result;
-      end if;
-
-      --  Allocate a page frame for the new stack page table.
-      Result := Cxos.Memory.Map.Allocate_Frame (Stack_Table_Addr);
-      if Result /= Success then
-         return Result;
-      end if;
-
       --  Allocate a page frame for the new page directory.
-      Result := Cxos.Memory.Map.Allocate_Frame (Allocated_Addr);
+      Result := Cxos.Memory.Map.Allocate_Frames (Allocated_Addr);
       if Result /= Success then
          return Result;
       end if;
 
-      --  Temporarily map the new structure into the current address space.
-      Result := Temporarily_Map_Page (Stack_Table_Addr, Stack_Virtual_Addr);
-      if Result /= Success then
-         return Result;
-      end if;
-
-      --  Temporarily map the new structure into the current address space.
+      --  Temporarily map the newly allocated page frame into the current
+      --  address space so that it can be initialised.
       Result := Temporarily_Map_Page (Allocated_Addr, Dir_Virtual_Addr);
       if Result /= Success then
          return Result;
@@ -101,12 +47,6 @@ package body Cxos.Memory.Paging is
       --  Initialise the newly allocated page directory.
       Init_Page_Directory :
          declare
-            --  The new directory mapped into virtual memory.
-            New_Stack_Table : Page_Table
-            with Import,
-              Convention => Ada,
-              Address    => Stack_Virtual_Addr;
-
             --  The currently loaded page directory.
             --  The new directory mapped into virtual memory.
             New_Page_Dir : Page_Directory
@@ -120,17 +60,6 @@ package body Cxos.Memory.Paging is
               Convention => Ada,
               Address    => To_Address (PAGE_DIR_RECURSIVE_ADDR);
          begin
-            --  Initialise the stack table.
-            Result := Initialise_Page_Table (New_Stack_Table);
-            if Result /= Success then
-               return Result;
-            end if;
-
-            --  Set the newly allocated stack frame.
-            New_Stack_Table (0).Present      := True;
-            New_Stack_Table (0).Page_Address :=
-              Convert_To_Page_Aligned_Address (Stack_Frame_Addr);
-
             --  Initialise the new stack page table.
             Result := Initialise_Page_Directory (New_Page_Dir);
             if Result /= Success then
@@ -142,20 +71,10 @@ package body Cxos.Memory.Paging is
             for Dir_Entry_Idx in Integer range 768 .. 1023 loop
                New_Page_Dir (Dir_Entry_Idx) := Curr_Page_Dir (Dir_Entry_Idx);
             end loop;
-
-            --  Set the new address space's stack table.
-            New_Page_Dir (1020).Table_Address :=
-              Convert_To_Page_Aligned_Address (Stack_Table_Addr);
          end Init_Page_Directory;
 
       --  Free the temporarily mapped structure.
       Result := Free_Temporary_Page_Mapping (Dir_Virtual_Addr);
-      if Result /= Success then
-         return Result;
-      end if;
-
-      --  Free the temporarily mapped structure.
-      Result := Free_Temporary_Page_Mapping (Stack_Virtual_Addr);
       if Result /= Success then
          return Result;
       end if;
@@ -188,7 +107,7 @@ package body Cxos.Memory.Paging is
       Page_Table_Addr := System.Null_Address;
 
       --  Allocate a page frame for the new page table.
-      Result := Cxos.Memory.Map.Allocate_Frame (Allocated_Addr);
+      Result := Cxos.Memory.Map.Allocate_Frames (Allocated_Addr);
       if Result /= Success then
          return Result;
       end if;

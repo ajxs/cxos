@@ -27,7 +27,17 @@ package body Cxos.Process is
       --  directory pointer.
       Process_Block.Page_Dir_Ptr := Cxos.Memory.Paging.Current_Page_Dir_Ptr;
       Process_Block.Stack_Top    := Cxos.Memory.Get_Stack_Top;
-      Process_Block.Id           := 0;
+      Process_Block.Id           := Process_Count;
+
+      --  Increment the process count.
+      Increment_Process_Count :
+         begin
+            Process_Count := Process_Count + 1;
+         exception
+            when Constraint_Error =>
+               Cxos.Serial.Put_String ("Process count exhausted" & ASCII.LF);
+               return Unhandled_Exception;
+         end Increment_Process_Count;
 
       return Success;
    end Create_Initial_Kernel_Task;
@@ -41,6 +51,8 @@ package body Cxos.Process is
       --  The newly allocated page directory to map the virtual address
       --  space for the newly created process.
       Page_Dir_Addr     : System.Address;
+
+      Kernel_Stack_Addr : System.Address;
    begin
       --  Allocate the page directory for the newly created process.
       Allocate_Page_Directory :
@@ -51,7 +63,7 @@ package body Cxos.Process is
             Allocate_Result : Cxos.Memory.Process_Result;
          begin
             Allocate_Result := Cxos.Memory.Paging.
-              Create_New_Address_Space (Page_Dir_Addr, Idle'Address);
+              Create_New_Address_Space (Page_Dir_Addr);
             if Allocate_Result /= Success then
                Cxos.Serial.Put_String ("Error allocating new address block" &
                  ASCII.LF);
@@ -59,15 +71,39 @@ package body Cxos.Process is
             end if;
          end Allocate_Page_Directory;
 
+      Allocate_Kernel_Stack :
+         declare
+            use Cxos.Memory;
+
+            --  The result of allocating the new page directory.
+            Allocate_Result : Cxos.Memory.Process_Result;
+         begin
+            Allocate_Result := Cxos.Memory.
+              Create_New_Kernel_Stack (Kernel_Stack_Addr, Idle'Address);
+            if Allocate_Result /= Success then
+               Cxos.Serial.Put_String ("Error allocating kernel stack" &
+                 ASCII.LF);
+               return Unhandled_Exception;
+            end if;
+         end Allocate_Kernel_Stack;
+
       --  Allocate the process control block.
       Allocate_Structure :
-         declare
-            use System.Storage_Elements;
          begin
             Process_Block.Page_Dir_Ptr := Page_Dir_Addr;
-            Process_Block.Stack_Top    := To_Address (16#FF000FE8#);
-            Process_Block.Id           := 337;
+            Process_Block.Stack_Top    := Kernel_Stack_Addr;
+            Process_Block.Id           := Process_Count;
          end Allocate_Structure;
+
+      --  Increment the process count.
+      Increment_Process_Count :
+         begin
+            Process_Count := Process_Count + 1;
+         exception
+            when Constraint_Error =>
+               Cxos.Serial.Put_String ("Process count exhausted" & ASCII.LF);
+               return Unhandled_Exception;
+         end Increment_Process_Count;
 
       return Success;
    exception
@@ -81,18 +117,24 @@ package body Cxos.Process is
    procedure Idle is
       use Cxos.Time_Keeping;
 
+      --  The start of the idle cycle.
       Start_Time : Cxos.Time_Keeping.Time;
    begin
       Start_Time := Cxos.Time_Keeping.Clock;
 
       loop
          Cxos.Serial.Put_String ("Idling" & ASCII.LF);
+
+         --  Wait a predetermined amount of time.
          Wait_Loop :
             loop
-               if (Cxos.Time_Keeping.Clock - Start_Time) > 1000 then
+               if (Cxos.Time_Keeping.Clock - Start_Time) > 100000 then
                   exit Wait_Loop;
                end if;
             end loop Wait_Loop;
+
+            --  Reset start.
+            Start_Time := Cxos.Time_Keeping.Clock;
       end loop;
    end Idle;
 
@@ -103,32 +145,20 @@ package body Cxos.Process is
       Test_Block : Process_Control_Block;
 
       Create_Task_Result : Process_Result;
-      Idle_Task_Block    : Process_Control_Block;
    begin
       --  Create the system idle process from the pseudo-process currently
       --  running from boot.
       Create_Idle_Process :
          begin
-            Create_Task_Result := Create_Initial_Kernel_Task (Idle_Task_Block);
+            Create_Task_Result := Create_Initial_Kernel_Task (Idle_Task);
             if Create_Task_Result /= Success then
                Cxos.Serial.Put_String ("Error creating idle task" & ASCII.LF);
             end if;
 
             Cxos.Serial.Put_String ("Allocated idle process: " &
-              Idle_Task_Block.Id'Image & ASCII.LF);
+              Idle_Task.Id'Image & ASCII.LF);
 
-            Test_Out :
-               declare
-                  use System.Storage_Elements;
-
-                  CR3 : constant Integer_Address := To_Integer (
-                    Idle_Task_Block.Page_Dir_Ptr);
-                  ESP : constant Integer_Address := To_Integer (
-                    Idle_Task_Block.Stack_Top);
-               begin
-                  Cxos.Serial.Put_String ("Idle CR3: " & CR3'Image & ASCII.LF);
-                  Cxos.Serial.Put_String ("Idle ESP: " & ESP'Image & ASCII.LF);
-               end Test_Out;
+            Print_Process_Block_Info (Idle_Task);
          end Create_Idle_Process;
 
       Create_Test_Process :
@@ -140,18 +170,7 @@ package body Cxos.Process is
             Cxos.Serial.Put_String ("Allocated process: " &
               Test_Block.Id'Image & ASCII.LF);
 
-            Test_Block_Debug :
-               declare
-                  use System.Storage_Elements;
-
-                  CR3 : constant Integer_Address := To_Integer (
-                    Test_Block.Page_Dir_Ptr);
-                  ESP : constant Integer_Address := To_Integer (
-                    Test_Block.Stack_Top);
-               begin
-                  Cxos.Serial.Put_String ("New CR3: " & CR3'Image & ASCII.LF);
-                  Cxos.Serial.Put_String ("New ESP: " & ESP'Image & ASCII.LF);
-               end Test_Block_Debug;
+            Print_Process_Block_Info (Test_Block);
          end Create_Test_Process;
 
       Switch_To_Process (Test_Block);
@@ -159,4 +178,22 @@ package body Cxos.Process is
       when Constraint_Error =>
          null;
    end Initialise;
+
+   ----------------------------------------------------------------------------
+   --  Print_Process_Block_Info
+   ----------------------------------------------------------------------------
+   procedure Print_Process_Block_Info (
+     Proc : Process_Control_Block
+   ) is
+      use System.Storage_Elements;
+
+      CR3 : constant Integer_Address := To_Integer (Proc.Page_Dir_Ptr);
+      ESP : constant Integer_Address := To_Integer (Proc.Stack_Top);
+   begin
+      Cxos.Serial.Put_String ("------------------------" & ASCII.LF);
+      Cxos.Serial.Put_String ("Process Id: " & Proc.Id'Image & ASCII.LF);
+      Cxos.Serial.Put_String ("  CR3: " & CR3'Image & ASCII.LF);
+      Cxos.Serial.Put_String ("  ESP: " & ESP'Image & ASCII.LF);
+   end Print_Process_Block_Info;
+
 end Cxos.Process;

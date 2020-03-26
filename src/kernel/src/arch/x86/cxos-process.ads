@@ -65,18 +65,34 @@ package Cxos.Process is
    ) return Process_Result;
 
    ----------------------------------------------------------------------------
+   --  Switch_To_Process
+   --
+   --  Purpose:
+   --    This is the function which handles switching to a new kernel process.
    ----------------------------------------------------------------------------
    procedure Switch_To_Process (
      Target_Process : Process_Control_Block
    ) with Import,
-     Convention    => C,
-     External_Name => "__process_switch_to_process";
+     Convention    => Assembler,
+     External_Name => "cxos_process_switch_to_process";
 private
+   ----------------------------------------------------------------------------
+   --  The system's idle task.
+   ----------------------------------------------------------------------------
+   Idle_Task : Process_Control_Block;
+
    ----------------------------------------------------------------------------
    --  Array type to contain the currently loaded system processes.
    ----------------------------------------------------------------------------
    type Process_Control_Block_Array is
      array (Natural range 0 .. 1023) of Process_Control_Block;
+
+   ----------------------------------------------------------------------------
+   --  The number of running processes.
+   --  This is incremented and decremented as processes are created and
+   --  destroyed.
+   ----------------------------------------------------------------------------
+   Process_Count : Natural := 0;
 
    ----------------------------------------------------------------------------
    --  The id of the currently running system processes.
@@ -100,10 +116,20 @@ private
    --  Create_Initial_Kernel_Task
    --
    --  Purpose:
-   --    ffff
+   --    Creates the kernel idle task.
    ----------------------------------------------------------------------------
    function Create_Initial_Kernel_Task (
      Process_Block : out Process_Control_Block
    ) return Process_Result;
+
+   ----------------------------------------------------------------------------
+   --  Print_Process_Block_Info
+   --
+   --  Purpose:
+   --    Prints debugging information for a process block.
+   ----------------------------------------------------------------------------
+   procedure Print_Process_Block_Info (
+     Proc : Process_Control_Block
+   );
 
 end Cxos.Process;

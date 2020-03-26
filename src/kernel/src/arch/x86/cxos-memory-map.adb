@@ -15,15 +15,16 @@ package body Cxos.Memory.Map is
    use System.Storage_Elements;
 
    ----------------------------------------------------------------------------
-   --  Allocate_Frame
+   --  Allocate_Frames
    ----------------------------------------------------------------------------
-   function Allocate_Frame (
-     Addr : out System.Address
+   function Allocate_Frames (
+     Addr  : out System.Address;
+     Count :     Natural := 1
    ) return Process_Result is
       Result : Process_Result;
       Index  : Natural;
    begin
-      Result := Find_Free_Frame (Index);
+      Result := Find_Free_Frames (Index, Count);
       if Result /= Success then
          return Result;
       end if;
@@ -42,24 +43,60 @@ package body Cxos.Memory.Map is
    exception
       when Constraint_Error =>
          return Invalid_Address_Argument;
-   end Allocate_Frame;
+   end Allocate_Frames;
 
    ----------------------------------------------------------------------------
-   --  Find_Free_Frame
+   --  Find_Free_Frames
    ----------------------------------------------------------------------------
-   function Find_Free_Frame (
-     Index : out Natural
+   function Find_Free_Frames (
+     Index : out Natural;
+     Count :     Natural := 1
    ) return Process_Result is
    begin
-      --  Loop through each frame in the map until we find one that
-      --  is unallocated.
-      for Current_Index in Memory_Map'Range loop
+      --  Loop through each frame in the map until we find the requested amount
+      --  of contiguous unallocated frames.
+      for Curr_Idx in Memory_Map'Range loop
          Check_Frame :
             begin
-               if Memory_Map (Current_Index) = Unallocated then
-                  Index := Current_Index;
+               if Memory_Map (Curr_Idx) = Unallocated then
+                     --  If only one frame is needed, don't do any range check.
+                     if Count = 1 then
+                        Index := Curr_Idx;
+                        return Success;
+                     end if;
 
-                  return Success;
+                     --  If more than one contiguous frame is required, test
+                     --  the range.
+                     Test_Count :
+                        declare
+                           --  The upper bound of the range of adjacent frames
+                           --  to test.
+                           Test_Range : Natural;
+                        begin
+                           Test_Range := Count - 1;
+
+                           for Count_Idx in Natural range 1 .. Test_Range loop
+                              if Memory_Map (Curr_Idx + Count_Idx) = Allocated
+                              then
+                                 exit;
+                              end if;
+
+                              --  If the count of contiguous unallocated frames
+                              --  is equal to the upper bound of the test range
+                              --  then we've found the right number of adjacent
+                              --  free frames.
+                              if Count_Idx = Test_Range then
+                                 Index := Curr_Idx;
+                                 return Success;
+                              end if;
+                           end loop;
+                        exception
+                           when Constraint_Error =>
+                              --  If we overflow the total number of frames,
+                              --  abort, since there is clearly not the desired
+                              --  count of free frames.
+                              return No_Free_Frames;
+                        end Test_Count;
                end if;
             exception
                when Constraint_Error =>
@@ -69,7 +106,7 @@ package body Cxos.Memory.Map is
       end loop;
 
       return No_Free_Frames;
-   end Find_Free_Frame;
+   end Find_Free_Frames;
 
    ----------------------------------------------------------------------------
    --  Get_Frame_Address

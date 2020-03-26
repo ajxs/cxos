@@ -50,15 +50,19 @@ package Cxos.Memory.Map is
    procedure Initialise;
 
    ----------------------------------------------------------------------------
-   --  Allocate_Frame
+   --  Allocate_Frames
    --
    --  Purpose:
-   --    Finds and allocates a free page frame for a process.
+   --    Finds and allocates free page frames, returning a pointer to the
+   --    start of the free memory block returned.
+   --    This procedure will search for the requested number of contiguous
+   --    frames of free memory.
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   function Allocate_Frame (
-     Addr : out System.Address
+   function Allocate_Frames (
+     Addr  : out System.Address;
+     Count :     Natural := 1
    ) return Process_Result
    with Volatile_Function;
 
@@ -78,15 +82,17 @@ package Cxos.Memory.Map is
 
 private
    ----------------------------------------------------------------------------
-   --  Find_Free_Frame
+   --  Find_Free_Frames
    --
    --  Purpose:
-   --    This function returns the index of the first free frame.
+   --    This function returns the index of the first occurrence of the
+   --    specified number of contiguous free frames.
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   function Find_Free_Frame (
-     Index : out Natural
+   function Find_Free_Frames (
+     Index : out Natural;
+     Count :     Natural := 1
    ) return Process_Result;
 
    ----------------------------------------------------------------------------

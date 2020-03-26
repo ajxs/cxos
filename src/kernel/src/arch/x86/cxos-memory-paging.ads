@@ -32,8 +32,7 @@ package Cxos.Memory.Paging is
    --    currently loaded page directory into the new address space.
    ----------------------------------------------------------------------------
    function Create_New_Address_Space (
-     Page_Directory_Addr : out System.Address;
-     Initial_EIP         :     System.Address
+     Page_Directory_Addr : out System.Address
    ) return Process_Result
    with Volatile_Function;
 
@@ -64,6 +63,39 @@ package Cxos.Memory.Paging is
      Physical_Addr : System.Address;
      Read_Write    : Boolean := True;
      User_Mode     : Boolean := False
+   ) return Process_Result
+   with Volatile_Function;
+
+   ----------------------------------------------------------------------------
+   --  Temporarily_Map_Page
+   --
+   --  Purpose:
+   --    This function temporarily maps a frame into the current address
+   --    space. The output parameter is set to the temporarily mapped virtual
+   --    address of the provided frame address.
+   --  Exceptions:
+   --    - An exception condition will be returned if there are no free
+   --      frames in the temporary mapping table.
+   ----------------------------------------------------------------------------
+   function Temporarily_Map_Page (
+     Frame_Addr   :     System.Address;
+     Virtual_Addr : out System.Address
+   ) return Process_Result
+   with Volatile_Function;
+
+   ----------------------------------------------------------------------------
+   --  Free_Temporary_Page_Mapping
+   --
+   --  Purpose:
+   --    This function frees a temporarily mapped address from the temporary
+   --    mapping table. It accepts an address corresponding to a mapping in
+   --    the table.
+   --  Exceptions:
+   --    - An exception condition will be returned if the mapped address is
+   --      not within the temporary mapping table.
+   ----------------------------------------------------------------------------
+   function Free_Temporary_Page_Mapping (
+     Virtual_Addr : System.Address
    ) return Process_Result
    with Volatile_Function;
 
@@ -174,38 +206,5 @@ private
    function Initialise_Page_Table (
      Table : in out x86.Memory.Paging.Page_Table
    ) return Process_Result;
-
-   ----------------------------------------------------------------------------
-   --  Temporarily_Map_Page
-   --
-   --  Purpose:
-   --    This function temporarily maps a frame into the current address
-   --    space. The output parameter is set to the temporarily mapped virtual
-   --    address of the provided frame address.
-   --  Exceptions:
-   --    - An exception condition will be returned if there are no free
-   --      frames in the temporary mapping table.
-   ----------------------------------------------------------------------------
-   function Temporarily_Map_Page (
-     Frame_Addr   :     System.Address;
-     Virtual_Addr : out System.Address
-   ) return Process_Result
-   with Volatile_Function;
-
-   ----------------------------------------------------------------------------
-   --  Free_Temporary_Page_Mapping
-   --
-   --  Purpose:
-   --    This function frees a temporarily mapped address from the temporary
-   --    mapping table. It accepts an address corresponding to a mapping in
-   --    the table.
-   --  Exceptions:
-   --    - An exception condition will be returned if the mapped address is
-   --      not within the temporary mapping table.
-   ----------------------------------------------------------------------------
-   function Free_Temporary_Page_Mapping (
-     Virtual_Addr : System.Address
-   ) return Process_Result
-   with Volatile_Function;
 
 end Cxos.Memory.Paging;

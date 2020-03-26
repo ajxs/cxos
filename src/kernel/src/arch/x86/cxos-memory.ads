@@ -46,7 +46,7 @@ package Cxos.Memory is
    --
    --  Purpose:
    --    This function returns a pointer to the currently loaded task's stack
-   --    top.
+   --    top in virtual memory.
    ----------------------------------------------------------------------------
    function Get_Stack_Top return System.Address
    with Import,
@@ -63,5 +63,19 @@ package Cxos.Memory is
    --    None.
    ----------------------------------------------------------------------------
    function Mark_Kernel_Memory return Process_Result;
+
+   ----------------------------------------------------------------------------
+   --  Create_New_Kernel_Stack
+   ----------------------------------------------------------------------------
+   function Create_New_Kernel_Stack (
+     Stack_Addr  : out System.Address;
+     Initial_EIP :     System.Address
+   ) return Process_Result;
+
+private
+   ----------------------------------------------------------------------------
+   --  The size of the kernel stack, in bytes.
+   ----------------------------------------------------------------------------
+   KERNEL_STACK_SIZE : constant := 16#4000#;
 
 end Cxos.Memory;

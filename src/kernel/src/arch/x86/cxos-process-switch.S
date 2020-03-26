@@ -35,16 +35,27 @@ cxos_process_switch_to_process:
 
    movl %ebx, %cr3                          # Load new address space.
 
-.setup_stack:
-   movl 0xFFFFC000, %edx                    # Move page table entry into EDX.
-   andl $0xFF, %edx                         # Preserve flags in page dir entry.
-   orl %eax, %edx                           # Move EAX into address in EDX.
-   movl %edx, 0xFFFFC000                    # Move back into page dir entry.
+.setup_kernel_stack:
+   movl $0xFFFFC000, %edi                   # Move address of page table entry into EDI.
+   movl $4, %ecx                            # Kernel stack size is 4 page frames.
 
-   # Flush the TLB to load the new mapping.
+.setup_stack_frame:
+   movl (%edi), %edx                        # Move page table entry value into EDX.
+   andl $0xFF, %edx                         # Preserve flags in page dir entry.
+   orl %eax, %edx                           # Move EAX into address field of PTE.
+   movl %edx, (%edi)                        # Move value back into PTE.
+
+   addl $0x1000, %eax                       # Increment stack frame address.
+   addl $0x4, %edi                          # Increment PTE address.
+
+   loop .setup_stack_frame
+
+# Flush the TLB to load the new mapping.
+.flush_tlb:
    movl %ebx, %cr3
 
-	 movl $0xFF000FE8, %esp                   # Set ESP.
+.load_kernel_stack:
+	 movl $0xFF003FE8, %esp                   # Set ESP.
 
 .end_process_switch:
    pop %ebp

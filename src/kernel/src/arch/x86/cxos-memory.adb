@@ -25,25 +25,42 @@ package body Cxos.Memory is
      Stack_Addr  : out System.Address;
      Initial_EIP :     System.Address
    ) return Process_Result is
-      --  Virtual address of the stack's temporary mapping into the current
-      --  address space. Used during initialisation.
-      Stack_Virt_Addr : System.Address;
+      --  Virtual address of the stack's top frame's temporary mapping into
+      --  the current address space. Used during initialisation.
+      Stack_Top_Virt_Addr : System.Address;
       --  Result of internal operations.
       Result : Process_Result;
    begin
-      --  Allocate a page frame for the new stack frame.
-      Result := Cxos.Memory.Map.Allocate_Frames (Stack_Addr);
-      if Result /= Success then
-         return Result;
-      end if;
+      Allocate_Stack_Memory :
+         declare
+            --  The number of page frames that make up the kernel stack.
+            Stack_Frame_Count : Natural;
+            --  The address of the top stack frame.
+            Stack_Top_Addr    : System.Address;
+         begin
+            Stack_Frame_Count := KERNEL_STACK_SIZE / 16#1000#;
 
-      --  Temporarily map the newly allocated stack into the current
-      --  address space.
-      Result := Cxos.Memory.Paging.Temporarily_Map_Page (Stack_Addr,
-        Stack_Virt_Addr);
-      if Result /= Success then
-         return Result;
-      end if;
+            --  Allocate page frames for the new stack frame.
+            Result := Cxos.Memory.Map.Allocate_Frames (Stack_Addr,
+              Stack_Frame_Count);
+            if Result /= Success then
+               return Result;
+            end if;
+
+            Stack_Top_Addr := To_Address (To_Integer (Stack_Addr) +
+              (KERNEL_STACK_SIZE - 16#1000#));
+
+            --  Stack_Top_Addr := Stack_Addr;
+
+            --  Temporarily map the newly allocated stack into the current
+            --  address space.
+            Result := Cxos.Memory.Paging.Temporarily_Map_Page (Stack_Top_Addr,
+              Stack_Top_Virt_Addr);
+            if Result /= Success then
+               return Result;
+            end if;
+
+         end Allocate_Stack_Memory;
 
       --  Initialise the kernel stack.
       --  Sets the initial stack EIP.
@@ -51,11 +68,11 @@ package body Cxos.Memory is
          declare
             --  Stack frame type.
             type Stack_Frame is
-              array (Natural range 1 .. 1023) of System.Address;
+              array (Natural range 1 .. 1024) of System.Address;
 
             New_Kernel_Stack : Stack_Frame
             with Import,
-              Address => Stack_Virt_Addr;
+              Address => Stack_Top_Virt_Addr;
          begin
             --  Set the top of the stack frame to the initial EIP.
             New_Kernel_Stack (1023) := Initial_EIP;
@@ -63,7 +80,7 @@ package body Cxos.Memory is
 
       --  Free the temporarily mapped structure.
       Result := Cxos.Memory.Paging.
-        Free_Temporary_Page_Mapping (Stack_Virt_Addr);
+        Free_Temporary_Page_Mapping (Stack_Top_Virt_Addr);
       if Result /= Success then
          return Result;
       end if;

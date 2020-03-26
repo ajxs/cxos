@@ -68,13 +68,12 @@ package Cxos.Process is
    --  Switch_To_Process
    --
    --  Purpose:
-   --    This is the function which handles switching to a new kernel process.
+   --    fsfsfs
    ----------------------------------------------------------------------------
    procedure Switch_To_Process (
      Target_Process : Process_Control_Block
-   ) with Import,
-     Convention    => Assembler,
-     External_Name => "cxos_process_switch_to_process";
+   );
+
 private
    ----------------------------------------------------------------------------
    --  The system's idle task.
@@ -97,7 +96,7 @@ private
    ----------------------------------------------------------------------------
    --  The id of the currently running system processes.
    ----------------------------------------------------------------------------
-   Current_Process : Natural;
+   Current_Process : Natural := 0;
 
    ----------------------------------------------------------------------------
    --  The currently loaded system processes.
@@ -132,4 +131,15 @@ private
      Proc : Process_Control_Block
    );
 
+   ----------------------------------------------------------------------------
+   --  Load Process
+   --
+   --  Purpose:
+   --    This is the function which handles switching to a new kernel process.
+   ----------------------------------------------------------------------------
+   procedure Load_Process (
+     Target_Process : Process_Control_Block
+   ) with Import,
+     Convention    => Assembler,
+     External_Name => "cxos_process_load_process";
 end Cxos.Process;

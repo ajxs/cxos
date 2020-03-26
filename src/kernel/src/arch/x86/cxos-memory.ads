@@ -64,14 +64,6 @@ package Cxos.Memory is
    ----------------------------------------------------------------------------
    function Mark_Kernel_Memory return Process_Result;
 
-   ----------------------------------------------------------------------------
-   --  Create_New_Kernel_Stack
-   ----------------------------------------------------------------------------
-   function Create_New_Kernel_Stack (
-     Stack_Addr  : out System.Address;
-     Initial_EIP :     System.Address
-   ) return Process_Result;
-
 private
    ----------------------------------------------------------------------------
    --  The size of the kernel stack, in bytes.

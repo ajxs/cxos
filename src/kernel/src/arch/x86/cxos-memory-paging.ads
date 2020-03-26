@@ -32,9 +32,18 @@ package Cxos.Memory.Paging is
    --    currently loaded page directory into the new address space.
    ----------------------------------------------------------------------------
    function Create_New_Address_Space (
-     Page_Directory_Addr : out System.Address
+     Page_Directory_Addr : out System.Address;
+     Initial_EIP         :     System.Address
    ) return Process_Result
    with Volatile_Function;
+
+   ----------------------------------------------------------------------------
+   --  Create_New_Kernel_Stack
+   ----------------------------------------------------------------------------
+   function Create_New_Kernel_Stack (
+     Stack_Addr  : out System.Address;
+     Initial_EIP :     System.Address
+   ) return Process_Result;
 
    ----------------------------------------------------------------------------
    --  Current_Page_Dir_Ptr

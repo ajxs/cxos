@@ -13,15 +13,18 @@ with Cxos.Memory.Map;
 
 package body Cxos.Memory.Paging is
    ----------------------------------------------------------------------------
-   --  Create_New_Page_Directory
+   --  Create_New_Address_Space
    ----------------------------------------------------------------------------
    function Create_New_Address_Space (
-     Page_Directory_Addr : out System.Address
+     Page_Directory_Addr : out System.Address;
+     Initial_EIP         :     System.Address
    ) return Process_Result is
       use x86.Memory.Paging;
 
       --  The address of the newly allocated page frame.
       Allocated_Addr   : System.Address;
+
+      Kernel_Stack_Addr : System.Address;
       --  The temporary virtual address of the mapping to the new structure.
       --  This is used to initialise the newly allocated directory.
       Dir_Virtual_Addr   : System.Address;
@@ -44,6 +47,18 @@ package body Cxos.Memory.Paging is
          return Result;
       end if;
 
+      Allocate_Kernel_Stack :
+         declare
+            --  The result of allocating the new page directory.
+            Allocate_Result : Process_Result;
+         begin
+            Allocate_Result := Create_New_Kernel_Stack (Kernel_Stack_Addr,
+              Initial_EIP);
+            if Allocate_Result /= Success then
+               return Unhandled_Exception;
+            end if;
+         end Allocate_Kernel_Stack;
+
       --  Initialise the newly allocated page directory.
       Init_Page_Directory :
          declare
@@ -59,6 +74,13 @@ package body Cxos.Memory.Paging is
             with Import,
               Convention => Ada,
               Address    => To_Address (PAGE_DIR_RECURSIVE_ADDR);
+
+            --  The physical address of the newly allocated page table that
+            --  holds the kernel stack.
+            Stack_Table_Addr      : System.Address;
+            --  The virtual address ofthe temp mapping of the new stack table.
+            Stack_Table_Virt_Addr : System.Address;
+
          begin
             --  Initialise the new stack page table.
             Result := Initialise_Page_Directory (New_Page_Dir);
@@ -71,6 +93,65 @@ package body Cxos.Memory.Paging is
             for Dir_Entry_Idx in Integer range 768 .. 1023 loop
                New_Page_Dir (Dir_Entry_Idx) := Curr_Page_Dir (Dir_Entry_Idx);
             end loop;
+
+            --  Allocate a page frame for the new page table.
+            Result := Cxos.Memory.Map.Allocate_Frames (Stack_Table_Addr);
+            if Result /= Success then
+               return Result;
+            end if;
+
+            --  Temporarily map the newly allocated page frame into
+            --  the current address space so that it can be initialised.
+            Result := Temporarily_Map_Page (Stack_Table_Addr,
+              Stack_Table_Virt_Addr);
+            if Result /= Success then
+               return Result;
+            end if;
+
+            --  Sets up the page table holding the stack.
+            Setup_Stack :
+               declare
+                  --  The number of page frames in the kernel stack.
+                  Stack_Frame_Count : constant Natural := 4;
+                  --  The address of each individual frame being mapped.
+                  Frame_Addr        : Integer_Address;
+                  --  The temp mapping of the page table into which the stack
+                  --  is loaded.
+                  Stack_Table : Page_Table
+                  with Import,
+                    Convention => Ada,
+                    Address    => Stack_Table_Virt_Addr;
+               begin
+                  --  Initialise the new stack table.
+                  Result := Initialise_Page_Table (Stack_Table);
+                  if Result /= Success then
+                     return Result;
+                  end if;
+
+                  --  Map each frame of the kernel stack into the new table.
+                  for I in Natural range 1 .. Stack_Frame_Count loop
+                     Frame_Addr := To_Integer (Kernel_Stack_Addr) +
+                       Integer_Address (I * 16#1000#);
+
+                     Stack_Table (I).Present    := True;
+                     Stack_Table (I).Read_Write := True;
+                     Stack_Table (I).Page_Address :=
+                       Convert_To_Page_Aligned_Address (
+                       To_Address (Frame_Addr));
+                  end loop;
+               end Setup_Stack;
+
+            --  Insert the newly created kernel stack page table into the
+            --  new page directory.
+            New_Page_Dir (1020).Table_Address :=
+              Convert_To_Page_Aligned_Address (Stack_Table_Addr);
+
+            --  Free the temporarily mapped structure.
+            Result := Free_Temporary_Page_Mapping (Stack_Table_Virt_Addr);
+            if Result /= Success then
+               return Result;
+            end if;
+
          end Init_Page_Directory;
 
       --  Free the temporarily mapped structure.
@@ -87,6 +168,78 @@ package body Cxos.Memory.Paging is
       when Constraint_Error =>
          return Unhandled_Exception;
    end Create_New_Address_Space;
+
+   ----------------------------------------------------------------------------
+   --  Create_New_Kernel_Stack
+   ----------------------------------------------------------------------------
+   function Create_New_Kernel_Stack (
+     Stack_Addr  : out System.Address;
+     Initial_EIP :     System.Address
+   ) return Process_Result is
+      --  Virtual address of the stack's top frame's temporary mapping into
+      --  the current address space. Used during initialisation.
+      Stack_Top_Virt_Addr : System.Address;
+      --  Result of internal operations.
+      Result : Process_Result;
+   begin
+      Allocate_Stack_Memory :
+         declare
+            --  The number of page frames that make up the kernel stack.
+            Stack_Frame_Count : Natural;
+            --  The address of the top stack frame.
+            Stack_Top_Addr    : System.Address;
+         begin
+            Stack_Frame_Count := KERNEL_STACK_SIZE / 16#1000#;
+
+            --  Allocate page frames for the new stack frame.
+            Result := Cxos.Memory.Map.Allocate_Frames (Stack_Addr,
+              Stack_Frame_Count);
+            if Result /= Success then
+               return Result;
+            end if;
+
+            Stack_Top_Addr := To_Address (To_Integer (Stack_Addr) +
+              (KERNEL_STACK_SIZE - 16#1000#));
+
+            --  Stack_Top_Addr := Stack_Addr;
+
+            --  Temporarily map the newly allocated stack into the current
+            --  address space.
+            Result := Temporarily_Map_Page (Stack_Top_Addr,
+              Stack_Top_Virt_Addr);
+            if Result /= Success then
+               return Result;
+            end if;
+
+         end Allocate_Stack_Memory;
+
+      --  Initialise the kernel stack.
+      --  Sets the initial stack EIP.
+      Initialise_Kernel_Stack :
+         declare
+            --  Stack frame type.
+            type Stack_Frame is
+              array (Natural range 1 .. 1024) of System.Address;
+
+            New_Kernel_Stack : Stack_Frame
+            with Import,
+              Address => Stack_Top_Virt_Addr;
+         begin
+            --  Set the top of the stack frame to the initial EIP.
+            New_Kernel_Stack (1023) := Initial_EIP;
+         end Initialise_Kernel_Stack;
+
+      --  Free the temporarily mapped structure.
+      Result :=  Free_Temporary_Page_Mapping (Stack_Top_Virt_Addr);
+      if Result /= Success then
+         return Result;
+      end if;
+
+      return Success;
+   exception
+      when Constraint_Error =>
+         return Unhandled_Exception;
+   end Create_New_Kernel_Stack;
 
    ----------------------------------------------------------------------------
    --  Create_Page_Table

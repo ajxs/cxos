@@ -26,13 +26,13 @@ calculate_kernel_stack_page_size:
 
 
 #####################################################################
-#  Switch to process
+#  Load process
 #
 #  Switches to the provided process.
 #####################################################################
-.type cxos_process_switch_to_process, @function
-.global cxos_process_switch_to_process
-cxos_process_switch_to_process:
+.type cxos_process_load_process, @function
+.global cxos_process_load_process
+cxos_process_load_process:
    pushl %ebp
    movl %esp, %ebp
 
@@ -48,38 +48,7 @@ cxos_process_switch_to_process:
    movl 8(%esi), %ebx                       # Move next task's CR3 to EBX.
 
    movl %ebx, %cr3                          # Load new address space.
-
-.setup_kernel_stack:
-   movl $0xFFFFC000, %edi                   # Move address of page table entry into EDI.
-	 movl %eax, %esi                          # Move EAX to ESI.
-
-   call calculate_kernel_stack_page_size
-   movl %eax, %ecx                          # Number of page frames in kernel stack.
-
-.setup_stack_frame:
-   movl (%edi), %edx                        # Move page table entry value into EDX.
-   andl $0xFF, %edx                         # Preserve flags in page dir entry.
-   orl %esi, %edx                           # Move ESI into address field of PTE.
-   movl %edx, (%edi)                        # Move value back into PTE.
-
-   addl $0x1000, %esi                       # Increment stack frame address.
-   addl $0x4, %edi                          # Increment PTE address.
-
-   loop .setup_stack_frame
-
-# Flush the TLB to load the new mapping.
-.flush_tlb:
-   movl %ebx, %cr3
-
-.load_kernel_stack:
-   call calculate_kernel_stack_page_size    # Store the number of pages in EAX.
-	 decl %eax                                # Decrement by 1.
-	 movl $0x1000, %ebx
-   mull %ebx                                # Multiply by 0x1000.
-
-	 addl $0xFF000FE8, %eax                   # Add the kernel stack offset.
-
-	 movl %eax, %esp                          # Set ESP.
+   movl %eax, %esp
 
 .end_process_switch:
    pop %ebp

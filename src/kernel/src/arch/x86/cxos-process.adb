@@ -48,11 +48,11 @@ package body Cxos.Process is
    function Create_Process (
       Process_Block : out Process_Control_Block
    ) return Process_Result is
+      use System.Storage_Elements;
+
       --  The newly allocated page directory to map the virtual address
       --  space for the newly created process.
       Page_Dir_Addr     : System.Address;
-
-      Kernel_Stack_Addr : System.Address;
    begin
       --  Allocate the page directory for the newly created process.
       Allocate_Page_Directory :
@@ -63,7 +63,7 @@ package body Cxos.Process is
             Allocate_Result : Cxos.Memory.Process_Result;
          begin
             Allocate_Result := Cxos.Memory.Paging.
-              Create_New_Address_Space (Page_Dir_Addr);
+              Create_New_Address_Space (Page_Dir_Addr, Idle'Address);
             if Allocate_Result /= Success then
                Cxos.Serial.Put_String ("Error allocating new address block" &
                  ASCII.LF);
@@ -71,27 +71,11 @@ package body Cxos.Process is
             end if;
          end Allocate_Page_Directory;
 
-      Allocate_Kernel_Stack :
-         declare
-            use Cxos.Memory;
-
-            --  The result of allocating the new page directory.
-            Allocate_Result : Cxos.Memory.Process_Result;
-         begin
-            Allocate_Result := Cxos.Memory.
-              Create_New_Kernel_Stack (Kernel_Stack_Addr, Idle'Address);
-            if Allocate_Result /= Success then
-               Cxos.Serial.Put_String ("Error allocating kernel stack" &
-                 ASCII.LF);
-               return Unhandled_Exception;
-            end if;
-         end Allocate_Kernel_Stack;
-
       --  Allocate the process control block.
       Allocate_Structure :
          begin
             Process_Block.Page_Dir_Ptr := Page_Dir_Addr;
-            Process_Block.Stack_Top    := Kernel_Stack_Addr;
+            Process_Block.Stack_Top    := To_Address (16#FF003FE8#);
             Process_Block.Id           := Process_Count;
          end Allocate_Structure;
 
@@ -144,14 +128,15 @@ package body Cxos.Process is
    procedure Initialise is
       Test_Block : Process_Control_Block;
 
-      Create_Task_Result : Process_Result;
+      --  The result status code of internal processes.
+      Result : Process_Result;
    begin
       --  Create the system idle process from the pseudo-process currently
       --  running from boot.
       Create_Idle_Process :
          begin
-            Create_Task_Result := Create_Initial_Kernel_Task (Idle_Task);
-            if Create_Task_Result /= Success then
+            Result := Create_Initial_Kernel_Task (Idle_Task);
+            if Result /= Success then
                Cxos.Serial.Put_String ("Error creating idle task" & ASCII.LF);
             end if;
 
@@ -163,17 +148,18 @@ package body Cxos.Process is
 
       Create_Test_Process :
          begin
-            Create_Task_Result := Create_Process (Test_Block);
-            if Create_Task_Result /= Success then
+            Result := Create_Process (Test_Block);
+            if Result /= Success then
                Cxos.Serial.Put_String ("Error" & ASCII.LF);
             end if;
+
             Cxos.Serial.Put_String ("Allocated process: " &
               Test_Block.Id'Image & ASCII.LF);
 
             Print_Process_Block_Info (Test_Block);
          end Create_Test_Process;
 
-      Switch_To_Process (Test_Block);
+         Switch_To_Process (Test_Block);
    exception
       when Constraint_Error =>
          null;
@@ -195,5 +181,28 @@ package body Cxos.Process is
       Cxos.Serial.Put_String ("  CR3: " & CR3'Image & ASCII.LF);
       Cxos.Serial.Put_String ("  ESP: " & ESP'Image & ASCII.LF);
    end Print_Process_Block_Info;
+
+   ----------------------------------------------------------------------------
+   --  Switch_To_Process
+   ----------------------------------------------------------------------------
+   procedure Switch_To_Process (
+     Target_Process : Process_Control_Block
+   ) is
+      --  The currently running process.
+      Curr_Proc : Process_Control_Block;
+   begin
+      Curr_Proc := System_Processes (Current_Process);
+      pragma Unreferenced (Curr_Proc);
+
+      Store_Current_Process :
+         begin
+            null;
+         end Store_Current_Process;
+
+      Load_Process (Target_Process);
+   exception
+      when Constraint_Error =>
+         null;
+   end Switch_To_Process;
 
 end Cxos.Process;

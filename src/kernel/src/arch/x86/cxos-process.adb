@@ -173,7 +173,6 @@ package body Cxos.Process is
             Print_Process_Block_Info (Test_Block);
          end Create_Test_Process;
 
-      Cxos.Serial.Put_String ("Switching to process" & ASCII.LF);
       Switch_To_Process (Test_Block);
    exception
       when Constraint_Error =>

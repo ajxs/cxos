@@ -9,6 +9,7 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
+with Interfaces; use Interfaces;
 with System;
 
 -------------------------------------------------------------------------------
@@ -30,13 +31,27 @@ package Cxos.Process is
          Id  : Integer;
          ESP : System.Address;
          CR3 : System.Address;
+         EAX : Unsigned_32;
+         EBX : Unsigned_32;
+         ECX : Unsigned_32;
+         EDX : Unsigned_32;
+         EDI : Unsigned_32;
+         ESI : Unsigned_32;
+         EBP : Unsigned_32;
       end record
-   with Size => 96;
+   with Size => 320;
    for Process_Control_Block use
       record
-         Id  at 0 range 0 .. 31;
-         ESP at 4 range 0 .. 31;
-         CR3 at 8 range 0 .. 31;
+         Id  at 0  range 0 .. 31;
+         ESP at 4  range 0 .. 31;
+         CR3 at 8  range 0 .. 31;
+         EAX at 12 range 0 .. 31;
+         EBX at 16 range 0 .. 31;
+         ECX at 20 range 0 .. 31;
+         EDX at 24 range 0 .. 31;
+         EDI at 28 range 0 .. 31;
+         ESI at 32 range 0 .. 31;
+         EBP at 36 range 0 .. 31;
       end record;
 
    ----------------------------------------------------------------------------
@@ -51,6 +66,10 @@ package Cxos.Process is
    );
 
    ----------------------------------------------------------------------------
+   --  Initialise
+   --
+   --  Purpose:
+   --    Initialises the system's core processes.
    ----------------------------------------------------------------------------
    procedure Initialise;
 
@@ -131,6 +150,18 @@ private
    procedure Print_Process_Block_Info (
      Proc : Process_Control_Block
    );
+
+   ----------------------------------------------------------------------------
+   --  Store_Current_Process
+   --
+   --  Purpose:
+   --    This function stores the state of the current process.
+   ----------------------------------------------------------------------------
+   procedure Store_Current_Process (
+     Curr_Proc : Process_Control_Block
+   ) with Import,
+     Convention    => Assembler,
+     External_Name => "cxos_process_store_current_process";
 
    ----------------------------------------------------------------------------
    --  Load Process

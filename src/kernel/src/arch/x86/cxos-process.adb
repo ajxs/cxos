@@ -77,7 +77,7 @@ package body Cxos.Process is
          begin
             Process_Block.Id  := Process_Count;
             Process_Block.CR3 := Page_Dir_Addr;
-            Process_Block.ESP := To_Address (16#FF003FE8#);
+            Process_Block.ESP := To_Address (16#FF003FF8#);
          end Allocate_Structure;
 
       --  Increment the process count.
@@ -189,10 +189,7 @@ package body Cxos.Process is
       Curr_Proc := System_Processes (Current_Process);
       pragma Unreferenced (Curr_Proc);
 
-      Store_Current_Process :
-         begin
-            null;
-         end Store_Current_Process;
+      --  Store_Current_Process (Curr_Proc);
 
       Load_Process (Target_Process);
    exception

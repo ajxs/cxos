@@ -11,16 +11,25 @@
 
 .section .text
 
-#####################################################################
-#  Calculate the number of page frames in the kernel stack.
-#  Stores the result in EAX.
-#####################################################################
-.type calculate_kernel_stack_page_size, @function
-calculate_kernel_stack_page_size:
-   movl $0, %edx                            # Zero upper word of dividend.
-   movl $KERNEL_STACK_SIZE, %eax            # Store KERNEL_STACK_SIZE in EAX.
-   movl $0x1000, %ecx                       # Store size of page in ECX.
-   divl %ecx
+.type cxos_process_store_current_process, @function
+.global cxos_process_store_current_process
+cxos_process_store_current_process:
+   pushl %ebp
+   movl %esp, %ebp
+
+   movl 8(%ebp), %esi                       # The address of the process block.
+	 movl %esp, 4(%esi)
+
+	 movl %cr3, %eax
+	 movl %eax, 8(%esi)
+
+	 movl %eax, 12(%esi)
+	 movl %ebx, 16(%esi)
+	 movl %ecx, 20(%esi)
+	 movl %edx, 24(%esi)
+	 movl %edi, 28(%esi)
+	 movl %esi, 32(%esi)
+	 movl %ebp, 36(%esi)
 
    ret
 
@@ -36,24 +45,11 @@ cxos_process_load_process:
    pushl %ebp
    movl %esp, %ebp
 
-.preserve_registers:
-   pushl %ebx
-   pushl %esi
-   pushl %edi
-   pushl %ebp
-
-.restore_memory_space:
    movl 8(%ebp), %esi                       # The address of the process block.
    movl 4(%esi), %eax                       # Move next task's ESP to EAX.
    movl 8(%esi), %ebx                       # Move next task's CR3 to EBX.
 
    movl %ebx, %cr3                          # Load new address space.
    movl %eax, %esp
-
-.end_process_switch:
-   pop %ebp
-   pop %edi
-   pop %esi
-   pop %ebx
 
    ret

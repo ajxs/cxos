@@ -27,16 +27,16 @@ package Cxos.Process is
    ----------------------------------------------------------------------------
    type Process_Control_Block is
       record
-         Id           : Integer;
-         Stack_Top    : System.Address;
-         Page_Dir_Ptr : System.Address;
+         Id  : Integer;
+         ESP : System.Address;
+         CR3 : System.Address;
       end record
    with Size => 96;
    for Process_Control_Block use
       record
-         Id           at 0 range 0 .. 31;
-         Stack_Top    at 4 range 0 .. 31;
-         Page_Dir_Ptr at 8 range 0 .. 31;
+         Id  at 0 range 0 .. 31;
+         ESP at 4 range 0 .. 31;
+         CR3 at 8 range 0 .. 31;
       end record;
 
    ----------------------------------------------------------------------------
@@ -61,7 +61,8 @@ package Cxos.Process is
    --    Creates the process control block for a new process.
    ----------------------------------------------------------------------------
    function Create_Process (
-     Process_Block : out Process_Control_Block
+     Process_Block : out Process_Control_Block;
+     Func_Start    :     System.Address
    ) return Process_Result;
 
    ----------------------------------------------------------------------------

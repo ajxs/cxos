@@ -25,9 +25,9 @@ package body Cxos.Process is
    begin
       --  Set the page directory pointer to the currently loaded page
       --  directory pointer.
-      Process_Block.Page_Dir_Ptr := Cxos.Memory.Paging.Current_Page_Dir_Ptr;
-      Process_Block.Stack_Top    := Cxos.Memory.Get_Stack_Top;
-      Process_Block.Id           := Process_Count;
+      Process_Block.Id  := Process_Count;
+      Process_Block.CR3 := Cxos.Memory.Paging.Current_Page_Dir_Ptr;
+      Process_Block.ESP := Cxos.Memory.Get_Stack_Top;
 
       --  Increment the process count.
       Increment_Process_Count :
@@ -46,7 +46,8 @@ package body Cxos.Process is
    --  Create_Task
    ----------------------------------------------------------------------------
    function Create_Process (
-      Process_Block : out Process_Control_Block
+     Process_Block : out Process_Control_Block;
+     Func_Start    :     System.Address
    ) return Process_Result is
       use System.Storage_Elements;
 
@@ -63,7 +64,7 @@ package body Cxos.Process is
             Allocate_Result : Cxos.Memory.Process_Result;
          begin
             Allocate_Result := Cxos.Memory.Paging.
-              Create_New_Address_Space (Page_Dir_Addr, Idle'Address);
+              Create_New_Address_Space (Page_Dir_Addr, Func_Start);
             if Allocate_Result /= Success then
                Cxos.Serial.Put_String ("Error allocating new address block" &
                  ASCII.LF);
@@ -74,9 +75,9 @@ package body Cxos.Process is
       --  Allocate the process control block.
       Allocate_Structure :
          begin
-            Process_Block.Page_Dir_Ptr := Page_Dir_Addr;
-            Process_Block.Stack_Top    := To_Address (16#FF003FE8#);
-            Process_Block.Id           := Process_Count;
+            Process_Block.Id  := Process_Count;
+            Process_Block.CR3 := Page_Dir_Addr;
+            Process_Block.ESP := To_Address (16#FF003FE8#);
          end Allocate_Structure;
 
       --  Increment the process count.
@@ -140,21 +141,15 @@ package body Cxos.Process is
                Cxos.Serial.Put_String ("Error creating idle task" & ASCII.LF);
             end if;
 
-            Cxos.Serial.Put_String ("Allocated idle process: " &
-              Idle_Task.Id'Image & ASCII.LF);
-
             Print_Process_Block_Info (Idle_Task);
          end Create_Idle_Process;
 
       Create_Test_Process :
          begin
-            Result := Create_Process (Test_Block);
+            Result := Create_Process (Test_Block, Idle'Address);
             if Result /= Success then
                Cxos.Serial.Put_String ("Error" & ASCII.LF);
             end if;
-
-            Cxos.Serial.Put_String ("Allocated process: " &
-              Test_Block.Id'Image & ASCII.LF);
 
             Print_Process_Block_Info (Test_Block);
          end Create_Test_Process;
@@ -173,13 +168,13 @@ package body Cxos.Process is
    ) is
       use System.Storage_Elements;
 
-      CR3 : constant Integer_Address := To_Integer (Proc.Page_Dir_Ptr);
-      ESP : constant Integer_Address := To_Integer (Proc.Stack_Top);
+      CR3 : constant Integer_Address := To_Integer (Proc.CR3);
+      ESP : constant Integer_Address := To_Integer (Proc.ESP);
    begin
-      Cxos.Serial.Put_String ("------------------------" & ASCII.LF);
       Cxos.Serial.Put_String ("Process Id: " & Proc.Id'Image & ASCII.LF);
       Cxos.Serial.Put_String ("  CR3: " & CR3'Image & ASCII.LF);
       Cxos.Serial.Put_String ("  ESP: " & ESP'Image & ASCII.LF);
+      Cxos.Serial.Put_String ("------------------------" & ASCII.LF);
    end Print_Process_Block_Info;
 
    ----------------------------------------------------------------------------

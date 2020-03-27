@@ -112,7 +112,7 @@ package body Cxos.Memory.Paging is
             Setup_Stack :
                declare
                   --  The number of page frames in the kernel stack.
-                  Stack_Frame_Count : constant Natural := 4;
+                  Stack_Frame_Count : Natural;
                   --  The address of each individual frame being mapped.
                   Frame_Addr        : Integer_Address;
                   --  The temp mapping of the page table into which the stack
@@ -122,6 +122,8 @@ package body Cxos.Memory.Paging is
                     Convention => Ada,
                     Address    => Stack_Table_Virt_Addr;
                begin
+                  Stack_Frame_Count := KERNEL_STACK_SIZE / 16#1000#;
+
                   --  Initialise the new stack table.
                   Result := Initialise_Page_Table (Stack_Table);
                   if Result /= Success then
@@ -133,8 +135,8 @@ package body Cxos.Memory.Paging is
                      Frame_Addr := To_Integer (Kernel_Stack_Addr) +
                        Integer_Address (I * 16#1000#);
 
-                     Stack_Table (I).Present    := True;
-                     Stack_Table (I).Read_Write := True;
+                     Stack_Table (I).Present      := True;
+                     Stack_Table (I).Read_Write   := True;
                      Stack_Table (I).Page_Address :=
                        Convert_To_Page_Aligned_Address (
                        To_Address (Frame_Addr));

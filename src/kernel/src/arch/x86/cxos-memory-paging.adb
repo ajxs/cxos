@@ -131,7 +131,7 @@ package body Cxos.Memory.Paging is
                   end if;
 
                   --  Map each frame of the kernel stack into the new table.
-                  for I in Natural range 1 .. Stack_Frame_Count loop
+                  for I in Natural range 0 .. Stack_Frame_Count loop
                      Frame_Addr := To_Integer (Kernel_Stack_Addr) +
                        Integer_Address (I * 16#1000#);
 

@@ -11,26 +11,35 @@
 
 .section .text
 
-.type cxos_process_store_current_process, @function
-.global cxos_process_store_current_process
-cxos_process_store_current_process:
+.type cxos_process_save_process_state, @function
+.global cxos_process_save_process_state
+cxos_process_save_process_state:
    pushl %ebp
    movl %esp, %ebp
 
+   pushl %esi                               # Preserve ESI.
+
    movl 8(%ebp), %esi                       # The address of the process block.
-	 movl %esp, 4(%esi)
+   movl %esp, 4(%esi)
 
-	 movl %cr3, %eax
-	 movl %eax, 8(%esi)
+   pushl %eax                               # Preserve EAX.
+   movl %cr3, %eax
+   movl %eax, 8(%esi)
 
-	 movl %eax, 12(%esi)
-	 movl %ebx, 16(%esi)
-	 movl %ecx, 20(%esi)
-	 movl %edx, 24(%esi)
-	 movl %edi, 28(%esi)
-	 movl %esi, 32(%esi)
-	 movl %ebp, 36(%esi)
+   popl %eax                                # Restore EAX.
+   movl %ebx, 16(%esi)
+   movl %ecx, 20(%esi)
+   movl %edx, 24(%esi)
+   movl %edi, 28(%esi)
 
+   movl %esi, %edi
+   popl %esi                                # Restore ESI.
+   movl %esi, 32(%edi)
+
+   movl %ebp, 36(%edi)
+
+   mov %ebp, %esp
+   pop %ebp
    ret
 
 

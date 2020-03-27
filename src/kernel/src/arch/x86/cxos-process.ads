@@ -152,16 +152,16 @@ private
    );
 
    ----------------------------------------------------------------------------
-   --  Store_Current_Process
+   --  Save_Process_Sate
    --
    --  Purpose:
    --    This function stores the state of the current process.
    ----------------------------------------------------------------------------
-   procedure Store_Current_Process (
+   procedure Save_Process_Sate (
      Curr_Proc : Process_Control_Block
    ) with Import,
      Convention    => Assembler,
-     External_Name => "cxos_process_store_current_process";
+     External_Name => "cxos_process_save_process_state";
 
    ----------------------------------------------------------------------------
    --  Load Process

@@ -187,9 +187,9 @@ package body Cxos.Process is
       Curr_Proc : Process_Control_Block;
    begin
       Curr_Proc := System_Processes (Current_Process);
-      pragma Unreferenced (Curr_Proc);
+      --  pragma Unreferenced (Curr_Proc);
 
-      --  Store_Current_Process (Curr_Proc);
+      Save_Process_Sate (Curr_Proc);
 
       Load_Process (Target_Process);
    exception

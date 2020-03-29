@@ -20,7 +20,6 @@ cxos_process_save_process_state:
    pushl %esi                               # Preserve ESI.
 
    movl 8(%ebp), %esi                       # The address of the process block.
-   movl %esp, 4(%esi)
 
    pushl %eax                               # Preserve EAX.
    movl %cr3, %eax
@@ -38,8 +37,11 @@ cxos_process_save_process_state:
 
    movl %ebp, 36(%edi)
 
-   mov %ebp, %esp
-   pop %ebp
+   movl %ebp, %esp
+   popl %ebp
+
+   movl %esp, 4(%edi)
+
    ret
 
 
@@ -61,4 +63,6 @@ cxos_process_load_process:
    movl %ebx, %cr3                          # Load new address space.
    movl %eax, %esp
 
+   movl %ebp, %esp
+   popl %ebp
    ret

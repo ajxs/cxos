@@ -40,6 +40,7 @@ clean:
 debug: ${ISO}
 	qemu-system-i386                               \
 		${QEMU_FLAGS}                                \
+		-nographic                                   \
 		-drive format=raw,media=cdrom,file=${ISO}    \
 		-d cpu_reset,int,guest_errors                \
 		-gdb tcp::1234                               \

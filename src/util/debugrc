@@ -14,4 +14,5 @@ file src/kernel/build/cxos.elf -readnow
 # x /3xg &interrupt_descriptor_table+(256)
 #
 
-b cxos_process_store_current_process
+b switch_to_process
+b cxos-process.adb:185

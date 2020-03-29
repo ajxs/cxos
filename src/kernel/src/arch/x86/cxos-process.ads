@@ -9,6 +9,7 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
+with Cxos.Time_Keeping; use Cxos.Time_Keeping;
 with Interfaces; use Interfaces;
 with System;
 
@@ -84,6 +85,9 @@ package Cxos.Process is
      Func_Start    :     System.Address
    ) return Process_Result;
 
+   procedure Run_Scheduler;
+
+private
    ----------------------------------------------------------------------------
    --  Switch_To_Process
    --
@@ -94,7 +98,15 @@ package Cxos.Process is
      Target_Process : Process_Control_Block
    );
 
-private
+   ----------------------------------------------------------------------------
+   ----------------------------------------------------------------------------
+   Curr_Process_Slice_Start_Time : Time := 0;
+
+   ----------------------------------------------------------------------------
+   --  The amount of time that each process is allowed.
+   ----------------------------------------------------------------------------
+   PROCESS_TIME_SLICE : constant := 50;
+
    ----------------------------------------------------------------------------
    --  The system's idle task.
    ----------------------------------------------------------------------------
@@ -152,12 +164,12 @@ private
    );
 
    ----------------------------------------------------------------------------
-   --  Save_Process_Sate
+   --  Save_Process_State
    --
    --  Purpose:
    --    This function stores the state of the current process.
    ----------------------------------------------------------------------------
-   procedure Save_Process_Sate (
+   procedure Save_Process_State (
      Curr_Proc : Process_Control_Block
    ) with Import,
      Convention    => Assembler,

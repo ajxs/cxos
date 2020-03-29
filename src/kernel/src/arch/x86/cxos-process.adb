@@ -13,7 +13,6 @@ with System.Storage_Elements;
 with Cxos.Memory;
 with Cxos.Memory.Paging;
 with Cxos.Serial;
-with Cxos.Time_Keeping;
 
 package body Cxos.Process is
    ----------------------------------------------------------------------------
@@ -100,10 +99,8 @@ package body Cxos.Process is
    --  Idle
    ----------------------------------------------------------------------------
    procedure Idle is
-      use Cxos.Time_Keeping;
-
       --  The start of the idle cycle.
-      Start_Time : Cxos.Time_Keeping.Time;
+      Start_Time : Time;
    begin
       Start_Time := Cxos.Time_Keeping.Clock;
 
@@ -127,34 +124,38 @@ package body Cxos.Process is
    --  Initialise
    ----------------------------------------------------------------------------
    procedure Initialise is
-      Test_Block : Process_Control_Block;
-
       --  The result status code of internal processes.
       Result : Process_Result;
    begin
+      Cxos.Serial.Put_String ("Initialising system proceses" & ASCII.LF);
+
       --  Create the system idle process from the pseudo-process currently
       --  running from boot.
       Create_Idle_Process :
          begin
-            Result := Create_Initial_Kernel_Task (Idle_Task);
+            --  Result := Create_Initial_Kernel_Task (Idle_Task);
+            Result := Create_Initial_Kernel_Task (System_Processes (0));
             if Result /= Success then
                Cxos.Serial.Put_String ("Error creating idle task" & ASCII.LF);
             end if;
 
-            Print_Process_Block_Info (Idle_Task);
+            Print_Process_Block_Info (System_Processes (0));
          end Create_Idle_Process;
 
       Create_Test_Process :
          begin
-            Result := Create_Process (Test_Block, Idle'Address);
+            Result := Create_Process (System_Processes (1), Idle'Address);
             if Result /= Success then
                Cxos.Serial.Put_String ("Error" & ASCII.LF);
             end if;
 
-            Print_Process_Block_Info (Test_Block);
+            Print_Process_Block_Info (System_Processes (1));
          end Create_Test_Process;
 
-         Switch_To_Process (Test_Block);
+      Switch_To_Process (System_Processes (0));
+
+      Cxos.Serial.Put_String ("Finished initialising system proceses" &
+        ASCII.LF);
    exception
       when Constraint_Error =>
          null;
@@ -178,20 +179,61 @@ package body Cxos.Process is
    end Print_Process_Block_Info;
 
    ----------------------------------------------------------------------------
+   --  Run_Scheduler
+   ----------------------------------------------------------------------------
+   procedure Run_Scheduler is
+   begin
+      --  Don't run if there are no active processes.
+      if Process_Count = 0 then
+         return;
+      end if;
+
+      Cxos.Serial.Put_String ("Process_Count: " & Process_Count'Image &
+        ASCII.LF);
+
+      --  Wait a predetermined amount of time.
+      Check_Process_Time_Slice :
+         begin
+            if (Cxos.Time_Keeping.Clock - Curr_Process_Slice_Start_Time) >
+              PROCESS_TIME_SLICE
+            then
+               Increment_Current_Process_Id :
+                  begin
+                     if Current_Process < (Process_Count - 1) then
+                        Current_Process := Current_Process + 1;
+                     else
+                        Current_Process := 0;
+                     end if;
+                  exception
+                     when Constraint_Error =>
+                        Current_Process := 1;
+                  end Increment_Current_Process_Id;
+
+               Cxos.Serial.Put_String ("Switching to process: " &
+                 Current_Process'Image & ASCII.LF);
+               Print_Process_Block_Info (System_Processes (Current_Process));
+
+               Switch_To_Process (System_Processes (Current_Process));
+            end if;
+         end Check_Process_Time_Slice;
+   exception
+      when Constraint_Error =>
+         null;
+   end Run_Scheduler;
+
+   ----------------------------------------------------------------------------
    --  Switch_To_Process
    ----------------------------------------------------------------------------
    procedure Switch_To_Process (
      Target_Process : Process_Control_Block
    ) is
-      --  The currently running process.
-      Curr_Proc : Process_Control_Block;
    begin
-      Curr_Proc := System_Processes (Current_Process);
-      --  pragma Unreferenced (Curr_Proc);
-
-      Save_Process_Sate (Curr_Proc);
-
+      --  Save the state of the currently running process.
+      Save_Process_State (System_Processes (Current_Process));
+      --  Load the new process.
       Load_Process (Target_Process);
+      --  Reset clock.
+      Curr_Process_Slice_Start_Time := Cxos.Time_Keeping.Clock;
    exception
       when Constraint_Error =>
          null;

@@ -15,4 +15,3 @@ file src/kernel/build/cxos.elf -readnow
 #
 
 b switch_to_process
-b cxos-process.adb:185

@@ -9,6 +9,7 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
+with System.Machine_Code;
 with System.Storage_Elements;
 with Cxos.Memory;
 with Cxos.Memory.Paging;
@@ -76,7 +77,7 @@ package body Cxos.Process is
          begin
             Process_Block.Id  := Process_Count;
             Process_Block.CR3 := Page_Dir_Addr;
-            Process_Block.ESP := To_Address (16#FF003FF8#);
+            Process_Block.ESP := To_Address (16#FF003FF4#);
          end Allocate_Structure;
 
       --  Increment the process count.
@@ -99,24 +100,12 @@ package body Cxos.Process is
    --  Idle
    ----------------------------------------------------------------------------
    procedure Idle is
-      --  The start of the idle cycle.
-      Start_Time : Time;
    begin
-      Start_Time := Cxos.Time_Keeping.Clock;
+      Cxos.Serial.Put_String ("Idling" & ASCII.LF);
 
+      --  Loop forever.
       loop
-         Cxos.Serial.Put_String ("Idling" & ASCII.LF);
-
-         --  Wait a predetermined amount of time.
-         Wait_Loop :
-            loop
-               if (Cxos.Time_Keeping.Clock - Start_Time) > 100000 then
-                  exit Wait_Loop;
-               end if;
-            end loop Wait_Loop;
-
-            --  Reset start.
-            Start_Time := Cxos.Time_Keeping.Clock;
+         System.Machine_Code.Asm ("hlt", Volatile => True);
       end loop;
    end Idle;
 
@@ -152,8 +141,6 @@ package body Cxos.Process is
             Print_Process_Block_Info (System_Processes (1));
          end Create_Test_Process;
 
-      Switch_To_Process (System_Processes (0));
-
       Cxos.Serial.Put_String ("Finished initialising system proceses" &
         ASCII.LF);
    exception
@@ -182,14 +169,12 @@ package body Cxos.Process is
    --  Run_Scheduler
    ----------------------------------------------------------------------------
    procedure Run_Scheduler is
+      Old_Process_Id : constant Natural := Current_Process;
    begin
       --  Don't run if there are no active processes.
       if Process_Count = 0 then
          return;
       end if;
-
-      Cxos.Serial.Put_String ("Process_Count: " & Process_Count'Image &
-        ASCII.LF);
 
       --  Wait a predetermined amount of time.
       Check_Process_Time_Slice :
@@ -213,7 +198,8 @@ package body Cxos.Process is
                  Current_Process'Image & ASCII.LF);
                Print_Process_Block_Info (System_Processes (Current_Process));
 
-               Switch_To_Process (System_Processes (Current_Process));
+               Switch_To_Process (System_Processes (Old_Process_Id),
+                 System_Processes (Current_Process));
             end if;
          end Check_Process_Time_Slice;
    exception
@@ -225,18 +211,16 @@ package body Cxos.Process is
    --  Switch_To_Process
    ----------------------------------------------------------------------------
    procedure Switch_To_Process (
+     Old_Process    : Process_Control_Block;
      Target_Process : Process_Control_Block
    ) is
    begin
       --  Save the state of the currently running process.
-      Save_Process_State (System_Processes (Current_Process));
+      Save_Process_State (Old_Process);
       --  Load the new process.
       Load_Process (Target_Process);
       --  Reset clock.
       Curr_Process_Slice_Start_Time := Cxos.Time_Keeping.Clock;
-   exception
-      when Constraint_Error =>
-         null;
    end Switch_To_Process;
 
 end Cxos.Process;

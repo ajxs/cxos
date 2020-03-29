@@ -63,6 +63,5 @@ cxos_process_load_process:
    movl %ebx, %cr3                          # Load new address space.
    movl %eax, %esp
 
-   movl %ebp, %esp
    popl %ebp
    ret

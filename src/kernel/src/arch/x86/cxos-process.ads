@@ -95,6 +95,7 @@ private
    --    fsfsfs
    ----------------------------------------------------------------------------
    procedure Switch_To_Process (
+     Old_Process    : Process_Control_Block;
      Target_Process : Process_Control_Block
    );
 
@@ -105,7 +106,7 @@ private
    ----------------------------------------------------------------------------
    --  The amount of time that each process is allowed.
    ----------------------------------------------------------------------------
-   PROCESS_TIME_SLICE : constant := 50;
+   PROCESS_TIME_SLICE : constant := 100000;
 
    ----------------------------------------------------------------------------
    --  The system's idle task.

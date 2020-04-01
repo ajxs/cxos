@@ -63,6 +63,7 @@ package Cxos.Process is
    type Process_Result is (
      Failure,
      Success,
+     No_Running_Processes,
      Unhandled_Exception
    );
 
@@ -85,8 +86,13 @@ package Cxos.Process is
      Func_Start    :     System.Address
    ) return Process_Result;
 
+   ----------------------------------------------------------------------------
+   ----------------------------------------------------------------------------
    procedure Run_Scheduler;
 
+   ----------------------------------------------------------------------------
+   ----------------------------------------------------------------------------
+   procedure Yield;
 private
    ----------------------------------------------------------------------------
    --  Switch_To_Process
@@ -98,6 +104,13 @@ private
      Old_Process    : Process_Control_Block;
      Target_Process : Process_Control_Block
    );
+
+   ----------------------------------------------------------------------------
+   --  Find_Next_Process
+   ----------------------------------------------------------------------------
+   function Find_Next_Process (
+     Next_Process : out Process_Control_Block
+   ) return Process_Result;
 
    ----------------------------------------------------------------------------
    ----------------------------------------------------------------------------
@@ -129,7 +142,7 @@ private
    ----------------------------------------------------------------------------
    --  The id of the currently running system processes.
    ----------------------------------------------------------------------------
-   Current_Process : Natural := 0;
+   Current_Process_Id : Natural := 0;
 
    ----------------------------------------------------------------------------
    --  The currently loaded system processes.

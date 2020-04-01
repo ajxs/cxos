@@ -10,7 +10,6 @@
 -------------------------------------------------------------------------------
 
 with Cxos.Time_Keeping;
-with Cxos.Process;
 with Interfaces;
 with System.Storage_Elements;
 with x86.Interrupts.Names;
@@ -35,8 +34,6 @@ package body Cxos.IRQ_Handlers is
       --  Trigger the internal System Tick Handler to signal that a
       --  timer tick has occurred.
       Cxos.Time_Keeping.System_Tick_Handler;
-      Cxos.Process.Run_Scheduler;
-
       x86.PIC.Send_EOI (IRQ0);
 
    end IRQ0_Internal_Handler;

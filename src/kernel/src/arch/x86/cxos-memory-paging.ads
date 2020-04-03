@@ -46,15 +46,6 @@ package Cxos.Memory.Paging is
    ) return Process_Result;
 
    ----------------------------------------------------------------------------
-   --  Current_Page_Dir_Ptr
-   --
-   --  Purpose:
-   --    Returns the address of the currently loaded page directory.
-   ----------------------------------------------------------------------------
-   function Current_Page_Dir_Ptr return System.Address
-   with Volatile_Function;
-
-   ----------------------------------------------------------------------------
    --  Map_Virtual_Address
    --
    --  Purpose:

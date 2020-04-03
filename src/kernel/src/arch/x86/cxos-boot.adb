@@ -17,8 +17,8 @@ with Cxos.Memory.Map;
 with Cxos.Multiboot_Init;
 with Cxos.PCI;
 with Cxos.PIT;
-with Cxos.Process;
 with Cxos.Serial;
+with Cxos.Tasking;
 with Cxos.Time_Keeping;
 with Interfaces;
 with Multiboot;
@@ -174,10 +174,10 @@ package body Cxos.Boot is
             end if;
          end Initialise_Devices;
 
-      Initialise_Processes :
+      Initialise_Tasking :
          begin
-            Cxos.Process.Initialise;
-         end Initialise_Processes;
+            Cxos.Tasking.Initialise;
+         end Initialise_Tasking;
    exception
       when Constraint_Error =>
          return;

@@ -14,12 +14,12 @@ with Interfaces; use Interfaces;
 with System;
 
 -------------------------------------------------------------------------------
---  CXOS.PROCESS
+--  CXOS.TASKING
 --
 --  Purpose:
---    This package contains functionality for working with processes.
+--    This package contains functionality for working with system tasking.
 -------------------------------------------------------------------------------
-package Cxos.Process is
+package Cxos.Tasking is
    pragma Preelaborate;
 
    ----------------------------------------------------------------------------
@@ -187,7 +187,7 @@ private
      Curr_Proc : Process_Control_Block
    ) with Import,
      Convention    => Assembler,
-     External_Name => "cxos_process_save_process_state";
+     External_Name => "cxos_tasking_save_process_state";
 
    ----------------------------------------------------------------------------
    --  Load Process
@@ -199,5 +199,5 @@ private
      Target_Process : Process_Control_Block
    ) with Import,
      Convention    => Assembler,
-     External_Name => "cxos_process_load_process";
-end Cxos.Process;
+     External_Name => "cxos_tasking_load_process";
+end Cxos.Tasking;

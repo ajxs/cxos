@@ -11,9 +11,9 @@
 
 .section .text
 
-.type cxos_process_save_process_state, @function
-.global cxos_process_save_process_state
-cxos_process_save_process_state:
+.type cxos_tasking_save_process_state, @function
+.global cxos_tasking_save_process_state
+cxos_tasking_save_process_state:
    pushl %ebp
    movl %esp, %ebp
 
@@ -50,9 +50,9 @@ cxos_process_save_process_state:
 #
 #  Switches to the provided process.
 #####################################################################
-.type cxos_process_load_process, @function
-.global cxos_process_load_process
-cxos_process_load_process:
+.type cxos_tasking_load_process, @function
+.global cxos_tasking_load_process
+cxos_tasking_load_process:
    pushl %ebp
    movl %esp, %ebp
 

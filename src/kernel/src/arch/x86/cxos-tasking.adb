@@ -14,7 +14,7 @@ with Cxos.Memory;
 with Cxos.Memory.Paging;
 with Cxos.Serial;
 
-package body Cxos.Process is
+package body Cxos.Tasking is
    ----------------------------------------------------------------------------
    --  Create_Initial_Kernel_Task
    ----------------------------------------------------------------------------
@@ -270,4 +270,4 @@ package body Cxos.Process is
    begin
       Run_Scheduler;
    end Yield;
-end Cxos.Process;
+end Cxos.Tasking;

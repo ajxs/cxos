@@ -9,12 +9,12 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
+with Cxos.Boot.Multiboot_Init;
 with Cxos.Exceptions;
 with Cxos.Graphics.Vga;
 with Cxos.Interrupts;
 with Cxos.Memory;
 with Cxos.Memory.Map;
-with Cxos.Multiboot_Init;
 with Cxos.PCI;
 with Cxos.PIT;
 with Cxos.Serial;
@@ -95,7 +95,7 @@ package body Cxos.Boot is
       --  memory map.
       Read_Multiboot_Info :
          declare
-            use Cxos.Multiboot_Init;
+            use Cxos.Boot.Multiboot_Init;
             use Multiboot;
 
             --  The Multiboot magic number.
@@ -105,7 +105,7 @@ package body Cxos.Boot is
               External_Name => "multiboot_magic";
 
             --  The result of the initialisation process.
-            Init_Result : Cxos.Multiboot_Init.Process_Result;
+            Init_Result : Cxos.Boot.Multiboot_Init.Process_Result;
          begin
             --  Check whether we were booted by a Multiboot compatible
             --  bootloader.
@@ -114,7 +114,7 @@ package body Cxos.Boot is
                  "Detected valid Multiboot magic number" & ASCII.LF &
                  "Parsing Multiboot info" & ASCII.LF);
 
-               Init_Result := Cxos.Multiboot_Init.Parse_Multiboot_Info;
+               Init_Result := Cxos.Boot.Multiboot_Init.Parse_Multiboot_Info;
                if Init_Result /= Success then
                   Cxos.Serial.Put_String ("Error parsing multiboot info"
                     & ASCII.LF);
@@ -122,7 +122,7 @@ package body Cxos.Boot is
                end if;
 
                Init_Result :=
-                 Cxos.Multiboot_Init.Clear_Multiboot_Reserved_Data;
+                 Cxos.Boot.Multiboot_Init.Clear_Multiboot_Reserved_Data;
                if Init_Result /= Success then
                   Cxos.Serial.Put_String ("Error freeing multiboot memory"
                     & ASCII.LF);

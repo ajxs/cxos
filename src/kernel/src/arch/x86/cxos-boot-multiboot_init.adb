@@ -16,7 +16,7 @@ with Multiboot;
 with System.Address_To_Access_Conversions;
 with System.Storage_Elements;
 
-package body Cxos.Multiboot_Init is
+package body Cxos.Boot.Multiboot_Init is
    use System.Storage_Elements;
 
    ----------------------------------------------------------------------------
@@ -285,4 +285,4 @@ package body Cxos.Multiboot_Init is
 
       return Success;
    end Parse_Multiboot_Memory_Map;
-end Cxos.Multiboot_Init;
+end Cxos.Boot.Multiboot_Init;

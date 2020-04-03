@@ -13,14 +13,14 @@ with Interfaces;
 with System;
 
 -------------------------------------------------------------------------------
---  CXOS.MULTIBOOT_INIT
+--  CXOS.BOOT.MULTIBOOT_INIT
 --
 --  Purpose:
 --    This package contains code and defintions for working with the
 --    multiboot information structures provided at system init by the
 --    bootloader.
 -------------------------------------------------------------------------------
-package Cxos.Multiboot_Init is
+package Cxos.Boot.Multiboot_Init is
    pragma Preelaborate;
 
    use Interfaces;
@@ -99,4 +99,4 @@ private
      Drive_Map_Length : Unsigned_32
    ) return Process_Result;
 
-end Cxos.Multiboot_Init;
+end Cxos.Boot.Multiboot_Init;

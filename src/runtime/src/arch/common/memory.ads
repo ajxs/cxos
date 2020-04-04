@@ -13,6 +13,8 @@ with Interfaces;
 with System;
 
 -------------------------------------------------------------------------------
+--  MEMORY
+--
 --  Purpose:
 --    This package contains code and defintions for working with memory common
 --    to all platforms.

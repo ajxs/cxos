@@ -9,7 +9,7 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Interfaces;
+with Interfaces; use Interfaces;
 
 -------------------------------------------------------------------------------
 --  ELF
@@ -19,10 +19,8 @@ with Interfaces;
 --    the ELF executable file format.
 -------------------------------------------------------------------------------
 package Elf is
-   pragma Pure (Elf);
-   pragma Preelaborate (Elf);
-
-   use Interfaces;
+   pragma Preelaborate;
+   pragma Pure;
 
    ----------------------------------------------------------------------------
    --  ELF file magic number type.

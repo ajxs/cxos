@@ -9,7 +9,7 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Interfaces;
+with Interfaces; use Interfaces;
 with System;
 
 -------------------------------------------------------------------------------
@@ -21,8 +21,6 @@ with System;
 -------------------------------------------------------------------------------
 package Cxos.Memory.Map is
    pragma Preelaborate;
-
-   use Interfaces;
 
    ----------------------------------------------------------------------------
    --  Memory Map Frame type.

@@ -23,6 +23,18 @@ package Cxos.Tasking is
    pragma Preelaborate;
 
    ----------------------------------------------------------------------------
+   --  Process Result
+   --  Used for storing and returning the result of an internal procedure.
+   ----------------------------------------------------------------------------
+   type Process_Result is (
+     Failure,
+     Success,
+     No_Running_Processes,
+     Process_Count_Exhausted,
+     Unhandled_Exception
+   );
+
+   ----------------------------------------------------------------------------
    --  Process Control Block
    --  Used for storing the data necessary for initialising and running
    --  kernel processes.
@@ -56,18 +68,6 @@ package Cxos.Tasking is
       end record;
 
    ----------------------------------------------------------------------------
-   --  Process Result
-   --  Used for storing and returning the result of an internal process
-   --  procedure.
-   ----------------------------------------------------------------------------
-   type Process_Result is (
-     Failure,
-     Success,
-     No_Running_Processes,
-     Unhandled_Exception
-   );
-
-   ----------------------------------------------------------------------------
    --  Initialise
    --
    --  Purpose:
@@ -93,12 +93,26 @@ package Cxos.Tasking is
    ----------------------------------------------------------------------------
    ----------------------------------------------------------------------------
    procedure Yield;
+
+   ----------------------------------------------------------------------------
+   --  Idle
+   --
+   --  Purpose:
+   --    This function serves as the system idle process.
+   ----------------------------------------------------------------------------
+   procedure Idle;
+
 private
+   ----------------------------------------------------------------------------
+   --  The maximum number of concurrent processes running in the system.
+   ----------------------------------------------------------------------------
+   MAX_RUNNING_PROCESSES : constant := 1024;
+
    ----------------------------------------------------------------------------
    --  Switch_To_Process
    --
    --  Purpose:
-   --    fsfsfs
+   --    Handles switching to a new system process.
    ----------------------------------------------------------------------------
    procedure Switch_To_Process (
      Old_Process    : Process_Control_Block;
@@ -107,12 +121,16 @@ private
 
    ----------------------------------------------------------------------------
    --  Find_Next_Process
+   --
+   --  Purpose:
+   --    Finds the next system task due to be loaded.
    ----------------------------------------------------------------------------
    function Find_Next_Process (
      Next_Process : out Process_Control_Block
    ) return Process_Result;
 
    ----------------------------------------------------------------------------
+   --  The start time of the current system task.
    ----------------------------------------------------------------------------
    Curr_Process_Slice_Start_Time : Time := 0;
 
@@ -130,7 +148,7 @@ private
    --  Array type to contain the currently loaded system processes.
    ----------------------------------------------------------------------------
    type Process_Control_Block_Array is
-     array (Natural range 0 .. 1023) of Process_Control_Block;
+     array (Natural range 0 .. MAX_RUNNING_PROCESSES) of Process_Control_Block;
 
    ----------------------------------------------------------------------------
    --  The number of running processes.
@@ -148,14 +166,6 @@ private
    --  The currently loaded system processes.
    ----------------------------------------------------------------------------
    System_Processes : Process_Control_Block_Array;
-
-   ----------------------------------------------------------------------------
-   --  Idle
-   --
-   --  Purpose:
-   --    This function serves as the system idle process.
-   ----------------------------------------------------------------------------
-   procedure Idle;
 
    ----------------------------------------------------------------------------
    --  Create_Initial_Kernel_Task
@@ -200,4 +210,21 @@ private
    ) with Import,
      Convention    => Assembler,
      External_Name => "cxos_tasking_load_process";
+
+   ----------------------------------------------------------------------------
+   --  Decrement_Process_Count
+   --
+   --  Purpose:
+   --    Decrements the currently running process count.
+   ----------------------------------------------------------------------------
+   function Decrement_Process_Count return Process_Result;
+
+   ----------------------------------------------------------------------------
+   --  Increment_Process_Count
+   --
+   --  Purpose:
+   --    Increments the currently running process count.
+   ----------------------------------------------------------------------------
+   function Increment_Process_Count return Process_Result;
+
 end Cxos.Tasking;

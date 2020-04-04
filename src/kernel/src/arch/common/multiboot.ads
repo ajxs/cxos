@@ -9,7 +9,7 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Interfaces;
+with Interfaces; use Interfaces;
 with System;
 
 -------------------------------------------------------------------------------
@@ -20,9 +20,8 @@ with System;
 --    data structures.
 -------------------------------------------------------------------------------
 package Multiboot is
-   pragma Preelaborate (Multiboot);
-
-   use Interfaces;
+   pragma Preelaborate;
+   pragma Pure;
 
    type Syms_Array is array (0 .. 2) of Unsigned_32;
 

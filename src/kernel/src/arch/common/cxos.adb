@@ -10,7 +10,7 @@
 -------------------------------------------------------------------------------
 
 with Cxos.Serial;
-with System.Machine_Code;
+with Cxos.Tasking;
 
 package body Cxos is
    ----------------------------------------------------------------------------
@@ -21,9 +21,8 @@ package body Cxos is
       --  Print the ASCII splash screen.
       Print_Splash;
 
-      --  Loop forever.
       loop
-         System.Machine_Code.Asm ("hlt", Volatile => True);
+         Cxos.Tasking.Idle;
       end loop;
    end Main;
 

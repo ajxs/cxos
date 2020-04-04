@@ -10,6 +10,7 @@
 -------------------------------------------------------------------------------
 
 with System.Storage_Elements;
+with System.Machine_Code;
 with Cxos.Memory;
 with Cxos.Memory.Paging;
 with Cxos.Serial;
@@ -21,6 +22,8 @@ package body Cxos.Tasking is
    function Create_Initial_Kernel_Task (
      Process_Block : out Process_Control_Block
    ) return Process_Result is
+      --  The result of internal processes.
+      Result : Process_Result;
    begin
       --  Set the page directory pointer to the currently loaded page
       --  directory pointer.
@@ -29,16 +32,15 @@ package body Cxos.Tasking is
       Process_Block.ESP := Cxos.Memory.Get_Stack_Top;
 
       --  Increment the process count.
-      Increment_Process_Count :
-         begin
-            Process_Count := Process_Count + 1;
-         exception
-            when Constraint_Error =>
-               Cxos.Serial.Put_String ("Process count exhausted" & ASCII.LF);
-               return Unhandled_Exception;
-         end Increment_Process_Count;
+      Result := Increment_Process_Count;
+      if Result /= Success then
+         return Result;
+      end if;
 
       return Success;
+   exception
+      when Constraint_Error =>
+         return Unhandled_Exception;
    end Create_Initial_Kernel_Task;
 
    ----------------------------------------------------------------------------
@@ -53,6 +55,8 @@ package body Cxos.Tasking is
       --  The newly allocated page directory to map the virtual address
       --  space for the newly created process.
       Page_Dir_Addr     : System.Address;
+      --  The result of internal processes.
+      Result : Process_Result;
    begin
       --  Allocate the page directory for the newly created process.
       Allocate_Page_Directory :
@@ -80,20 +84,33 @@ package body Cxos.Tasking is
          end Allocate_Structure;
 
       --  Increment the process count.
-      Increment_Process_Count :
-         begin
-            Process_Count := Process_Count + 1;
-         exception
-            when Constraint_Error =>
-               Cxos.Serial.Put_String ("Process count exhausted" & ASCII.LF);
-               return Unhandled_Exception;
-         end Increment_Process_Count;
+      Result := Increment_Process_Count;
+      if Result /= Success then
+         return Result;
+      end if;
 
       return Success;
    exception
       when Constraint_Error =>
          return Unhandled_Exception;
    end Create_Process;
+
+   ----------------------------------------------------------------------------
+   --  Decrement_Process_Count
+   ----------------------------------------------------------------------------
+   function Decrement_Process_Count return Process_Result is
+   begin
+      if Process_Count = 0 then
+         return No_Running_Processes;
+      end if;
+
+      Process_Count := Process_Count - 1;
+
+      return Success;
+   exception
+      when Constraint_Error =>
+         return Unhandled_Exception;
+   end Decrement_Process_Count;
 
    ----------------------------------------------------------------------------
    --  Find_Next_Process
@@ -107,18 +124,16 @@ package body Cxos.Tasking is
          return No_Running_Processes;
       end if;
 
-         Find_Next_Process_Id :
-            begin
-               Next_Process_Id := (Current_Process_Id + 1) mod Process_Count;
-            exception
-               when Constraint_Error =>
-                  Next_Process_Id := 0;
-            end Find_Next_Process_Id;
+      Find_Next_Process_Id :
+         begin
+            Next_Process_Id := (Current_Process_Id + 1) mod Process_Count;
+         exception
+            when Constraint_Error =>
+               Next_Process_Id := 0;
+         end Find_Next_Process_Id;
 
-         Cxos.Serial.Put_String ("C: " & Current_Process_Id'Image &
-           " N: " & Next_Process_Id'Image & ASCII.LF);
+      Next_Process := System_Processes (Next_Process_Id);
 
-         Next_Process := System_Processes (Next_Process_Id);
       return Success;
    exception
       when Constraint_Error =>
@@ -129,29 +144,29 @@ package body Cxos.Tasking is
    --  Idle
    ----------------------------------------------------------------------------
    procedure Idle is
-      Idle_Count : Natural := 0;
-      Start_Time : Time;
    begin
-
       --  Loop forever.
       loop
-         Start_Time := Clock;
-            Cxos.Serial.Put_String ("Idling: " & Idle_Count'Image & ASCII.LF);
-            Idle_Count := Idle_Count + 1;
-
-            Wait_Loop :
-               loop
-                  if (Clock - Start_Time) > 1000 then
-                     exit Wait_Loop;
-                  end if;
-               end loop Wait_Loop;
-
-            Yield;
+         System.Machine_Code.Asm ("hlt", Volatile => True);
       end loop;
+   end Idle;
+
+   ----------------------------------------------------------------------------
+   --  Increment_Process_Count
+   ----------------------------------------------------------------------------
+   function Increment_Process_Count return Process_Result is
+   begin
+      if Process_Count = MAX_RUNNING_PROCESSES then
+         return Process_Count_Exhausted;
+      end if;
+
+      Process_Count := Process_Count + 1;
+
+      return Success;
    exception
       when Constraint_Error =>
-         null;
-   end Idle;
+         return Unhandled_Exception;
+   end Increment_Process_Count;
 
    ----------------------------------------------------------------------------
    --  Initialise
@@ -160,7 +175,7 @@ package body Cxos.Tasking is
       --  The result status code of internal processes.
       Result : Process_Result;
    begin
-      Cxos.Serial.Put_String ("Initialising system proceses" & ASCII.LF);
+      Cxos.Serial.Put_String ("Initialising tasking" & ASCII.LF);
 
       Current_Process_Id := 0;
 
@@ -173,24 +188,9 @@ package body Cxos.Tasking is
             if Result /= Success then
                Cxos.Serial.Put_String ("Error creating idle task" & ASCII.LF);
             end if;
-
-            --  Print_Process_Block_Info (System_Processes (0));
          end Create_Idle_Process;
 
-      Create_Test_Process :
-         begin
-            Result := Create_Process (System_Processes (1), Idle'Address);
-            if Result /= Success then
-               Cxos.Serial.Put_String ("Error" & ASCII.LF);
-            end if;
-
-            --  Print_Process_Block_Info (System_Processes (1));
-         end Create_Test_Process;
-
-      Cxos.Serial.Put_String ("Finished initialising system proceses" &
-        ASCII.LF);
-
-      Yield;
+      Cxos.Serial.Put_String ("Finished initialising tasking" & ASCII.LF);
    exception
       when Constraint_Error =>
          null;

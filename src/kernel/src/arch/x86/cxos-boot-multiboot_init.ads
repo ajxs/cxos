@@ -9,7 +9,7 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Interfaces;
+with Interfaces; use Interfaces;
 with System;
 
 -------------------------------------------------------------------------------
@@ -22,8 +22,6 @@ with System;
 -------------------------------------------------------------------------------
 package Cxos.Boot.Multiboot_Init is
    pragma Preelaborate;
-
-   use Interfaces;
 
    ----------------------------------------------------------------------------
    --  Process Result type.

@@ -9,11 +9,9 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with System.Storage_Elements;
+with System.Storage_Elements; use System.Storage_Elements;
 
 package body Cxos.Memory.Map is
-   use System.Storage_Elements;
-
    ----------------------------------------------------------------------------
    --  Allocate_Frames
    ----------------------------------------------------------------------------

@@ -9,7 +9,7 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Cxos.Serial;
+with Cxos.Debug;
 
 package body Cxos.ATA is
    use x86.ATA;
@@ -154,58 +154,61 @@ package body Cxos.ATA is
    begin
       Result := Reset_Bus (Primary);
       if Result /= Success then
-         Cxos.Serial.Put_String ("Error resetting device" & ASCII.LF);
+         Cxos.Debug.Put_String ("Error resetting device" & ASCII.LF);
       end if;
 
       Result := Get_Device_Type (Device_Type, Primary, Master);
       if Result /= Success then
-         Cxos.Serial.Put_String ("Error reading device type" & ASCII.LF);
+         Cxos.Debug.Put_String ("Error reading device type" & ASCII.LF);
       end if;
 
       case Device_Type is
          when PATAPI =>
-            Cxos.Serial.Put_String ("PATAPI" & ASCII.LF);
+            Cxos.Debug.Put_String ("PATAPI" & ASCII.LF);
          when SATAPI =>
-            Cxos.Serial.Put_String ("PATAPI" & ASCII.LF);
+            Cxos.Debug.Put_String ("PATAPI" & ASCII.LF);
          when PATA   =>
-            Cxos.Serial.Put_String ("PATA" & ASCII.LF);
+            Cxos.Debug.Put_String ("PATA" & ASCII.LF);
          when SATA   =>
-            Cxos.Serial.Put_String ("SATA" & ASCII.LF);
+            Cxos.Debug.Put_String ("SATA" & ASCII.LF);
          when Unknown_ATA_Device =>
-            Cxos.Serial.Put_String ("Unknown" & ASCII.LF);
+            Cxos.Debug.Put_String ("Unknown" & ASCII.LF);
       end case;
 
       Result := Identify (Rec, Primary, Master);
       if Result /= Success then
-         Cxos.Serial.Put_String ("Error identifying device" & ASCII.LF);
+         Cxos.Debug.Put_String ("Error identifying device" & ASCII.LF);
       end if;
 
       if Rec.Device_Config.Removable_Media = True then
-         Cxos.Serial.Put_String ("Removable Media" & ASCII.LF);
+         Cxos.Debug.Put_String ("Removable Media" & ASCII.LF);
       end if;
 
       Result := Get_Device_Type (Device_Type, Primary, Slave);
       if Result /= Success then
-         Cxos.Serial.Put_String ("Error reading device type" & ASCII.LF);
+         Cxos.Debug.Put_String ("Error reading device type" & ASCII.LF);
       end if;
 
       case Device_Type is
          when PATAPI =>
-            Cxos.Serial.Put_String ("PATAPI" & ASCII.LF);
+            Cxos.Debug.Put_String ("PATAPI" & ASCII.LF);
          when SATAPI =>
-            Cxos.Serial.Put_String ("PATAPI" & ASCII.LF);
+            Cxos.Debug.Put_String ("PATAPI" & ASCII.LF);
          when PATA   =>
-            Cxos.Serial.Put_String ("PATA" & ASCII.LF);
+            Cxos.Debug.Put_String ("PATA" & ASCII.LF);
          when SATA   =>
-            Cxos.Serial.Put_String ("SATA" & ASCII.LF);
+            Cxos.Debug.Put_String ("SATA" & ASCII.LF);
          when Unknown_ATA_Device =>
-            Cxos.Serial.Put_String ("Unknown" & ASCII.LF);
+            Cxos.Debug.Put_String ("Unknown" & ASCII.LF);
       end case;
    exception
       when Constraint_Error =>
          return;
    end Initialise;
 
+   ----------------------------------------------------------------------------
+   --  Read_Word
+   ----------------------------------------------------------------------------
    function Read_Word (
      Data : out Unsigned_16;
      Bus  :     x86.ATA.ATA_Bus

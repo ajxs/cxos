@@ -9,7 +9,7 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Cxos.Serial;
+with Cxos.Debug;
 with Cxos.Tasking;
 
 package body Cxos is
@@ -41,16 +41,16 @@ package body Cxos is
    begin
       Print_Splash_to_Serial :
          begin
-            Cxos.Serial.Put_String ("" & ASCII.LF);
-            Cxos.Serial.Put_String (Line_1 & ASCII.LF);
-            Cxos.Serial.Put_String (Line_2 & ASCII.LF);
-            Cxos.Serial.Put_String (Line_3 & ASCII.LF);
-            Cxos.Serial.Put_String (Line_4 & ASCII.LF);
-            Cxos.Serial.Put_String (Line_5 & ASCII.LF);
-            Cxos.Serial.Put_String (Line_6 & ASCII.LF);
-            Cxos.Serial.Put_String (Line_7 & ASCII.LF);
-            Cxos.Serial.Put_String (Line_8 & ASCII.LF);
-            Cxos.Serial.Put_String ("" & ASCII.LF);
+            Cxos.Debug.Put_String ("" & ASCII.LF);
+            Cxos.Debug.Put_String (Line_1 & ASCII.LF);
+            Cxos.Debug.Put_String (Line_2 & ASCII.LF);
+            Cxos.Debug.Put_String (Line_3 & ASCII.LF);
+            Cxos.Debug.Put_String (Line_4 & ASCII.LF);
+            Cxos.Debug.Put_String (Line_5 & ASCII.LF);
+            Cxos.Debug.Put_String (Line_6 & ASCII.LF);
+            Cxos.Debug.Put_String (Line_7 & ASCII.LF);
+            Cxos.Debug.Put_String (Line_8 & ASCII.LF);
+            Cxos.Debug.Put_String ("" & ASCII.LF);
          end Print_Splash_to_Serial;
    end Print_Splash;
 end Cxos;

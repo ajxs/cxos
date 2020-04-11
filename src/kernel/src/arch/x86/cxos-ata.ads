@@ -44,6 +44,10 @@ package Cxos.ATA is
    procedure Initialise;
 
    ----------------------------------------------------------------------------
+   --  Read_Word
+   --
+   --  Purpose:
+   --    Reads a word from an ATA bus.
    ----------------------------------------------------------------------------
    function Read_Word (
      Data : out Unsigned_16;

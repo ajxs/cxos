@@ -9,15 +9,13 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Cxos.Serial;
+with Cxos.Debug;
 with Cxos.Memory.Map;
-with Interfaces;
+with Interfaces; use Interfaces;
 with System.Machine_Code;
 with System.Storage_Elements; use System.Storage_Elements;
 
 package body Cxos.Memory is
-   use Interfaces;
-
    ----------------------------------------------------------------------------
    --  Current_Page_Dir_Ptr
    ----------------------------------------------------------------------------
@@ -73,7 +71,7 @@ package body Cxos.Memory is
       Result := Cxos.Memory.Map.Mark_Memory_Range (
         Kernel_Physical_Start'Address, Kernel_Length, Allocated);
       if Result /= Success then
-         Cxos.Serial.Put_String (
+         Cxos.Debug.Put_String (
            "Error marking kernel code segment" & ASCII.LF);
 
          return Unhandled_Exception;

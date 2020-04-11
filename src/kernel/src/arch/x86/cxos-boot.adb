@@ -10,6 +10,7 @@
 -------------------------------------------------------------------------------
 
 with Cxos.Boot.Multiboot_Init;
+with Cxos.Debug;
 with Cxos.Exceptions;
 with Cxos.Graphics.Vga;
 with Cxos.Interrupts;
@@ -17,16 +18,13 @@ with Cxos.Memory;
 with Cxos.Memory.Map;
 with Cxos.PCI;
 with Cxos.PIT;
-with Cxos.Serial;
 with Cxos.Tasking;
 with Cxos.Time_Keeping;
-with Interfaces;
+with Interfaces; use Interfaces;
 with Multiboot;
 with x86.Vga;
 
 package body Cxos.Boot is
-   use Interfaces;
-
    ----------------------------------------------------------------------------
    --  Initialise_Kernel
    ----------------------------------------------------------------------------
@@ -50,19 +48,19 @@ package body Cxos.Boot is
             --  The result of the internal initialisation process.
             Init_Result : Cxos.Interrupts.Process_Result;
          begin
-            Cxos.Serial.Put_String ("Initialising Interrupts" & ASCII.LF);
+            Cxos.Debug.Put_String ("Initialising Interrupts" & ASCII.LF);
             Init_Result := Cxos.Interrupts.Initialise;
             if Init_Result /= Success then
-               Cxos.Serial.Put_String ("Error initialising Interrupts"
+               Cxos.Debug.Put_String ("Error initialising Interrupts"
                  & ASCII.LF);
                return;
             end if;
-            Cxos.Serial.Put_String ("Finished initialising interrupts" &
+            Cxos.Debug.Put_String ("Finished initialising interrupts" &
               ASCII.LF);
 
-            Cxos.Serial.Put_String ("Initialising CPU exceptions" & ASCII.LF);
+            Cxos.Debug.Put_String ("Initialising CPU exceptions" & ASCII.LF);
             Cxos.Exceptions.Initialise;
-            Cxos.Serial.Put_String ("Finished initialising CPU exceptions" &
+            Cxos.Debug.Put_String ("Finished initialising CPU exceptions" &
               ASCII.LF);
          end Initialise_Interrupts;
 
@@ -70,23 +68,23 @@ package body Cxos.Boot is
       --  generation.
       Initialise_Timers :
          begin
-            Cxos.Serial.Put_String ("Initialising system timer" & ASCII.LF);
+            Cxos.Debug.Put_String ("Initialising system timer" & ASCII.LF);
             Cxos.Time_Keeping.Initialise;
-            Cxos.Serial.Put_String (
+            Cxos.Debug.Put_String (
               "Finished initialising system timer" & ASCII.LF);
 
-            Cxos.Serial.Put_String ("Initialising PIT" & ASCII.LF);
+            Cxos.Debug.Put_String ("Initialising PIT" & ASCII.LF);
             Cxos.PIT.Initialise;
-            Cxos.Serial.Put_String ("Finished initialising PIT" & ASCII.LF);
+            Cxos.Debug.Put_String ("Finished initialising PIT" & ASCII.LF);
          end Initialise_Timers;
 
       --  Initialise the kernel memory map.
       Init_Memory_Map :
          begin
             --  Initialise the system memory map.
-            Cxos.Serial.Put_String ("Initialising Memory Map" & ASCII.LF);
+            Cxos.Debug.Put_String ("Initialising Memory Map" & ASCII.LF);
             Cxos.Memory.Map.Initialise;
-            Cxos.Serial.Put_String ("Finished Memory Map init" & ASCII.LF);
+            Cxos.Debug.Put_String ("Finished Memory Map init" & ASCII.LF);
          end Init_Memory_Map;
 
       --  Read the multiboot info structures.
@@ -110,13 +108,13 @@ package body Cxos.Boot is
             --  Check whether we were booted by a Multiboot compatible
             --  bootloader.
             if Magic_Number = VALID_MAGIC_NUMBER then
-               Cxos.Serial.Put_String (
+               Cxos.Debug.Put_String (
                  "Detected valid Multiboot magic number" & ASCII.LF &
                  "Parsing Multiboot info" & ASCII.LF);
 
                Init_Result := Cxos.Boot.Multiboot_Init.Parse_Multiboot_Info;
                if Init_Result /= Success then
-                  Cxos.Serial.Put_String ("Error parsing multiboot info"
+                  Cxos.Debug.Put_String ("Error parsing multiboot info"
                     & ASCII.LF);
                   return;
                end if;
@@ -124,15 +122,15 @@ package body Cxos.Boot is
                Init_Result :=
                  Cxos.Boot.Multiboot_Init.Clear_Multiboot_Reserved_Data;
                if Init_Result /= Success then
-                  Cxos.Serial.Put_String ("Error freeing multiboot memory"
+                  Cxos.Debug.Put_String ("Error freeing multiboot memory"
                     & ASCII.LF);
                   return;
                end if;
 
-               Cxos.Serial.Put_String (
+               Cxos.Debug.Put_String (
                  "Finished parsing multiboot info" & ASCII.LF);
             else
-               Cxos.Serial.Put_String (
+               Cxos.Debug.Put_String (
                  "Unable to detect valid Multiboot magic number" & ASCII.LF);
 
                --  Exit here in the instance that we can't find a valid
@@ -149,14 +147,14 @@ package body Cxos.Boot is
             --  The result of the process.
             Init_Result : Cxos.Memory.Process_Result;
          begin
-            Cxos.Serial.Put_String ("Marking kernel memory" & ASCII.LF);
+            Cxos.Debug.Put_String ("Marking kernel memory" & ASCII.LF);
             Init_Result := Cxos.Memory.Mark_Kernel_Memory;
             if Init_Result /= Success then
-               Cxos.Serial.Put_String ("Error marking kernel memory"
+               Cxos.Debug.Put_String ("Error marking kernel memory"
                  & ASCII.LF);
                return;
             end if;
-            Cxos.Serial.Put_String ("Finished marking kernel memory"
+            Cxos.Debug.Put_String ("Finished marking kernel memory"
               & ASCII.LF);
          end Mark_Kernel_Memory;
 

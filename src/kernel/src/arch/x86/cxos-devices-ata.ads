@@ -10,38 +10,24 @@
 -------------------------------------------------------------------------------
 
 with Ada.Unchecked_Conversion;
-with Interfaces;
+with Interfaces; use Interfaces;
 with Cxos.Time_Keeping;
 with x86.ATA;
 
 -------------------------------------------------------------------------------
---  CXOS.ATA
+--  CXOS.DEVICES.ATA
 --
 --  Purpose:
 --    This package contains definitons and functionality for working with
 --    ATA devices.
 -------------------------------------------------------------------------------
-package Cxos.ATA is
+package Cxos.Devices.ATA is
    pragma Preelaborate;
 
-   use Interfaces;
-
    ----------------------------------------------------------------------------
-   --  Process Result type.
-   --  Used for tracking the result of package processes.
+   --  Find_ATA_Devices
    ----------------------------------------------------------------------------
-   type Process_Result is (
-     Command_Aborted,
-     Device_Busy,
-     Device_Error_State,
-     Device_Non_ATA,
-     Device_Not_Present,
-     Invalid_Command,
-     Success,
-     Unhandled_Exception
-   );
-
-   procedure Initialise;
+   procedure Find_ATA_Devices;
 
    ----------------------------------------------------------------------------
    --  Read_Word
@@ -148,4 +134,23 @@ private
      Timeout : Cxos.Time_Keeping.Time := 2000
    ) return Process_Result
    with Volatile_Function;
-end Cxos.ATA;
+
+   ----------------------------------------------------------------------------
+   --  Flush_Write_Cache
+   ----------------------------------------------------------------------------
+   function Flush_Write_Cache (
+     Bus : x86.ATA.ATA_Bus
+   ) return Process_Result
+   with Volatile_Function;
+
+   ----------------------------------------------------------------------------
+   --  Print_Process_Result
+   --
+   --  Purpose:
+   --    Prints a string representing a process result object.
+   ----------------------------------------------------------------------------
+   procedure Print_Process_Result (
+     Result : Process_Result
+   );
+
+end Cxos.Devices.ATA;

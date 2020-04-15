@@ -11,7 +11,7 @@
 
 with Cxos.Debug;
 
-package body Cxos.PCI is
+package body Cxos.Devices.PCI is
    use x86.PCI;
 
    ----------------------------------------------------------------------------
@@ -369,4 +369,4 @@ package body Cxos.PCI is
       return Success;
    end Test_Pci_Device;
 
-end Cxos.PCI;
+end Cxos.Devices.PCI;

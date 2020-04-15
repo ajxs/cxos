@@ -9,7 +9,7 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Interfaces;
+with Interfaces; use Interfaces;
 with Ada.Unchecked_Conversion;
 
 -------------------------------------------------------------------------------
@@ -21,8 +21,6 @@ with Ada.Unchecked_Conversion;
 -------------------------------------------------------------------------------
 package x86.ATA is
    pragma Preelaborate;
-
-   use Interfaces;
 
    ----------------------------------------------------------------------------
    --  ATA Device Bus type.
@@ -120,6 +118,8 @@ package x86.ATA is
    type ATA_Command is (
      Nop,
      Device_Reset,
+     Flush_Write_Cache,
+     Identify_Device,
      Recalibrate,
      Read_Sectors_Retry,
      Read_Sectors_No_Retry,
@@ -130,8 +130,7 @@ package x86.ATA is
      Write_Sectors_Retry,
      Write_Sectors_No_Retry,
      Write_Long_Retry,
-     Write_Long_No_Retry,
-     Identify_Device
+     Write_Long_No_Retry
    );
 
    ----------------------------------------------------------------------------

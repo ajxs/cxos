@@ -9,30 +9,17 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Interfaces;
+with Interfaces; use Interfaces;
 with x86.PCI;
 
 -------------------------------------------------------------------------------
---  CXOS.PCI
+--  CXOS.DEVICES.PCI
 --
 --  Purpose:
 --    This package contains code for implementing PCI bus drivers.
 -------------------------------------------------------------------------------
-package Cxos.PCI is
+package Cxos.Devices.PCI is
    pragma Preelaborate;
-
-   use Interfaces;
-
-   ----------------------------------------------------------------------------
-   --  Process Result type.
-   --  Tracks the outcome of OS PCI functionality.
-   ----------------------------------------------------------------------------
-   type Process_Result is (
-     Bus_Read_Error,
-     Device_Not_Found,
-     Success,
-     Unhandled_Exception
-   );
 
    ----------------------------------------------------------------------------
    --  Find_Pci_Devices
@@ -121,4 +108,4 @@ private
      Function_Number :     x86.PCI.Pci_Function_Number
    ) return Process_Result;
 
-end Cxos.PCI;
+end Cxos.Devices.PCI;

@@ -11,12 +11,12 @@
 
 with Cxos.Boot.Multiboot_Init;
 with Cxos.Debug;
+with Cxos.Devices;
 with Cxos.Exceptions;
 with Cxos.Graphics.Vga;
 with Cxos.Interrupts;
 with Cxos.Memory;
 with Cxos.Memory.Map;
-with Cxos.PCI;
 with Cxos.PIT;
 with Cxos.Tasking;
 with Cxos.Time_Keeping;
@@ -160,16 +160,8 @@ package body Cxos.Boot is
 
       --  Initialise peripheral devices.
       Initialise_Devices :
-         declare
-            use Cxos.PCI;
-
-            --  The result of initialising the PCI functionality.
-            Pci_Init_Result : Cxos.PCI.Process_Result;
          begin
-            Pci_Init_Result := Cxos.PCI.Find_Pci_Devices;
-            if Pci_Init_Result /= Success then
-               return;
-            end if;
+            Cxos.Devices.Initialise;
          end Initialise_Devices;
 
       Initialise_Tasking :

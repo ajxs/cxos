@@ -9,16 +9,25 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with x86.Serial;
+-------------------------------------------------------------------------------
+--  CXOS.DEVICES.SERIAL
+--
+--  Purpose:
+--    This package contains functionality for interfacing with the target
+--    architecture's serial hardware.
+-------------------------------------------------------------------------------
+package Cxos.Devices.Serial is
+   pragma Preelaborate;
 
-package body Cxos.Serial is
    ----------------------------------------------------------------------------
    --  Put_String
+   --
+   --  Purpose:
+   --    This procedure prints a string to the default output serial port.
+   --  Exceptions:
+   --    None.
    ----------------------------------------------------------------------------
    procedure Put_String (
      Data : String
-   ) is
-   begin
-      x86.Serial.Put_String (x86.Serial.COM1, Data);
-   end Put_String;
-end Cxos.Serial;
+   );
+end Cxos.Devices.Serial;

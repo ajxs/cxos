@@ -90,7 +90,7 @@ private
    --    This procedure prints information about a PCI device record.
    ----------------------------------------------------------------------------
    procedure Print_Pci_Device (
-      Device : Pci_Device
+     Device : Pci_Device
    );
 
    ----------------------------------------------------------------------------

@@ -9,12 +9,10 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with System.Storage_Elements;
+with System.Storage_Elements; use System.Storage_Elements;
 with x86.Port_IO;
 
 package body x86.ATA is
-   use System.Storage_Elements;
-
    ----------------------------------------------------------------------------
    --  Get_Register_Address
    ----------------------------------------------------------------------------

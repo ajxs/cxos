@@ -22,65 +22,53 @@ package body Cxos.Devices.ATA is
       Result      : Process_Result;
       Device_Id   : Device_Identification_Record;
    begin
-      Result := Reset_Bus (Primary);
-      if Result /= Success then
-         Cxos.Debug.Put_String ("Error resetting device: ");
-         Print_Process_Result (Result);
-         Cxos.Debug.Put_String ("" & ASCII.LF);
-      end if;
-
-      Result := Get_Device_Type (Device_Type, Primary, Master);
-      if Result /= Success then
-         Cxos.Debug.Put_String ("Error reading device type: ");
-         Print_Process_Result (Result);
-         Cxos.Debug.Put_String ("" & ASCII.LF);
-      end if;
-
-      case Device_Type is
-         when PATAPI =>
-            Cxos.Debug.Put_String ("PATAPI" & ASCII.LF);
-         when SATAPI =>
-            Cxos.Debug.Put_String ("PATAPI" & ASCII.LF);
-         when PATA   =>
-            Cxos.Debug.Put_String ("PATA" & ASCII.LF);
-         when SATA   =>
-            Cxos.Debug.Put_String ("SATA" & ASCII.LF);
-         when Unknown_ATA_Device =>
-            Cxos.Debug.Put_String ("Unknown" & ASCII.LF);
-      end case;
-
-      if Device_Type = SATA or Device_Type = PATA then
-         Result := Identify (Device_Id, Primary, Master);
+      for Bus in ATA_Bus'Range loop
+         Result := Reset_Bus (Bus);
          if Result /= Success then
-            Cxos.Debug.Put_String ("Error identifying device: ");
+            Cxos.Debug.Put_String ("Error resetting device: ");
             Print_Process_Result (Result);
             Cxos.Debug.Put_String ("" & ASCII.LF);
          end if;
-      end if;
 
-      if Device_Id.Device_Config.Removable_Media = True then
-         Cxos.Debug.Put_String ("Removable Media" & ASCII.LF);
-      end if;
+         for Position in ATA_Device_Position'Range loop
+            Result := Identify (Device_Id, Bus, Position);
+            case Result is
+               when Success =>
+                  if Device_Id.Device_Config.Removable_Media = True then
+                     Cxos.Debug.Put_String ("Removable Media" & ASCII.LF);
+                  end if;
+               when Device_Not_Present =>
+                  Cxos.Debug.Put_String ("No device present" & ASCII.LF);
+               when Device_Non_ATA =>
+                  --  If the drive is non-ATA.
+                  Result := Get_Device_Type (Device_Type, Bus, Position);
+                  if Result /= Success then
+                     Cxos.Debug.Put_String ("Error reading device type: ");
+                     Print_Process_Result (Result);
+                     Cxos.Debug.Put_String ("" & ASCII.LF);
+                  else
+                     Cxos.Debug.Put_String ("Device non-ATA: ");
+                     case Device_Type is
+                        when PATAPI =>
+                           Cxos.Debug.Put_String ("PATAPI" & ASCII.LF);
+                        when SATAPI =>
+                           Cxos.Debug.Put_String ("PATAPI" & ASCII.LF);
+                        when PATA   =>
+                           Cxos.Debug.Put_String ("PATA" & ASCII.LF);
+                        when SATA   =>
+                           Cxos.Debug.Put_String ("SATA" & ASCII.LF);
+                        when Unknown_ATA_Device =>
+                           Cxos.Debug.Put_String ("Unknown" & ASCII.LF);
+                     end case;
+                  end if;
+               when others =>
+                  Cxos.Debug.Put_String ("Error identifying device: ");
+                  Print_Process_Result (Result);
+                  Cxos.Debug.Put_String ("" & ASCII.LF);
+            end case;
+         end loop;
+      end loop;
 
-      Result := Get_Device_Type (Device_Type, Primary, Slave);
-      if Result /= Success then
-         Cxos.Debug.Put_String ("Error reading device type: ");
-         Print_Process_Result (Result);
-         Cxos.Debug.Put_String ("" & ASCII.LF);
-      end if;
-
-      case Device_Type is
-         when PATAPI =>
-            Cxos.Debug.Put_String ("PATAPI" & ASCII.LF);
-         when SATAPI =>
-            Cxos.Debug.Put_String ("SATAPI" & ASCII.LF);
-         when PATA   =>
-            Cxos.Debug.Put_String ("PATA" & ASCII.LF);
-         when SATA   =>
-            Cxos.Debug.Put_String ("SATA" & ASCII.LF);
-         when Unknown_ATA_Device =>
-            Cxos.Debug.Put_String ("Unknown" & ASCII.LF);
-      end case;
    exception
       when Constraint_Error =>
          return;

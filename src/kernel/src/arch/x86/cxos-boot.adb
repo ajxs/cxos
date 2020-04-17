@@ -12,8 +12,8 @@
 with Cxos.Boot.Multiboot_Init;
 with Cxos.Debug;
 with Cxos.Devices;
+with Cxos.Devices.Graphics.Vga;
 with Cxos.Exceptions;
-with Cxos.Graphics.Vga;
 with Cxos.Interrupts;
 with Cxos.Memory;
 with Cxos.Memory.Map;
@@ -35,8 +35,8 @@ package body Cxos.Boot is
          declare
             use x86.Vga;
          begin
-            Cxos.Graphics.Vga.Clear (Black);
-            Cxos.Graphics.Vga.Put_String (0, 0, Light_Green, Black,
+            Cxos.Devices.Graphics.Vga.Clear (Black);
+            Cxos.Devices.Graphics.Vga.Put_String (0, 0, Light_Green, Black,
               "VGA Text Mode Initialised");
          end Initialise_Vga;
 

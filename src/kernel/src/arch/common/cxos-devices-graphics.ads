@@ -10,12 +10,12 @@
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
---  CXOS.GRAPHICS
+--  CXOS.DEVICES.GRAPHICS
 --
 --  Purpose:
 --    Base package for specific packages for working with graphics at the
 --    system level.
 -------------------------------------------------------------------------------
-package Cxos.Graphics is
+package Cxos.Devices.Graphics is
    pragma Preelaborate;
-end Cxos.Graphics;
+end Cxos.Devices.Graphics;

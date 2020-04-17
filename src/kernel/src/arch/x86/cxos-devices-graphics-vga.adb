@@ -9,7 +9,7 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-package body Cxos.Graphics.Vga is
+package body Cxos.Devices.Graphics.Vga is
    ----------------------------------------------------------------------------
    --  Clear
    ----------------------------------------------------------------------------
@@ -64,4 +64,5 @@ package body Cxos.Graphics.Vga is
       when Constraint_Error =>
          null;
    end Put_String;
-end Cxos.Graphics.Vga;
+
+end Cxos.Devices.Graphics.Vga;

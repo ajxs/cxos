@@ -13,12 +13,12 @@ with System.Storage_Elements; use System.Storage_Elements;
 with x86.Vga; use x86.Vga;
 
 -------------------------------------------------------------------------------
---  CXOS.GRAPHICS.VGA
+--  CXOS.DEVICES.GRAPHICS.VGA
 --
 --  Purpose:
 --    Package for interfacing with VGA hardware.
 -------------------------------------------------------------------------------
-package Cxos.Graphics.Vga is
+package Cxos.Devices.Graphics.Vga is
    pragma Preelaborate;
 
    ----------------------------------------------------------------------------
@@ -83,4 +83,5 @@ private
      Convention => Ada,
      Address    => To_Address (VGA_MEMORY_ADDRESS),
      Volatile;
-end Cxos.Graphics.Vga;
+
+end Cxos.Devices.Graphics.Vga;

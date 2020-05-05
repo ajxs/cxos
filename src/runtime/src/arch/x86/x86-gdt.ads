@@ -9,10 +9,10 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Interfaces;
+with Interfaces; use Interfaces;
 with System;
-with System.Storage_Elements;
-with x86.Descriptors;
+with System.Storage_Elements; use System.Storage_Elements;
+with x86.Descriptors; use x86.Descriptors;
 
 -------------------------------------------------------------------------------
 --  X86.GDT
@@ -22,11 +22,7 @@ with x86.Descriptors;
 --    The initialisation procedure within is called by the system init code.
 -------------------------------------------------------------------------------
 package x86.GDT is
-   pragma Preelaborate (x86.GDT);
-
-   use Interfaces;
-   use System.Storage_Elements;
-   use x86.Descriptors;
+   pragma Preelaborate;
 
    ----------------------------------------------------------------------------
    --  Finalise

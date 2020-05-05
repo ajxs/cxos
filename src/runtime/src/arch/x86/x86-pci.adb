@@ -10,11 +10,9 @@
 -------------------------------------------------------------------------------
 
 with x86.Port_IO;
-with System.Storage_Elements;
+with System.Storage_Elements; use System.Storage_Elements;
 
 package body x86.PCI is
-   use System.Storage_Elements;
-
    ----------------------------------------------------------------------------
    --  Pci_Read_Long
    ----------------------------------------------------------------------------

@@ -9,7 +9,7 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Interfaces;
+with Interfaces; use Interfaces;
 with System;
 
 -------------------------------------------------------------------------------
@@ -22,9 +22,7 @@ with System;
 --    addresses, useful for interacting with system peripherals.
 -------------------------------------------------------------------------------
 package x86.Port_IO is
-   pragma Preelaborate (x86.Port_IO);
-
-   use Interfaces;
+   pragma Preelaborate;
 
    ----------------------------------------------------------------------------
    --  Inb

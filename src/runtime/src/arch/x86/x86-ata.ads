@@ -120,6 +120,7 @@ package x86.ATA is
      Device_Reset,
      Flush_Write_Cache,
      Identify_Device,
+     Identify_Packet_Device,
      Recalibrate,
      Read_Sectors_Retry,
      Read_Sectors_No_Retry,
@@ -273,4 +274,25 @@ package x86.ATA is
          Total_Logical_Sectors at 120 range 0 .. 15;
       end record;
    pragma Warnings (On);
+
+   ----------------------------------------------------------------------------
+   --  Device Identification Buffer type.
+   --  Used for reading the identification record from a device.
+   ----------------------------------------------------------------------------
+   type Device_Identification_Buffer is
+     array (Integer range 0 .. 255) of Unsigned_16;
+
+   ----------------------------------------------------------------------------
+   --  Device_Identification_Buffer_To_Record
+   --
+   --  Purpose:
+   --    Converts a device identification buffer to the device identification
+   --    record type.
+   ----------------------------------------------------------------------------
+   function Device_Identification_Buffer_To_Record is
+      new Ada.Unchecked_Conversion (
+        Source => Device_Identification_Buffer,
+        Target => Device_Identification_Record
+      );
+
 end x86.ATA;

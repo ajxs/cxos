@@ -9,7 +9,7 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Interfaces;
+with Interfaces; use Interfaces;
 
 -------------------------------------------------------------------------------
 --  X86.DESCRIPTORS
@@ -21,9 +21,7 @@ with Interfaces;
 --    Refer to 'system-x86-gdt.ads' and 'system-x86-idt.ads' respectively.
 -------------------------------------------------------------------------------
 package x86.Descriptors is
-   pragma Preelaborate (x86.Descriptors);
-
-   use Interfaces;
+   pragma Preelaborate;
 
    ----------------------------------------------------------------------------
    --  The privilege level for a particular descriptor.

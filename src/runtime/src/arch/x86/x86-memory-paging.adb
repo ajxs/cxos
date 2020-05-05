@@ -9,13 +9,10 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Interfaces;
-with System.Storage_Elements;
+with Interfaces; use Interfaces;
+with System.Storage_Elements; use System.Storage_Elements;
 
 package body x86.Memory.Paging is
-   use Interfaces;
-   use System.Storage_Elements;
-
    ----------------------------------------------------------------------------
    --  Check_Address_Page_Aligned
    ----------------------------------------------------------------------------

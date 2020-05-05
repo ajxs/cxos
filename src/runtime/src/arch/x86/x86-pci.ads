@@ -10,7 +10,7 @@
 -------------------------------------------------------------------------------
 
 with Ada.Unchecked_Conversion;
-with Interfaces;
+with Interfaces; use Interfaces;
 
 -------------------------------------------------------------------------------
 --  X86.PCI
@@ -20,9 +20,7 @@ with Interfaces;
 --    with the system's PCI bus.
 -------------------------------------------------------------------------------
 package x86.PCI is
-   pragma Preelaborate (x86.PCI);
-
-   use Interfaces;
+   pragma Preelaborate;
 
    ----------------------------------------------------------------------------
    --  Result type to track the outcome of procedures.

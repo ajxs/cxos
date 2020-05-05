@@ -10,7 +10,7 @@
 -------------------------------------------------------------------------------
 
 with Ada.Unchecked_Conversion;
-with Interfaces;
+with Interfaces; use Interfaces;
 
 -------------------------------------------------------------------------------
 --  X86.SERIAL
@@ -21,10 +21,11 @@ with Interfaces;
 --    used to interact with the system's serial ports.
 -------------------------------------------------------------------------------
 package x86.Serial is
-   pragma Preelaborate (x86.Serial);
+   pragma Preelaborate;
 
-   use Interfaces;
-
+   ----------------------------------------------------------------------------
+   --  The maximum supported baud rate.
+   ----------------------------------------------------------------------------
    MAXIMUM_BAUD_RATE : constant := 115200;
 
    ----------------------------------------------------------------------------

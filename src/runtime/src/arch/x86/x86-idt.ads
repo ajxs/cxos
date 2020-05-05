@@ -9,9 +9,9 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Interfaces;
+with Interfaces; use Interfaces;
 with System;
-with x86.Descriptors;
+with x86.Descriptors; use x86.Descriptors;
 
 -------------------------------------------------------------------------------
 --  X86.IDT
@@ -22,10 +22,7 @@ with x86.Descriptors;
 --    init code.
 -------------------------------------------------------------------------------
 package x86.IDT is
-   pragma Preelaborate (x86.IDT);
-
-   use Interfaces;
-   use x86.Descriptors;
+   pragma Preelaborate;
 
    ----------------------------------------------------------------------------
    --  Finalise

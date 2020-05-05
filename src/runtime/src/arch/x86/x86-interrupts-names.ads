@@ -9,7 +9,7 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Ada.Interrupts;
+with Ada.Interrupts; use Ada.Interrupts;
 
 -------------------------------------------------------------------------------
 --  Ada.Interrupts.Names
@@ -19,8 +19,6 @@ with Ada.Interrupts;
 -------------------------------------------------------------------------------
 package x86.Interrupts.Names is
    pragma Preelaborate;
-
-   use Ada.Interrupts;
 
    IRQ0  : constant Interrupt_ID := 0;
    IRQ1  : constant Interrupt_ID := 1;

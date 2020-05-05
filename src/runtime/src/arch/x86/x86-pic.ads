@@ -9,7 +9,7 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Ada.Interrupts;
+with Ada.Interrupts; use Ada.Interrupts;
 
 -------------------------------------------------------------------------------
 --  X86.PIC
@@ -19,9 +19,7 @@ with Ada.Interrupts;
 --    interrupt controller.
 -------------------------------------------------------------------------------
 package x86.PIC is
-   pragma Preelaborate (x86.PIC);
-
-   use Ada.Interrupts;
+   pragma Preelaborate;
 
    ----------------------------------------------------------------------------
    --  PIC Controller type.

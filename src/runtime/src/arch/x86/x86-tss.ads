@@ -9,7 +9,7 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Interfaces;
+with Interfaces; use Interfaces;
 
 -------------------------------------------------------------------------------
 --  SYSTEM.X86.TSS
@@ -18,9 +18,7 @@ with Interfaces;
 --    This package contains definitions for the x86 Task State Segment.
 -------------------------------------------------------------------------------
 package x86.TSS is
-   pragma Preelaborate (x86.TSS);
-
-   use Interfaces;
+   pragma Preelaborate;
 
    ----------------------------------------------------------------------------
    --  Task State Segment Type.

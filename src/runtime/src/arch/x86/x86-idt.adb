@@ -9,11 +9,9 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with System.Storage_Elements;
+with System.Storage_Elements; use System.Storage_Elements;
 
 package body x86.IDT is
-   use System.Storage_Elements;
-
    ----------------------------------------------------------------------------
    --  Initialise
    ----------------------------------------------------------------------------

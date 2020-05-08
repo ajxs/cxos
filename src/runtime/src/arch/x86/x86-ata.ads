@@ -112,6 +112,46 @@ package x86.ATA is
       );
 
    ----------------------------------------------------------------------------
+   --  Device Error record type.
+   --  Contains various flags related to the error status of an ATA device.
+   ----------------------------------------------------------------------------
+   type Device_Error_Record is
+      record
+         AMNF  : Boolean;
+         TKZNF : Boolean;
+         ABRT  : Boolean;
+         MCR   : Boolean;
+         IDNF  : Boolean;
+         MC    : Boolean;
+         UNC   : Boolean;
+         BBK   : Boolean;
+      end record
+   with Size => 8;
+   for Device_Error_Record use
+      record
+         AMNF  at 0 range 0 .. 0;
+         TKZNF at 0 range 1 .. 1;
+         ABRT  at 0 range 2 .. 2;
+         MCR   at 0 range 3 .. 3;
+         IDNF  at 0 range 4 .. 4;
+         MC    at 0 range 5 .. 5;
+         UNC   at 0 range 6 .. 6;
+         BBK   at 0 range 7 .. 7;
+      end record;
+
+   ----------------------------------------------------------------------------
+   --  Unsigned_8_To_Device_Error_Record
+   --
+   --  Purpose:
+   --    Converts an unsigned byte to an ATA error status record.
+   ----------------------------------------------------------------------------
+   function Unsigned_8_To_Device_Error_Record is
+      new Ada.Unchecked_Conversion (
+        Source => Unsigned_8,
+        Target => Device_Error_Record
+      );
+
+   ----------------------------------------------------------------------------
    --  ATA Command type.
    --  The inidividual ATA commands supported.
    ----------------------------------------------------------------------------

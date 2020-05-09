@@ -281,6 +281,50 @@ package x86.ATA is
       end record;
 
    ----------------------------------------------------------------------------
+   --  ATA Device Command set support type.
+   --  Represents the command sets supported by a device.
+   ----------------------------------------------------------------------------
+   type Device_Command_Set_Support_Record is
+      record
+         DOWNLOAD_MICROCODE                  : Boolean;
+         R_W_DMA_QUEUED                      : Boolean;
+         CFA                                 : Boolean;
+         Advanced_Power_Management           : Boolean;
+         Removable_Media_Status_Notification : Boolean;
+         Power_Up_In_Standby                 : Boolean;
+         SET_FEATURES                        : Boolean;
+         Address_Offset_Reserved             : Boolean;
+         SET_MAX                             : Boolean;
+         Automatic_Acoustic_Management       : Boolean;
+         LBA48                               : Boolean;
+         Device_Configuration_Overlay        : Boolean;
+         FLUSH_CACHE                         : Boolean;
+         FLUSH_CACHE_EXT                     : Boolean;
+         Set_To_One                          : Boolean;
+         Set_To_Zero                         : Boolean;
+      end record
+   with Size => 16;
+   for Device_Command_Set_Support_Record use
+      record
+         DOWNLOAD_MICROCODE                  at 0 range 0  .. 0;
+         R_W_DMA_QUEUED                      at 0 range 1  .. 1;
+         CFA                                 at 0 range 2  .. 2;
+         Advanced_Power_Management           at 0 range 3  .. 3;
+         Removable_Media_Status_Notification at 0 range 4  .. 4;
+         Power_Up_In_Standby                 at 0 range 5  .. 5;
+         SET_FEATURES                        at 0 range 6  .. 6;
+         Address_Offset_Reserved             at 0 range 7  .. 7;
+         SET_MAX                             at 0 range 8  .. 8;
+         Automatic_Acoustic_Management       at 0 range 9  .. 9;
+         LBA48                               at 0 range 10 .. 10;
+         Device_Configuration_Overlay        at 0 range 11 .. 11;
+         FLUSH_CACHE                         at 0 range 12 .. 12;
+         FLUSH_CACHE_EXT                     at 0 range 13 .. 13;
+         Set_To_One                          at 0 range 14 .. 14;
+         Set_To_Zero                         at 0 range 15 .. 15;
+      end record;
+
+   ----------------------------------------------------------------------------
    --  ATA Device Identification Record type.
    --  Contains identification regarding the manufacturer and capabilities
    --  of an individual ATA device.
@@ -299,12 +343,13 @@ package x86.ATA is
          Capabilities_1        : Unsigned_16;
          Capabilities_2        : Unsigned_16;
          Total_Logical_Sectors : Unsigned_16;
+         Command_Set_Support   : Device_Command_Set_Support_Record;
       end record
    with Size => 16#1000#;
    for Device_Identification_Record use
       record
          Device_Config         at 0   range 0 .. 15;
-         Specific_Config       at 4   range 0 .. 15;
+         Specific_Config       at 2   range 0 .. 15;
          Serial_Number         at 20  range 0 .. 159;
          Firmware_Revision     at 46  range 0 .. 63;
          Model_Number          at 54  range 0 .. 319;
@@ -312,6 +357,7 @@ package x86.ATA is
          Capabilities_1        at 98  range 0 .. 15;
          Capabilities_2        at 100 range 0 .. 15;
          Total_Logical_Sectors at 120 range 0 .. 15;
+         Command_Set_Support   at 166 range 0 .. 15;
       end record;
    pragma Warnings (On);
 

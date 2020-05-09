@@ -26,6 +26,7 @@ pragma Restrictions (No_Implicit_Dynamic_Code);
 pragma Restrictions (No_Implicit_Heap_Allocations);
 pragma Restrictions (No_Initialize_Scalars);
 pragma Restrictions (No_IO);
+pragma Restrictions (No_Obsolescent_Features);
 pragma Restrictions (No_Protected_Types);
 pragma Restrictions (No_Recursion);
 pragma Restrictions (No_Reentrancy);

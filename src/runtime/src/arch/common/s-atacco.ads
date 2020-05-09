@@ -33,6 +33,8 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
+with Ada.Characters.Latin_1;
+
 generic
    type Object (<>) is limited private;
 
@@ -41,7 +43,7 @@ package System.Address_To_Access_Conversions is
 
    pragma Compile_Time_Warning
      (Object'Unconstrained_Array,
-      "Object is unconstrained array type" & ASCII.LF &
+      "Object is unconstrained array type" & Ada.Characters.Latin_1.LF &
       "To_Pointer results may not have bounds");
 
    type Object_Pointer is access all Object;

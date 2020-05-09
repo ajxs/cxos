@@ -24,6 +24,16 @@ with x86.ATA; use x86.ATA;
 package Cxos.Devices.ATA is
    pragma Preelaborate;
 
+   type ATA_String is array (Natural range 0 .. 511) of Character;
+
+   type ATA_Buffer is array (Natural range 0 .. 255) of Unsigned_16;
+
+   function ATA_Buffer_To_String is
+      new Ada.Unchecked_Conversion (
+        Source => ATA_Buffer,
+        Target => ATA_String
+      );
+
    ----------------------------------------------------------------------------
    --  ATA Device Type Record
    --
@@ -58,22 +68,23 @@ package Cxos.Devices.ATA is
    procedure Find_ATA_Devices;
 
    ----------------------------------------------------------------------------
-   --  Read_Word
-   --
-   --  Purpose:
-   --    Reads a word from an ATA bus.
-   ----------------------------------------------------------------------------
-   function Read_Word (
-     Data : out Unsigned_16;
-     Bus  :     x86.ATA.ATA_Bus
-   ) return Process_Result;
-
-   ----------------------------------------------------------------------------
    --  Print_Identification_Record
    ----------------------------------------------------------------------------
    procedure Print_ATA_Device (
      Device : ATA_Device
    );
+
+   ----------------------------------------------------------------------------
+   --  Read_ATA_Device
+   ----------------------------------------------------------------------------
+   function Read_ATA_Device (
+     Bus        :     x86.ATA.ATA_Bus;
+     Position   :     x86.ATA.ATA_Device_Position;
+     Sector_Cnt :     x86.ATA.ATA_Sector_Count;
+     LBA        :     x86.ATA.ATA_LBA;
+     Buffer     : out ATA_Buffer
+   ) return Process_Result
+   with Volatile_Function;
 
 private
    ----------------------------------------------------------------------------
@@ -83,7 +94,8 @@ private
      Device   : out ATA_Device;
      Bus      :     ATA_Bus;
      Position :   ATA_Device_Position
-   ) return Process_Result;
+   ) return Process_Result
+   with Volatile_Function;
 
    ----------------------------------------------------------------------------
    --  Identify

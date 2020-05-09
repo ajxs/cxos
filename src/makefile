@@ -1,3 +1,14 @@
+#####################################################################
+#  Copyright (c) 2020, CXOS.
+#  This program is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU General Public License as published by the
+#  Free Software Foundation; either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Authors:
+#     Anthony <ajxs [at] panoptic.online>
+#####################################################################
+
 .POSIX:
 .DELETE_ON_ERROR:
 MAKEFLAGS += --warn-undefined-variables
@@ -16,16 +27,23 @@ ISO             := ${ISO_DIR}/build/cxos.img
 
 SERIAL_FILENAME := serial.log
 
-QEMU_FLAGS :=                 \
-	-accel tcg,thread=single    \
-	-cpu core2duo               \
-	-m 128                      \
-	-no-reboot                  \
-	-smp 1                      \
-	-usb                        \
+TEST_DISK_IMG      := ../test.fat
+TEST_DISK_IMG_SIZE := 2880
+
+QEMU_FLAGS :=                                  \
+	-accel tcg,thread=single                     \
+	-boot order=dc                               \
+	-cpu core2duo                                \
+	-drive format=raw,media=cdrom,file=${ISO}    \
+	-drive format=raw,media=disk,file=${TEST_DISK_IMG} \
+	-m 128                                       \
+	-machine pc                                  \
+	-no-reboot                                   \
+	-smp 1                                       \
+	-usb                                         \
 	-vga std
 
-all: ${ISO}
+all: ${ISO} ${TEST_DISK_IMG}
 
 ${ISO}: ${KERNEL_BINARY} ${BUILD_DIR}
 	make -C "${ISO_DIR}"
@@ -36,12 +54,12 @@ clean:
 	make clean -C "${ISO_DIR}"
 	make clean -C "${KERNEL_DIR}"
 	make clean -C "${RUNTIME_DIR}"
+	rm -f ${TEST_DISK_IMG}
 
 debug: ${ISO}
 	qemu-system-i386                               \
 		${QEMU_FLAGS}                                \
 		-nographic                                   \
-		-drive format=raw,media=cdrom,file=${ISO}    \
 		-d cpu_reset,int,guest_errors                \
 		-gdb tcp::1234                               \
 		-S                                           \
@@ -50,7 +68,6 @@ debug: ${ISO}
 emu: ${ISO}
 	qemu-system-i386                               \
 		${QEMU_FLAGS}                                \
-		-drive format=raw,media=cdrom,file=${ISO}    \
 		-serial stdio
 
 bochs: ${ISO}
@@ -70,3 +87,8 @@ ${KERNEL_BINARY}: ${RUNTIME_BINARY}
 
 ${BUILD_DIR}:
 	mkdir -p ${BUILD_DIR}
+
+${TEST_DISK_IMG}:
+	dd if=/dev/zero of=${TEST_DISK_IMG} bs=1k count=${TEST_DISK_IMG_SIZE}
+	mformat -i ${TEST_DISK_IMG} -f ${TEST_DISK_IMG_SIZE} ::
+	mcopy -i ${TEST_DISK_IMG} README.md ::/README.md

@@ -37,10 +37,10 @@ package body x86.ATA is
          when Features       =>
             Bus_IO_Port     := True;
             Register_Offset := 1;
-         when Sector_Count   =>
+         when Sector_Count_Reg =>
             Bus_IO_Port     := True;
             Register_Offset := 2;
-         when Sector_Number  =>
+         when Sector_Number_Reg =>
             Bus_IO_Port     := True;
             Register_Offset := 3;
          when Cylinder_Low   =>

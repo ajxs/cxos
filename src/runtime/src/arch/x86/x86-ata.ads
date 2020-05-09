@@ -59,8 +59,8 @@ package x86.ATA is
      Data_Reg,
      Error_Reg,
      Features,
-     Sector_Count,
-     Sector_Number,
+     Sector_Count_Reg,
+     Sector_Number_Reg,
      Cylinder_Low,
      Cylinder_High,
      Drive_Head,
@@ -70,6 +70,16 @@ package x86.ATA is
      Device_Control,
      Drive_Address
    );
+
+   ----------------------------------------------------------------------------
+   --  ATA Sector Count type.
+   ----------------------------------------------------------------------------
+   subtype ATA_Sector_Count is Unsigned_16;
+
+   ----------------------------------------------------------------------------
+   --  ATA_LBA type.
+   ----------------------------------------------------------------------------
+   type ATA_LBA is mod 2 ** 48;
 
    ----------------------------------------------------------------------------
    --  Device Status record type.

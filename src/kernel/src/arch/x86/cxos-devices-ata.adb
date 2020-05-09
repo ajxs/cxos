@@ -102,11 +102,11 @@ package body Cxos.Devices.ATA is
      Position    :     x86.ATA.ATA_Device_Position
    ) return Process_Result is
       --  The result of internal processes.
-      Result              : Process_Result;
-      --  The cylinder low value.
-      Drive_Cylinder_Low  : Unsigned_8;
+      Result            : Process_Result;
       --  The cylinder high value.
-      Drive_Cylinder_High : Unsigned_8;
+      Cylinder_High_Val : Unsigned_8;
+      --  The cylinder low value.
+      Cylinder_Low_Val  : Unsigned_8;
    begin
       --  Select the master/slave device.
       Result := Select_Device_Position (Bus, Position);
@@ -121,18 +121,16 @@ package body Cxos.Devices.ATA is
       end if;
 
       --  Read device identification info.
-      Drive_Cylinder_High := x86.ATA.
-        Read_Byte_From_Register (Bus, Cylinder_High);
-      Drive_Cylinder_Low  := x86.ATA.
-        Read_Byte_From_Register (Bus, Cylinder_Low);
+      Cylinder_High_Val := Read_Byte_From_Register (Bus, Cylinder_High);
+      Cylinder_Low_Val  := Read_Byte_From_Register (Bus, Cylinder_Low);
 
-      if Drive_Cylinder_Low = 16#14# and Drive_Cylinder_High = 16#EB# then
+      if Cylinder_Low_Val = 16#14# and Cylinder_High_Val = 16#EB# then
          Device_Type := PATAPI;
-      elsif Drive_Cylinder_Low = 16#69# and Drive_Cylinder_High = 16#96# then
+      elsif Cylinder_Low_Val = 16#69# and Cylinder_High_Val = 16#96# then
          Device_Type := SATAPI;
-      elsif Drive_Cylinder_Low = 16#3C# and Drive_Cylinder_High = 16#C3# then
+      elsif Cylinder_Low_Val = 16#3C# and Cylinder_High_Val = 16#C3# then
          Device_Type := SATA;
-      elsif Drive_Cylinder_Low = 0 and Drive_Cylinder_High = 0 then
+      elsif Cylinder_Low_Val = 0 and Cylinder_High_Val = 0 then
          Device_Type := PATA;
       else
          Device_Type := Unknown_ATA_Device;
@@ -166,8 +164,8 @@ package body Cxos.Devices.ATA is
             Cylinder_Low_Val  : Unsigned_8;
          begin
             --  Reset these to 0 as per the ATA spec.
-            Write_Word_To_Register (Bus, Sector_Count, 0);
-            Write_Word_To_Register (Bus, Sector_Number, 0);
+            Write_Word_To_Register (Bus, Sector_Count_Reg, 0);
+            Write_Word_To_Register (Bus, Sector_Number_Reg, 0);
             Write_Word_To_Register (Bus, Cylinder_High, 0);
             Write_Word_To_Register (Bus, Cylinder_Low, 0);
 
@@ -251,8 +249,8 @@ package body Cxos.Devices.ATA is
             Cylinder_Low_Val  : Unsigned_8;
          begin
             --  Reset these to 0 as per the ATA spec.
-            Write_Byte_To_Register (Bus, Sector_Count, 0);
-            Write_Byte_To_Register (Bus, Sector_Number, 0);
+            Write_Byte_To_Register (Bus, Sector_Count_Reg, 0);
+            Write_Byte_To_Register (Bus, Sector_Number_Reg, 0);
             Write_Byte_To_Register (Bus, Cylinder_High, 0);
             Write_Byte_To_Register (Bus, Cylinder_Low, 0);
 
@@ -455,6 +453,116 @@ package body Cxos.Devices.ATA is
    end Print_Process_Result;
 
    ----------------------------------------------------------------------------
+   --  Read_ATA_Device
+   ----------------------------------------------------------------------------
+   function Read_ATA_Device (
+     Bus        :     x86.ATA.ATA_Bus;
+     Position   :     x86.ATA.ATA_Device_Position;
+     Sector_Cnt :     x86.ATA.ATA_Sector_Count;
+     LBA        :     x86.ATA.ATA_LBA;
+     Buffer     : out ATA_Buffer
+   ) return Process_Result is
+      Drive_Register_Val : Unsigned_8;
+      Result : Process_Result;
+   begin
+      case Position is
+         when Master =>
+            Drive_Register_Val := 16#A0#;
+         when Slave  =>
+            Drive_Register_Val := 16#B0#;
+      end case;
+
+      Drive_Register_Val := Drive_Register_Val or 16#40#;
+      x86.ATA.Write_Byte_To_Register (Bus, Drive_Head, Drive_Register_Val);
+
+      --  Delay 400ns post drive selection, as per spec.
+      Drive_Select_Delay :
+         declare
+            use Cxos.Time_Keeping;
+
+            --  The system time at the start of the timeout.
+            Start_Time : Cxos.Time_Keeping.Time;
+         begin
+            Start_Time := Cxos.Time_Keeping.Clock;
+            while (Cxos.Time_Keeping.Clock - Start_Time) < 1 loop
+               null;
+            end loop;
+         end Drive_Select_Delay;
+
+      --  Send the sector count.
+      Send_Sector_Count :
+         declare
+            Sector_Count_Byte : Unsigned_8;
+         begin
+            Sector_Count_Byte := Unsigned_8 (Sector_Cnt);
+            Write_Byte_To_Register (Bus, Sector_Count_Reg, Sector_Count_Byte);
+         end Send_Sector_Count;
+
+      Set_LBA :
+         declare
+            LBA_U : Unsigned_32;
+            LBA_Byte : Unsigned_8;
+         begin
+            LBA_U := Unsigned_32 (LBA and 16#FFFFFFFF#);
+
+            LBA_Byte := Unsigned_8 (LBA_U and 16#FF#);
+            Write_Byte_To_Register (Bus, Sector_Number_Reg, LBA_Byte);
+
+            LBA_Byte := Unsigned_8 (Shift_Right (LBA_U, 8) and 16#FF#);
+            Write_Byte_To_Register (Bus, Sector_Count_Reg, LBA_Byte);
+
+            LBA_Byte := Unsigned_8 (Shift_Right (LBA_U, 16) and 16#FF#);
+            Write_Byte_To_Register (Bus, Sector_Count_Reg, LBA_Byte);
+         end Set_LBA;
+
+      Result := Send_Command (Bus, Read_Sectors_Retry);
+      if Result /= Success then
+         Cxos.Debug.Put_String ("Error sending read command: ");
+         Print_Process_Result (Result);
+         Cxos.Debug.Put_String ("" & Chars.LF);
+
+         return Result;
+      end if;
+
+      Check_Device :
+         declare
+            Status_Byte : Unsigned_8;
+         begin
+            Result := Wait_For_Device_Ready (Bus);
+            if Result /= Success then
+               Cxos.Debug.Put_String ("Error waiting for device ready: ");
+               Print_Process_Result (Result);
+               Cxos.Debug.Put_String ("" & Chars.LF);
+
+               return Result;
+            end if;
+
+            Status_Byte := Read_Byte_From_Register (Bus, Alt_Status);
+            Cxos.Debug.Put_String ("Status: " & Status_Byte'Image & Chars.LF);
+         end Check_Device;
+
+      Read_Buffer :
+         declare
+            Read_Count : Natural;
+         begin
+            if Sector_Cnt = 0 then
+               Read_Count := 256;
+            else
+               Read_Count := Natural (Sector_Cnt);
+            end if;
+
+            for I in Natural range 0 .. (Read_Count - 1) loop
+               Buffer (I) := Read_Word_From_Register (Bus, Data_Reg);
+            end loop;
+         end Read_Buffer;
+
+      return Success;
+   exception
+      when Constraint_Error =>
+         return Unhandled_Exception;
+   end Read_ATA_Device;
+
+   ----------------------------------------------------------------------------
    --  Read_ATA_Device_Info
    ----------------------------------------------------------------------------
    function Read_ATA_Device_Info (
@@ -527,28 +635,6 @@ package body Cxos.Devices.ATA is
       when Constraint_Error =>
          return Unhandled_Exception;
    end Read_ATA_Device_Info;
-
-   ----------------------------------------------------------------------------
-   --  Read_Word
-   ----------------------------------------------------------------------------
-   function Read_Word (
-     Data : out Unsigned_16;
-     Bus  :     x86.ATA.ATA_Bus
-   ) return Process_Result is
-      Result : Process_Result;
-   begin
-      Result := Send_Command (Bus, Read_Long_Retry);
-      if Result /= Success then
-         return Result;
-      end if;
-
-      Data := 1;
-
-      return Success;
-   exception
-      when Constraint_Error =>
-         return Unhandled_Exception;
-   end Read_Word;
 
    ----------------------------------------------------------------------------
    --  Reset_Bus

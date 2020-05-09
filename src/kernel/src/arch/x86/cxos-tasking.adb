@@ -9,6 +9,7 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
+with Ada.Characters.Latin_1;
 with Cxos.Debug;
 with Cxos.Memory;
 with Cxos.Memory.Paging;
@@ -16,6 +17,8 @@ with System.Storage_Elements;
 with System.Machine_Code;
 
 package body Cxos.Tasking is
+   package Chars renames Ada.Characters.Latin_1;
+
    ----------------------------------------------------------------------------
    --  Create_Initial_Kernel_Task
    ----------------------------------------------------------------------------
@@ -70,7 +73,7 @@ package body Cxos.Tasking is
               Create_New_Address_Space (Page_Dir_Addr, Func_Start);
             if Allocate_Result /= Success then
                Cxos.Debug.Put_String ("Error allocating new address block" &
-                 ASCII.LF);
+                 Chars.LF);
                return Unhandled_Exception;
             end if;
          end Allocate_Page_Directory;
@@ -175,7 +178,7 @@ package body Cxos.Tasking is
       --  The result status code of internal processes.
       Result : Process_Result;
    begin
-      Cxos.Debug.Put_String ("Initialising tasking" & ASCII.LF);
+      Cxos.Debug.Put_String ("Initialising tasking" & Chars.LF);
 
       Current_Process_Id := 0;
 
@@ -186,11 +189,11 @@ package body Cxos.Tasking is
             --  Result := Create_Initial_Kernel_Task (Idle_Task);
             Result := Create_Initial_Kernel_Task (System_Processes (0));
             if Result /= Success then
-               Cxos.Debug.Put_String ("Error creating idle task" & ASCII.LF);
+               Cxos.Debug.Put_String ("Error creating idle task" & Chars.LF);
             end if;
          end Create_Idle_Process;
 
-      Cxos.Debug.Put_String ("Finished initialising tasking" & ASCII.LF);
+      Cxos.Debug.Put_String ("Finished initialising tasking" & Chars.LF);
    exception
       when Constraint_Error =>
          null;
@@ -207,10 +210,10 @@ package body Cxos.Tasking is
       CR3 : constant Integer_Address := To_Integer (Proc.CR3);
       ESP : constant Integer_Address := To_Integer (Proc.ESP);
    begin
-      Cxos.Debug.Put_String ("Process Id: " & Proc.Id'Image & ASCII.LF);
-      Cxos.Debug.Put_String ("  CR3: " & CR3'Image & ASCII.LF);
-      Cxos.Debug.Put_String ("  ESP: " & ESP'Image & ASCII.LF);
-      Cxos.Debug.Put_String ("------------------------" & ASCII.LF);
+      Cxos.Debug.Put_String ("Process Id: " & Proc.Id'Image & Chars.LF);
+      Cxos.Debug.Put_String ("  CR3: " & CR3'Image & Chars.LF);
+      Cxos.Debug.Put_String ("  ESP: " & ESP'Image & Chars.LF);
+      Cxos.Debug.Put_String ("------------------------" & Chars.LF);
    end Print_Process_Block_Info;
 
    ----------------------------------------------------------------------------
@@ -230,18 +233,18 @@ package body Cxos.Tasking is
 
       Result := Find_Next_Process (Next_Process);
       if Result /= Success then
-         Cxos.Debug.Put_String ("Error finding next process" & ASCII.LF);
+         Cxos.Debug.Put_String ("Error finding next process" & Chars.LF);
          return;
       end if;
 
       Cxos.Debug.Put_String ("Switching to process: " &
-        Next_Process.Id'Image & ASCII.LF);
+        Next_Process.Id'Image & Chars.LF);
       Print_Process_Block_Info (Next_Process);
 
       Switch_To_Process (System_Processes (Old_Process_Id), Next_Process);
    exception
       when Constraint_Error =>
-         Cxos.Debug.Put_String ("Error running scheduler" & ASCII.LF);
+         Cxos.Debug.Put_String ("Error running scheduler" & Chars.LF);
          null;
    end Run_Scheduler;
 

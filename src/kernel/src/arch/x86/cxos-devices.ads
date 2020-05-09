@@ -32,6 +32,7 @@ package Cxos.Devices is
      Device_Not_Found,
      Device_Not_Present,
      Invalid_Command,
+     Packet_Interface_Not_Supported,
      Success,
      Unhandled_Exception
    );

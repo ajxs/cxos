@@ -12,7 +12,7 @@
 with Ada.Unchecked_Conversion;
 with Interfaces; use Interfaces;
 with Cxos.Time_Keeping;
-with x86.ATA;
+with x86.ATA; use x86.ATA;
 
 -------------------------------------------------------------------------------
 --  CXOS.DEVICES.ATA
@@ -25,7 +25,35 @@ package Cxos.Devices.ATA is
    pragma Preelaborate;
 
    ----------------------------------------------------------------------------
+   --  ATA Device Type Record
+   --
+   --  Purpose:
+   --    Describes an ATA device on the IDE controller.
+   ----------------------------------------------------------------------------
+   type ATA_Device is
+      record
+         Present        : Boolean;
+         Bus            : ATA_Bus;
+         Position       : ATA_Device_Position;
+         Device_Type    : ATA_Device_Type;
+         Identification : Device_Identification_Record;
+      end record;
+
+   ----------------------------------------------------------------------------
+   --  ATA Device array type.
+   ----------------------------------------------------------------------------
+   type ATA_Device_Array is array (Natural range 0 .. 7) of ATA_Device;
+
+   ----------------------------------------------------------------------------
+   --  The ATA devices attached to the system.
+   ----------------------------------------------------------------------------
+   ATA_Devices : ATA_Device_Array;
+
+   ----------------------------------------------------------------------------
    --  Find_ATA_Devices
+   --
+   --  Purpose:
+   --    Populates the list of ATA devices supported by the system.
    ----------------------------------------------------------------------------
    procedure Find_ATA_Devices;
 
@@ -40,26 +68,22 @@ package Cxos.Devices.ATA is
      Bus  :     x86.ATA.ATA_Bus
    ) return Process_Result;
 
+   ----------------------------------------------------------------------------
+   --  Print_Identification_Record
+   ----------------------------------------------------------------------------
+   procedure Print_ATA_Device (
+     Device : ATA_Device
+   );
+
 private
    ----------------------------------------------------------------------------
-   --  Device Identification Buffer type.
-   --  Used for reading the identification record from a device.
+   --  Read_ATA_Device_Info
    ----------------------------------------------------------------------------
-   type Device_Identification_Buffer is
-     array (Integer range 0 .. 255) of Unsigned_16;
-
-   ----------------------------------------------------------------------------
-   --  Device_Identification_Buffer_To_Record
-   --
-   --  Purpose:
-   --    Converts a device identification buffer to the device identification
-   --    record type.
-   ----------------------------------------------------------------------------
-   function Device_Identification_Buffer_To_Record is
-      new Ada.Unchecked_Conversion (
-        Source => Device_Identification_Buffer,
-        Target => x86.ATA.Device_Identification_Record
-      );
+   function Read_ATA_Device_Info (
+     Device   : out ATA_Device;
+     Bus      :     ATA_Bus;
+     Position :   ATA_Device_Position
+   ) return Process_Result;
 
    ----------------------------------------------------------------------------
    --  Identify
@@ -68,6 +92,19 @@ private
    --    Reads the identification buffer from a specific ATA device.
    ----------------------------------------------------------------------------
    function Identify (
+     Id_Record : out x86.ATA.Device_Identification_Record;
+     Bus       :     x86.ATA.ATA_Bus;
+     Position  :     x86.ATA.ATA_Device_Position
+   ) return Process_Result
+   with Volatile_Function;
+
+   ----------------------------------------------------------------------------
+   --  Identify_Packet_Device
+   --
+   --  Purpose:
+   --    Reads the identification buffer from a specific ATAPI device.
+   ----------------------------------------------------------------------------
+   function Identify_Packet_Device (
      Id_Record : out x86.ATA.Device_Identification_Record;
      Bus       :     x86.ATA.ATA_Bus;
      Position  :     x86.ATA.ATA_Device_Position
@@ -136,9 +173,9 @@ private
    with Volatile_Function;
 
    ----------------------------------------------------------------------------
-   --  Flush_Write_Cache
+   --  Flush_Bus_Write_Cache
    ----------------------------------------------------------------------------
-   function Flush_Write_Cache (
+   function Flush_Bus_Write_Cache (
      Bus : x86.ATA.ATA_Bus
    ) return Process_Result
    with Volatile_Function;

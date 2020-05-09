@@ -9,6 +9,7 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
+with Ada.Characters.Latin_1;
 with Cxos.Debug;
 with Cxos.Memory.Map;
 with Interfaces; use Interfaces;
@@ -16,6 +17,8 @@ with System.Machine_Code;
 with System.Storage_Elements; use System.Storage_Elements;
 
 package body Cxos.Memory is
+   package Chars renames Ada.Characters.Latin_1;
+
    ----------------------------------------------------------------------------
    --  Current_Page_Dir_Ptr
    ----------------------------------------------------------------------------
@@ -72,7 +75,7 @@ package body Cxos.Memory is
         Kernel_Physical_Start'Address, Kernel_Length, Allocated);
       if Result /= Success then
          Cxos.Debug.Put_String (
-           "Error marking kernel code segment" & ASCII.LF);
+           "Error marking kernel code segment" & Chars.LF);
 
          return Unhandled_Exception;
       end if;

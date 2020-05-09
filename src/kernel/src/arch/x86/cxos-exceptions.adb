@@ -9,10 +9,13 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
+with Ada.Characters.Latin_1;
 with Cxos.Debug;
 with x86.IDT;
 
 package body Cxos.Exceptions is
+   package Chars renames Ada.Characters.Latin_1;
+
    ----------------------------------------------------------------------------
    --  Exception_0_Handler
    ----------------------------------------------------------------------------
@@ -22,7 +25,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 0 occurred. System Halted." & ASCII.LF);
+        "Exception 0 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_0_Handler;
 
@@ -35,7 +38,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 10 occurred. System Halted." & ASCII.LF);
+        "Exception 10 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_10_Handler;
 
@@ -48,7 +51,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 11 occurred. System Halted." & ASCII.LF);
+        "Exception 11 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_11_Handler;
 
@@ -61,7 +64,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 12 occurred. System Halted." & ASCII.LF);
+        "Exception 12 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_12_Handler;
 
@@ -74,7 +77,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 13 occurred. System Halted." & ASCII.LF);
+        "Exception 13 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_13_Handler;
 
@@ -87,7 +90,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 14 occurred. System Halted." & ASCII.LF);
+        "Exception 14 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_14_Handler;
 
@@ -100,7 +103,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 15 occurred. System Halted." & ASCII.LF);
+        "Exception 15 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_15_Handler;
 
@@ -113,7 +116,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 16 occurred. System Halted." & ASCII.LF);
+        "Exception 16 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_16_Handler;
 
@@ -126,7 +129,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 17 occurred. System Halted." & ASCII.LF);
+        "Exception 17 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_17_Handler;
 
@@ -139,7 +142,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 18 occurred. System Halted." & ASCII.LF);
+        "Exception 18 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_18_Handler;
 
@@ -152,7 +155,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 19 occurred. System Halted." & ASCII.LF);
+        "Exception 19 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_19_Handler;
 
@@ -165,7 +168,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 1 occurred. System Halted." & ASCII.LF);
+        "Exception 1 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_1_Handler;
 
@@ -178,7 +181,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 20 occurred. System Halted." & ASCII.LF);
+        "Exception 20 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_20_Handler;
 
@@ -191,7 +194,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 21 occurred. System Halted." & ASCII.LF);
+        "Exception 21 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_21_Handler;
 
@@ -204,7 +207,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 22 occurred. System Halted." & ASCII.LF);
+        "Exception 22 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_22_Handler;
 
@@ -217,7 +220,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 23 occurred. System Halted." & ASCII.LF);
+        "Exception 23 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_23_Handler;
 
@@ -230,7 +233,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 24 occurred. System Halted." & ASCII.LF);
+        "Exception 24 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_24_Handler;
 
@@ -243,7 +246,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 25 occurred. System Halted." & ASCII.LF);
+        "Exception 25 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_25_Handler;
 
@@ -256,7 +259,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 26 occurred. System Halted." & ASCII.LF);
+        "Exception 26 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_26_Handler;
 
@@ -269,7 +272,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 27 occurred. System Halted." & ASCII.LF);
+        "Exception 27 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_27_Handler;
 
@@ -282,7 +285,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 28 occurred. System Halted." & ASCII.LF);
+        "Exception 28 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_28_Handler;
 
@@ -295,7 +298,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 29 occurred. System Halted." & ASCII.LF);
+        "Exception 29 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_29_Handler;
 
@@ -308,7 +311,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 2 occurred. System Halted." & ASCII.LF);
+        "Exception 2 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_2_Handler;
 
@@ -321,7 +324,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 30 occurred. System Halted." & ASCII.LF);
+        "Exception 30 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_30_Handler;
 
@@ -334,7 +337,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 31 occurred. System Halted." & ASCII.LF);
+        "Exception 31 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_31_Handler;
 
@@ -347,7 +350,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 3 occurred. System Halted." & ASCII.LF);
+        "Exception 3 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_3_Handler;
 
@@ -360,7 +363,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 4 occurred. System Halted." & ASCII.LF);
+        "Exception 4 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_4_Handler;
 
@@ -373,7 +376,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 5 occurred. System Halted." & ASCII.LF);
+        "Exception 5 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_5_Handler;
 
@@ -386,7 +389,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 6 occurred. System Halted." & ASCII.LF);
+        "Exception 6 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_6_Handler;
 
@@ -399,7 +402,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 7 occurred. System Halted." & ASCII.LF);
+        "Exception 7 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_7_Handler;
 
@@ -412,7 +415,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 8 occurred. System Halted." & ASCII.LF);
+        "Exception 8 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_8_Handler;
 
@@ -425,7 +428,7 @@ package body Cxos.Exceptions is
    begin
       pragma Unreferenced (Saved_Registers);
       Cxos.Debug.Put_String (
-        "Exception 9 occurred. System Halted." & ASCII.LF);
+        "Exception 9 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_9_Handler;
 
@@ -552,7 +555,7 @@ package body Cxos.Exceptions is
             Exception_31_Handler (Stack_Frame);
          when others =>
             Cxos.Debug.Put_String (
-              "Unknown Exception occurred. System Halted." & ASCII.LF);
+              "Unknown Exception occurred. System Halted." & Chars.LF);
             Halt_Processor;
       end case;
 

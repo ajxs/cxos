@@ -9,66 +9,59 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
+with Ada.Characters.Latin_1;
 with Cxos.Debug;
 
 package body Cxos.Devices.ATA is
-   use x86.ATA;
+   package Chars renames Ada.Characters.Latin_1;
 
    ----------------------------------------------------------------------------
    --  Find_ATA_Devices
    ----------------------------------------------------------------------------
    procedure Find_ATA_Devices is
-      Device_Type : x86.ATA.ATA_Device_Type;
       Result      : Process_Result;
-      Device_Id   : Device_Identification_Record;
+      Device_Idx  : Natural := 0;
    begin
-      for Bus in ATA_Bus'Range loop
-         Result := Reset_Bus (Bus);
-         if Result /= Success then
-            Cxos.Debug.Put_String ("Error resetting device: ");
-            Print_Process_Result (Result);
-            Cxos.Debug.Put_String ("" & ASCII.LF);
-         end if;
+      Initialise_Device_Array :
+         for I in ATA_Devices'Range loop
+            ATA_Devices (I).Present := False;
+         end loop Initialise_Device_Array;
 
-         for Position in ATA_Device_Position'Range loop
-            Result := Identify (Device_Id, Bus, Position);
-            case Result is
-               when Success =>
-                  if Device_Id.Device_Config.Removable_Media = True then
-                     Cxos.Debug.Put_String ("Removable Media" & ASCII.LF);
-                  end if;
-               when Device_Not_Present =>
-                  Cxos.Debug.Put_String ("No device present" & ASCII.LF);
-               when Device_Non_ATA =>
-                  --  If the drive is non-ATA.
-                  Result := Get_Device_Type (Device_Type, Bus, Position);
+      Bus_Loop :
+         for Bus in ATA_Bus'Range loop
+            Result := Reset_Bus (Bus);
+            if Result /= Success then
+               Cxos.Debug.Put_String ("Error resetting ATA bus: ");
+               Print_Process_Result (Result);
+               Cxos.Debug.Put_String ("" & Chars.LF);
+
+               return;
+            end if;
+
+            --  Iterate over primary and secondary buses.
+            Position_Loop :
+               for Position in ATA_Device_Position'Range loop
+                  --  Read the invidual ATA device at this position.
+                  Result := Read_ATA_Device_Info (ATA_Devices (Device_Idx),
+                    Bus, Position);
                   if Result /= Success then
-                     Cxos.Debug.Put_String ("Error reading device type: ");
+                     Cxos.Debug.Put_String ("Error reading ATA device: ");
                      Print_Process_Result (Result);
-                     Cxos.Debug.Put_String ("" & ASCII.LF);
+                     Cxos.Debug.Put_String ("" & Chars.LF);
                   else
-                     Cxos.Debug.Put_String ("Device non-ATA: ");
-                     case Device_Type is
-                        when PATAPI =>
-                           Cxos.Debug.Put_String ("PATAPI" & ASCII.LF);
-                        when SATAPI =>
-                           Cxos.Debug.Put_String ("PATAPI" & ASCII.LF);
-                        when PATA   =>
-                           Cxos.Debug.Put_String ("PATA" & ASCII.LF);
-                        when SATA   =>
-                           Cxos.Debug.Put_String ("SATA" & ASCII.LF);
-                        when Unknown_ATA_Device =>
-                           Cxos.Debug.Put_String ("Unknown" & ASCII.LF);
-                     end case;
+                     Device_Idx := Device_Idx + 1;
                   end if;
-               when others =>
-                  Cxos.Debug.Put_String ("Error identifying device: ");
-                  Print_Process_Result (Result);
-                  Cxos.Debug.Put_String ("" & ASCII.LF);
-            end case;
-         end loop;
-      end loop;
 
+               end loop Position_Loop;
+         end loop Bus_Loop;
+
+      --  Print information on found devices.
+      Print_Device_Info :
+         for I in Natural range 0 .. 7 loop
+            if ATA_Devices (I).Present then
+               Print_ATA_Device (ATA_Devices (I));
+            end if;
+         end loop Print_Device_Info;
    exception
       when Constraint_Error =>
          return;
@@ -77,14 +70,13 @@ package body Cxos.Devices.ATA is
    ----------------------------------------------------------------------------
    --  Flush_Write_Cache
    ----------------------------------------------------------------------------
-   function Flush_Write_Cache (
+   function Flush_Bus_Write_Cache (
      Bus : x86.ATA.ATA_Bus
    ) return Process_Result is
       --  The result of internal processes.
       Result : Process_Result;
    begin
-      --  Send the identify command.
-      Result := Send_Command (Bus, Identify_Device);
+      Result := Send_Command (Bus, Flush_Write_Cache);
       if Result /= Success then
          return Result;
       end if;
@@ -99,7 +91,7 @@ package body Cxos.Devices.ATA is
    exception
       when Constraint_Error =>
          return Unhandled_Exception;
-   end Flush_Write_Cache;
+   end Flush_Bus_Write_Cache;
 
    ----------------------------------------------------------------------------
    --  Get_Device_Type
@@ -160,19 +152,18 @@ package body Cxos.Devices.ATA is
      Bus       :     x86.ATA.ATA_Bus;
      Position  :     x86.ATA.ATA_Device_Position
    ) return Process_Result is
-      --  The raw status value read from the device.
-      Status_Read_Value   : Unsigned_8;
-      --  The device cylinder high value, used to find device type/status.
-      Cylinder_High_Value : Unsigned_16;
-      --  The device cylinder low value.
-      Cylinder_Low_Value  : Unsigned_16;
-
       --  The result of internal processes.
       Result : Process_Result;
       --  Buffer to read the device identification info into.
       Identification_Buffer : Device_Identification_Buffer;
    begin
       Send_Identify_Command :
+         declare
+            --  The device cylinder high value, used to find
+            --  device type/status.
+            Cylinder_High_Val : Unsigned_8;
+            --  The device cylinder low value.
+            Cylinder_Low_Val  : Unsigned_8;
          begin
             --  Reset these to 0 as per the ATA spec.
             Write_Word_To_Register (Bus, Sector_Count, 0);
@@ -192,18 +183,109 @@ package body Cxos.Devices.ATA is
                return Result;
             end if;
 
-            --  Read the device status.
-            Status_Read_Value := Read_Byte_From_Register (Bus, Alt_Status);
-            if Status_Read_Value = 0 then
-               return Device_Not_Present;
+            --  Read the device status to check if it is present.
+            Check_Device_Status :
+               declare
+                  --  The raw status value read from the device.
+                  Status_Value : Unsigned_8;
+               begin
+                  Status_Value := Read_Byte_From_Register (Bus, Alt_Status);
+                  if Status_Value = 0 then
+                     return Device_Not_Present;
+                  end if;
+               end Check_Device_Status;
+
+            --  Read the device status until the device is ready.
+            Result := Wait_For_Device_Ready (Bus);
+            if Result /= Success then
+               return Result;
             end if;
 
-            Cylinder_High_Value := Read_Word_From_Register (Bus,
-              Cylinder_High);
-            Cylinder_Low_Value  := Read_Word_From_Register (Bus, Cylinder_Low);
+            Cylinder_High_Val := Read_Byte_From_Register (Bus, Cylinder_High);
+            Cylinder_Low_Val  := Read_Byte_From_Register (Bus, Cylinder_Low);
 
-            if (Cylinder_High_Value /= 0) or (Cylinder_Low_Value /= 0) then
+            if (Cylinder_High_Val /= 0) or (Cylinder_Low_Val /= 0) then
                return Device_Non_ATA;
+            end if;
+
+         end Send_Identify_Command;
+
+      --  Read in the identification buffer.
+      Read_Identification :
+         begin
+            for I in Integer range 0 .. 255 loop
+               Identification_Buffer (I) := Read_Word_From_Register (Bus,
+                 Data_Reg);
+            end loop;
+
+            --  Convert the raw buffer to the identification record.
+            Id_Record := Device_Identification_Buffer_To_Record (
+              Identification_Buffer);
+         end Read_Identification;
+
+      return Success;
+   exception
+      when Constraint_Error =>
+         return Unhandled_Exception;
+   end Identify;
+
+   ----------------------------------------------------------------------------
+   --  Identify_Packet_Device
+   ----------------------------------------------------------------------------
+   function Identify_Packet_Device (
+     Id_Record : out x86.ATA.Device_Identification_Record;
+     Bus       :     x86.ATA.ATA_Bus;
+     Position  :     x86.ATA.ATA_Device_Position
+   ) return Process_Result is
+      --  The result of internal processes.
+      Result : Process_Result;
+      --  Buffer to read the device identification info into.
+      Identification_Buffer : Device_Identification_Buffer;
+   begin
+      Send_Identify_Command :
+         declare
+            --  The device cylinder high value, used to find
+            --  device type/status.
+            Cylinder_High_Val : Unsigned_8;
+            --  The device cylinder low value.
+            Cylinder_Low_Val  : Unsigned_8;
+         begin
+            --  Reset these to 0 as per the ATA spec.
+            Write_Byte_To_Register (Bus, Sector_Count, 0);
+            Write_Byte_To_Register (Bus, Sector_Number, 0);
+            Write_Byte_To_Register (Bus, Cylinder_High, 0);
+            Write_Byte_To_Register (Bus, Cylinder_Low, 0);
+
+            --  Select the master/slave device.
+            Result := Select_Device_Position (Bus, Position);
+            if Result /= Success then
+               return Result;
+            end if;
+
+            --  Send the identify command.
+            Result := Send_Command (Bus, Identify_Device);
+            if Result /= Success then
+               return Result;
+            end if;
+
+            --  Read the device status to check if it is present.
+            Check_Device_Status :
+               declare
+                  --  The raw status value read from the device.
+                  Status_Value : Unsigned_8;
+               begin
+                  Status_Value := Read_Byte_From_Register (Bus, Alt_Status);
+                  if Status_Value = 0 then
+                     return Device_Not_Present;
+                  end if;
+               end Check_Device_Status;
+
+            Cylinder_High_Val := Read_Byte_From_Register (Bus, Cylinder_High);
+            Cylinder_Low_Val  := Read_Byte_From_Register (Bus, Cylinder_Low);
+
+            if (Cylinder_High_Val /= 16#EB#) and (Cylinder_Low_Val /= 16#14#)
+            then
+               return Packet_Interface_Not_Supported;
             end if;
 
             --  Read the device status until the device is ready.
@@ -230,7 +312,113 @@ package body Cxos.Devices.ATA is
    exception
       when Constraint_Error =>
          return Unhandled_Exception;
-   end Identify;
+   end Identify_Packet_Device;
+
+   ----------------------------------------------------------------------------
+   --  Print_ATA_Device
+   ----------------------------------------------------------------------------
+   procedure Print_ATA_Device (
+     Device : ATA_Device
+   ) is
+   begin
+      Cxos.Debug.Put_String ("------------------------" & Chars.LF);
+      Cxos.Debug.Put_String ("IDE Device: " & Chars.LF);
+
+      Print_Bus_Info :
+         begin
+            Cxos.Debug.Put_String ("  Bus:               ");
+            case Device.Bus is
+               when Primary =>
+                  Cxos.Debug.Put_String ("Primary" & Chars.LF);
+               when Secondary =>
+                  Cxos.Debug.Put_String ("Secondary" & Chars.LF);
+            end case;
+
+            Cxos.Debug.Put_String ("  Position:          ");
+            case Device.Position is
+               when Master =>
+                  Cxos.Debug.Put_String ("Master" & Chars.LF);
+               when Slave =>
+                  Cxos.Debug.Put_String ("Slave" & Chars.LF);
+            end case;
+
+         end Print_Bus_Info;
+
+      Print_Device_Type :
+         begin
+            Cxos.Debug.Put_String ("  Type:              ");
+            case Device.Device_Type is
+               when PATAPI =>
+                  Cxos.Debug.Put_String ("PATAPI" & Chars.LF);
+               when SATAPI =>
+                  Cxos.Debug.Put_String ("PATAPI" & Chars.LF);
+               when PATA   =>
+                  Cxos.Debug.Put_String ("PATA" & Chars.LF);
+               when SATA   =>
+                  Cxos.Debug.Put_String ("SATA" & Chars.LF);
+               when Unknown_ATA_Device =>
+                  Cxos.Debug.Put_String ("Unknown" & Chars.LF);
+            end case;
+         end Print_Device_Type;
+
+      Print_Device_Info :
+         begin
+            if Device.Identification.Device_Config.Removable_Media = True then
+               Cxos.Debug.Put_String ("  Device is removable Media"
+                 & Chars.LF);
+            end if;
+         end Print_Device_Info;
+
+      Print_Firmware_Revision :
+         begin
+            Cxos.Debug.Put_String ("  Firmware revision: '");
+
+            --  ATA Strings are in partially reverse order. Each pair of
+            --  characters has its order reversed.
+            for C in Natural range 0 .. 3 loop
+               Cxos.Debug.Put_String ("" &
+                 Device.Identification.Firmware_Revision ((C * 2) + 1) &
+                 Device.Identification.Firmware_Revision (C * 2));
+            end loop;
+            Cxos.Debug.Put_String ("'" & Chars.LF);
+         end Print_Firmware_Revision;
+
+      Print_Model_Number :
+         begin
+            Cxos.Debug.Put_String ("  Model number:      '");
+            for C in Natural range 0 .. 19 loop
+               Cxos.Debug.Put_String ("" &
+                 Device.Identification.Model_Number ((C * 2) + 1) &
+                 Device.Identification.Model_Number (C * 2));
+            end loop;
+            Cxos.Debug.Put_String ("'" & Chars.LF);
+         end Print_Model_Number;
+
+      Print_Serial_Number :
+         begin
+            Cxos.Debug.Put_String ("  Serial number:     '");
+            for C in Natural range 0 .. 9 loop
+               Cxos.Debug.Put_String ("" &
+                 Device.Identification.Serial_Number ((C * 2) + 1) &
+                 Device.Identification.Serial_Number (C * 2));
+            end loop;
+            Cxos.Debug.Put_String ("'" & Chars.LF);
+         end Print_Serial_Number;
+
+      Print_Command_Set :
+         begin
+            Cxos.Debug.Put_String ("  Command set:" & Chars.LF);
+            Cxos.Debug.Put_String ("    LBA48:           ");
+            if Device.Identification.Command_Set_Support.LBA48 then
+               Cxos.Debug.Put_String ("Yes" & Chars.LF);
+            else
+               Cxos.Debug.Put_String ("No" & Chars.LF);
+            end if;
+         end Print_Command_Set;
+   exception
+      when Constraint_Error =>
+         return;
+   end Print_ATA_Device;
 
    ----------------------------------------------------------------------------
    --  Print_Process_Result
@@ -252,6 +440,8 @@ package body Cxos.Devices.ATA is
             Cxos.Debug.Put_String ("Device not present");
          when Invalid_Command =>
             Cxos.Debug.Put_String ("Invalid command");
+         when Packet_Interface_Not_Supported =>
+            Cxos.Debug.Put_String ("Packet interface not supported");
          when Success =>
             Cxos.Debug.Put_String ("Success");
          when Unhandled_Exception =>
@@ -263,6 +453,80 @@ package body Cxos.Devices.ATA is
       when Constraint_Error =>
          null;
    end Print_Process_Result;
+
+   ----------------------------------------------------------------------------
+   --  Read_ATA_Device_Info
+   ----------------------------------------------------------------------------
+   function Read_ATA_Device_Info (
+     Device   : out ATA_Device;
+     Bus      :     ATA_Bus;
+     Position :   ATA_Device_Position
+   ) return Process_Result is
+      Device_Type : x86.ATA.ATA_Device_Type;
+      Result      : Process_Result;
+      Id_Record   : Device_Identification_Record;
+   begin
+      Result := Identify (Id_Record, Bus, Position);
+      case Result is
+         when Success =>
+            Device := (
+              Present        => True,
+              Bus            => Bus,
+              Position       => Position,
+              Device_Type    => PATA,
+              Identification => Id_Record
+            );
+
+            return Success;
+         when Device_Not_Present =>
+            null;
+         when Device_Non_ATA =>
+            Device_Type := Unknown_ATA_Device;
+
+            --  If the drive is non-ATA.
+            Result := Get_Device_Type (Device_Type, Bus, Position);
+            if Result /= Success then
+               Cxos.Debug.Put_String ("Error reading device type: ");
+               Print_Process_Result (Result);
+               Cxos.Debug.Put_String ("" & Chars.LF);
+
+               return Result;
+            end if;
+
+            --  If this is a packet device, identify.
+            if Device_Type = PATAPI or Device_Type = SATAPI then
+               Result := Identify_Packet_Device (Id_Record, Bus, Position);
+               if Result /= Success then
+                  Cxos.Debug.Put_String ("Error identifying device: ");
+                  Print_Process_Result (Result);
+                  Cxos.Debug.Put_String ("" & Chars.LF);
+
+                  return Result;
+               end if;
+
+               Device := (
+                 Present        => True,
+                 Bus            => Bus,
+                 Position       => Position,
+                 Device_Type    => Device_Type,
+                 Identification => Id_Record
+               );
+            else
+               Cxos.Debug.Put_String ("Other non ATA?" & Chars.LF);
+            end if;
+         when others =>
+            Cxos.Debug.Put_String ("Error identifying device: ");
+            Print_Process_Result (Result);
+            Cxos.Debug.Put_String ("" & Chars.LF);
+
+            return Result;
+      end case;
+
+      return Success;
+   exception
+      when Constraint_Error =>
+         return Unhandled_Exception;
+   end Read_ATA_Device_Info;
 
    ----------------------------------------------------------------------------
    --  Read_Word
@@ -363,6 +627,8 @@ package body Cxos.Devices.ATA is
                   Command_Byte := 16#E7#;
                when Identify_Device =>
                   Command_Byte := 16#EC#;
+               when Identify_Packet_Device =>
+                  Command_Byte := 16#A1#;
                when Recalibrate =>
                   Command_Byte := 16#10#;
                when Read_Sectors_Retry =>
@@ -404,8 +670,6 @@ package body Cxos.Devices.ATA is
       Drive_Status    : x86.ATA.Device_Status_Record;
       --  The system time at the start of the function.
       Start_Time      : Cxos.Time_Keeping.Time;
-      --  The current system time.
-      Current_Time    : Cxos.Time_Keeping.Time;
    begin
       --  Get the start time.
       Start_Time := Cxos.Time_Keeping.Clock;
@@ -429,13 +693,8 @@ package body Cxos.Devices.ATA is
 
             --  Check to see whether we have exceeded the timeout threshold.
             --  If so, exit the loop.
-            Check_Timeout :
-               begin
-                  Current_Time := Cxos.Time_Keeping.Clock;
-                  if (Current_Time - Start_Time) > Timeout then
-                     exit Wait_While_Busy;
-                  end if;
-               end Check_Timeout;
+            exit Wait_While_Busy
+              when (Cxos.Time_Keeping.Clock - Start_Time) > Timeout;
          end loop Wait_While_Busy;
 
       --  If no value has been returned within the attempt threshold,

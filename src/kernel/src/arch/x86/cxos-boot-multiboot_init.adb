@@ -9,15 +9,16 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
+with Ada.Characters.Latin_1;
 with Cxos.Debug;
 with Cxos.Memory;
 with Cxos.Memory.Map;
 with Multiboot;
 with System.Address_To_Access_Conversions;
-with System.Storage_Elements;
+with System.Storage_Elements; use System.Storage_Elements;
 
 package body Cxos.Boot.Multiboot_Init is
-   use System.Storage_Elements;
+   package Chars renames Ada.Characters.Latin_1;
 
    ----------------------------------------------------------------------------
    --  Clear_Multiboot_Reserved_Data
@@ -45,7 +46,7 @@ package body Cxos.Boot.Multiboot_Init is
       --  The result of internal processes.
       Result : Cxos.Memory.Process_Result;
    begin
-      Cxos.Debug.Put_String ("Freeing multiboot memory" & ASCII.LF);
+      Cxos.Debug.Put_String ("Freeing multiboot memory" & Chars.LF);
 
       --  Get the number of memory frames within the multiboot reserved area.
       Frame_Count := Unsigned_32 (
@@ -56,11 +57,11 @@ package body Cxos.Boot.Multiboot_Init is
       Result := Cxos.Memory.Map.Mark_Memory_Range (
         Multiboot_Reserved_Memory_Start, Frame_Count, Unallocated);
       if Result /= Success then
-         Cxos.Debug.Put_String ("Error marking multiboot memory" & ASCII.LF);
+         Cxos.Debug.Put_String ("Error marking multiboot memory" & Chars.LF);
          return Unhandled_Exception;
       end if;
 
-      Cxos.Debug.Put_String ("Finished freeing multiboot memory" & ASCII.LF);
+      Cxos.Debug.Put_String ("Finished freeing multiboot memory" & Chars.LF);
 
       return Success;
    exception
@@ -94,7 +95,7 @@ package body Cxos.Boot.Multiboot_Init is
          --  Print information about the current drive entry.
          Print_Drive_Entry_Info :
             begin
-               Cxos.Debug.Put_String ("Parsing Drive Entry" & ASCII.LF);
+               Cxos.Debug.Put_String ("Parsing Drive Entry" & Chars.LF);
             end Print_Drive_Entry_Info;
 
          --  Increment the entry.
@@ -139,42 +140,42 @@ package body Cxos.Boot.Multiboot_Init is
       --  Check whether we have a valid Multiboot memory map.
       if Mmap_Info.Section_Present then
          Cxos.Debug.Put_String (
-           "Multiboot memory map present" & ASCII.LF &
-           "Parsing Multiboot memory map" & ASCII.LF);
+           "Multiboot memory map present" & Chars.LF &
+           "Parsing Multiboot memory map" & Chars.LF);
 
          --  Parse the Multiboot provided memory map to mark memory
          --  regions that are free to use.
          Result := Parse_Multiboot_Memory_Map (Mmap_Info.Section_Addr,
            Mmap_Info.Section_Length);
          if Result /= Success then
-            Cxos.Debug.Put_String ("Error parsing memory map" & ASCII.LF);
+            Cxos.Debug.Put_String ("Error parsing memory map" & Chars.LF);
             return Unhandled_Exception;
          end if;
 
-         Cxos.Debug.Put_String ("Finished parsing memory map" & ASCII.LF);
+         Cxos.Debug.Put_String ("Finished parsing memory map" & Chars.LF);
       else
          Cxos.Debug.Put_String (
-           "Multiboot memory map not present" & ASCII.LF);
+           "Multiboot memory map not present" & Chars.LF);
       end if;
 
       --  As per Multiboot spec, the drive map section length can be valid
       --  with a length of 0.
       if Drive_Info.Section_Present and Drive_Info.Section_Length > 0 then
          Cxos.Debug.Put_String (
-           "Multiboot drives map present" & ASCII.LF &
-           "Parsing drive entries" & ASCII.LF);
+           "Multiboot drives map present" & Chars.LF &
+           "Parsing drive entries" & Chars.LF);
 
          Result := Parse_Multiboot_Drive_Map (Drive_Info.Section_Addr,
            Drive_Info.Section_Length);
          if Result /= Success then
-            Cxos.Debug.Put_String ("Error parsing drive map" & ASCII.LF);
+            Cxos.Debug.Put_String ("Error parsing drive map" & Chars.LF);
             return Unhandled_Exception;
          end if;
 
-         Cxos.Debug.Put_String ("Finished parsing drive map" & ASCII.LF);
+         Cxos.Debug.Put_String ("Finished parsing drive map" & Chars.LF);
       else
          Cxos.Debug.Put_String (
-           "Multiboot drives map not present" & ASCII.LF);
+           "Multiboot drives map not present" & Chars.LF);
       end if;
 
       return Success;
@@ -211,30 +212,30 @@ package body Cxos.Boot.Multiboot_Init is
          --  Print information about the current mmap region.
          Print_Memory_Region_Info :
             begin
-               Cxos.Debug.Put_String ("------------------------" & ASCII.LF);
-               Cxos.Debug.Put_String ("Mmap region:" & ASCII.LF);
+               Cxos.Debug.Put_String ("------------------------" & Chars.LF);
+               Cxos.Debug.Put_String ("Mmap region:" & Chars.LF);
                Cxos.Debug.Put_String ("  Type:    ");
 
                case Curr_Region.all.Memory_Type is
                   when 1 =>
-                     Cxos.Debug.Put_String ("Free RAM" & ASCII.LF);
+                     Cxos.Debug.Put_String ("Free RAM" & Chars.LF);
                   when 3 =>
-                     Cxos.Debug.Put_String ("ACPI" & ASCII.LF);
+                     Cxos.Debug.Put_String ("ACPI" & Chars.LF);
                   when 4 =>
                      Cxos.Debug.Put_String (
-                       "Reserved for hibernation" & ASCII.LF);
+                       "Reserved for hibernation" & Chars.LF);
                   when 5 =>
-                     Cxos.Debug.Put_String ("Defective" & ASCII.LF);
+                     Cxos.Debug.Put_String ("Defective" & Chars.LF);
                   when others =>
-                     Cxos.Debug.Put_String ("Reserved" & ASCII.LF);
+                     Cxos.Debug.Put_String ("Reserved" & Chars.LF);
                end case;
 
                Cxos.Debug.Put_String ("  Base:   " &
                  Unsigned_32 (Curr_Region.all.Base and 16#FFFF_FFFF#)'Image &
-                 ASCII.LF);
+                 Chars.LF);
                Cxos.Debug.Put_String ("  Length: " &
                  Unsigned_32 (Curr_Region.all.Length and 16#FFFF_FFFF#)'Image &
-                 ASCII.LF);
+                 Chars.LF);
             exception
                when Constraint_Error =>
                   return Unhandled_Exception;
@@ -255,7 +256,7 @@ package body Cxos.Boot.Multiboot_Init is
                        Unsigned_32 (Curr_Region.all.Length), Unallocated);
                      if Result /= Success then
                         Cxos.Debug.Put_String (
-                          "Error setting frame status" & ASCII.LF);
+                          "Error setting frame status" & Chars.LF);
                         return Unhandled_Exception;
                      end if;
                   when others =>
@@ -264,7 +265,7 @@ package body Cxos.Boot.Multiboot_Init is
             exception
                when Constraint_Error =>
                   Cxos.Debug.Put_String (
-                    "Error marking free memory" & ASCII.LF);
+                    "Error marking free memory" & Chars.LF);
 
                   return Unhandled_Exception;
             end Mark_Free_Memory;

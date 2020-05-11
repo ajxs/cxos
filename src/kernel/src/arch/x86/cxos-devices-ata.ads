@@ -24,15 +24,19 @@ with x86.ATA; use x86.ATA;
 package Cxos.Devices.ATA is
    pragma Preelaborate;
 
-   type ATA_String is array (Natural range 0 .. 511) of Character;
+   ----------------------------------------------------------------------------
+   --  Whether errors should be printed to the debug output.
+   ----------------------------------------------------------------------------
+   DEBUG_PRINT_ERRORS : constant Boolean := True;
 
-   type ATA_Buffer is array (Natural range 0 .. 255) of Unsigned_16;
-
-   function ATA_Buffer_To_String is
-      new Ada.Unchecked_Conversion (
-        Source => ATA_Buffer,
-        Target => ATA_String
-      );
+   ----------------------------------------------------------------------------
+   --  ATA read buffer type.
+   --  This type is used as a destination buffer for reading from an ATA
+   --  device. The actual theoretical maximum size is 16776960 words. This
+   --  represents the maximum number of words that can be read with a 16bit
+   --  sector count. Assuming that LBA48 mode was used.
+   ----------------------------------------------------------------------------
+   type ATA_Read_Buffer is array (Natural range <>) of Unsigned_16;
 
    ----------------------------------------------------------------------------
    --  ATA Device Type Record
@@ -82,7 +86,8 @@ package Cxos.Devices.ATA is
      Position   :     x86.ATA.ATA_Device_Position;
      Sector_Cnt :     x86.ATA.ATA_Sector_Count;
      LBA        :     x86.ATA.ATA_LBA;
-     Buffer     : out ATA_Buffer
+     Buffer     : out ATA_Read_Buffer;
+     Mode       :     x86.ATA.LBA_Mode := LBA28
    ) return Process_Result
    with Volatile_Function;
 
@@ -148,6 +153,14 @@ private
    with Volatile_Function;
 
    ----------------------------------------------------------------------------
+   --  Drive_Select_Delay
+   --
+   --  Purpose:
+   --    Performs the necessary delay after a drive selection, as per ATA spec.
+   ----------------------------------------------------------------------------
+   procedure Drive_Select_Delay;
+
+   ----------------------------------------------------------------------------
    --  Select_Device_Position
    --
    --  Purpose:
@@ -176,11 +189,16 @@ private
    --  Wait_For_Device_Ready
    --
    --  Purpose:
-   --    Waits until the specified Bus/Device is ready to receive commands.
+   --    Polls the specified Bus/Device until it is ready to receive commands.
+   --    Alternatively, this function can be used to poll until a device
+   --    is ready to transfer data.
+   --    A timeout value can be specified. This will dictate at what point to
+   --    timeout and return a busy status.
    ----------------------------------------------------------------------------
    function Wait_For_Device_Ready (
-     Bus     : x86.ATA.ATA_Bus;
-     Timeout : Cxos.Time_Keeping.Time := 2000
+     Bus           : x86.ATA.ATA_Bus;
+     Timeout       : Cxos.Time_Keeping.Time := 2000;
+     Wait_For_Data : Boolean := False
    ) return Process_Result
    with Volatile_Function;
 

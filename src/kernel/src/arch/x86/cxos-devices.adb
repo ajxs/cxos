@@ -9,6 +9,7 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
+with Ada.Characters.Latin_1;
 with Cxos.Debug;
 with Cxos.Devices.ATA;
 with Cxos.Devices.PCI;
@@ -24,8 +25,7 @@ package body Cxos.Devices is
       --  The result of internal functionality.
       Result : Process_Result;
 
-      Disk_Buffer : Cxos.Devices.ATA.ATA_Buffer;
-      Buf_Str     : Cxos.Devices.ATA.ATA_String;
+      Read_Buf    : Cxos.Devices.ATA.ATA_Read_Buffer (0 .. 255);
    begin
       Result := Cxos.Devices.PCI.Find_Pci_Devices;
       if Result /= Success then
@@ -35,16 +35,11 @@ package body Cxos.Devices is
       Cxos.Devices.ATA.Find_ATA_Devices;
 
       Result := Cxos.Devices.ATA.Read_ATA_Device (Primary, Slave,
-        0, 512, Disk_Buffer);
+        1, 0, Read_Buf);
       if Result /= Success then
+         Cxos.Debug.Put_String ("Read Error." & Ada.Characters.Latin_1.LF);
          return;
       end if;
-
-      Buf_Str := Cxos.Devices.ATA.ATA_Buffer_To_String (Disk_Buffer);
-
-      for I in Natural range 0 .. 511 loop
-         Cxos.Debug.Put_String ("" & Buf_Str (I));
-      end loop;
 
    exception
       when Constraint_Error =>

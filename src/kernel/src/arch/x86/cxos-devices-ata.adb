@@ -16,6 +16,24 @@ package body Cxos.Devices.ATA is
    package Chars renames Ada.Characters.Latin_1;
 
    ----------------------------------------------------------------------------
+   --  Drive_Select_Delay
+   --
+   --  Implementation Notes:
+   --   - Delay 400ns post drive selection, as per spec.
+   ----------------------------------------------------------------------------
+      procedure Drive_Select_Delay is
+         use Cxos.Time_Keeping;
+
+         --  The system time at the start of the timeout.
+         Start_Time : Cxos.Time_Keeping.Time;
+      begin
+         Start_Time := Cxos.Time_Keeping.Clock;
+         while (Cxos.Time_Keeping.Clock - Start_Time) < 1 loop
+            null;
+         end loop;
+      end Drive_Select_Delay;
+
+   ----------------------------------------------------------------------------
    --  Find_ATA_Devices
    ----------------------------------------------------------------------------
    procedure Find_ATA_Devices is
@@ -31,9 +49,11 @@ package body Cxos.Devices.ATA is
          for Bus in ATA_Bus'Range loop
             Result := Reset_Bus (Bus);
             if Result /= Success then
-               Cxos.Debug.Put_String ("Error resetting ATA bus: ");
-               Print_Process_Result (Result);
-               Cxos.Debug.Put_String ("" & Chars.LF);
+               if DEBUG_PRINT_ERRORS then
+                  Cxos.Debug.Put_String ("Error resetting ATA bus: ");
+                  Print_Process_Result (Result);
+                  Cxos.Debug.Put_String ("" & Chars.LF);
+               end if;
 
                return;
             end if;
@@ -45,9 +65,11 @@ package body Cxos.Devices.ATA is
                   Result := Read_ATA_Device_Info (ATA_Devices (Device_Idx),
                     Bus, Position);
                   if Result /= Success then
-                     Cxos.Debug.Put_String ("Error reading ATA device: ");
-                     Print_Process_Result (Result);
-                     Cxos.Debug.Put_String ("" & Chars.LF);
+                     if DEBUG_PRINT_ERRORS then
+                        Cxos.Debug.Put_String ("Error reading ATA device: ");
+                        Print_Process_Result (Result);
+                        Cxos.Debug.Put_String ("" & Chars.LF);
+                     end if;
                   else
                      Device_Idx := Device_Idx + 1;
                   end if;
@@ -82,7 +104,7 @@ package body Cxos.Devices.ATA is
       end if;
 
       --  Wait until the device is ready to receive commands.
-      Result := Wait_For_Device_Ready (Bus, 10000);
+      Result := Wait_For_Device_Ready (Bus);
       if Result /= Success then
          return Result;
       end if;
@@ -115,7 +137,7 @@ package body Cxos.Devices.ATA is
       end if;
 
       --  Wait until the device is ready to receive commands.
-      Result := Wait_For_Device_Ready (Bus, 10000);
+      Result := Wait_For_Device_Ready (Bus);
       if Result /= Success then
          return Result;
       end if;
@@ -430,7 +452,7 @@ package body Cxos.Devices.ATA is
             Cxos.Debug.Put_String ("Command aborted");
          when Device_Busy =>
             Cxos.Debug.Put_String ("Device Busy");
-         when Device_Error_State =>
+         when Device_In_Error_State =>
             Cxos.Debug.Put_String ("Device is in error state");
          when Device_Non_ATA =>
             Cxos.Debug.Put_String ("Device is non-ATA");
@@ -460,50 +482,54 @@ package body Cxos.Devices.ATA is
      Position   :     x86.ATA.ATA_Device_Position;
      Sector_Cnt :     x86.ATA.ATA_Sector_Count;
      LBA        :     x86.ATA.ATA_LBA;
-     Buffer     : out ATA_Buffer
+     Buffer     : out ATA_Read_Buffer;
+     Mode       :     x86.ATA.LBA_Mode := x86.ATA.LBA28
    ) return Process_Result is
-      Drive_Register_Val : Unsigned_8;
-      Result : Process_Result;
+      --  The value to send to the Drive/Head register to set the addressing
+      --  mode, and select the drive position.
+      Drive_Select_Val  : Unsigned_8;
+      --  The number of sectors to read.
+      Sector_Read_Count : Natural;
+      --  The result of internal processes.
+      Result            : Process_Result;
    begin
-      case Position is
-         when Master =>
-            Drive_Register_Val := 16#A0#;
-         when Slave  =>
-            Drive_Register_Val := 16#B0#;
-      end case;
+      --  Set the LBA and reserved fields in the Drive/Head register value.
+      Drive_Select_Val := 16#E0#;
 
-      Drive_Register_Val := Drive_Register_Val or 16#40#;
-      x86.ATA.Write_Byte_To_Register (Bus, Drive_Head, Drive_Register_Val);
+      --  Set the DRV field in the Drive/Head register value if we're
+      --  selecting a slave drive.
+      if Position = Slave then
+         Drive_Select_Val := Drive_Select_Val or 16#10#;
+      end if;
 
-      --  Delay 400ns post drive selection, as per spec.
-      Drive_Select_Delay :
-         declare
-            use Cxos.Time_Keeping;
-
-            --  The system time at the start of the timeout.
-            Start_Time : Cxos.Time_Keeping.Time;
-         begin
-            Start_Time := Cxos.Time_Keeping.Clock;
-            while (Cxos.Time_Keeping.Clock - Start_Time) < 1 loop
-               null;
-            end loop;
-         end Drive_Select_Delay;
-
-      --  Send the sector count.
-      Send_Sector_Count :
-         declare
-            Sector_Count_Byte : Unsigned_8;
-         begin
-            Sector_Count_Byte := Unsigned_8 (Sector_Cnt);
-            Write_Byte_To_Register (Bus, Sector_Count_Reg, Sector_Count_Byte);
-         end Send_Sector_Count;
-
+      --  Set the LBA value in the LBA registers.
       Set_LBA :
          declare
-            LBA_U : Unsigned_32;
+            --  The LBA value cast to a uint to allow for easy shifting.
+            LBA_U    : Unsigned_64;
+            --  A single byte value to store the LBA value to send to each
+            --  individual register.
             LBA_Byte : Unsigned_8;
          begin
-            LBA_U := Unsigned_32 (LBA and 16#FFFFFFFF#);
+            LBA_U := Unsigned_64 (LBA and 16#FFFFFFFF#);
+
+            case Mode is
+               when x86.ATA.LBA28 =>
+                  --  Store the top 4 bits of an LBA28 address in the
+                  --  Drive/Head register's 4 least significant bits.
+                  LBA_Byte := Unsigned_8 (Shift_Right (LBA_U, 24) and 16#FF#);
+                  Drive_Select_Val := Drive_Select_Val or LBA_Byte;
+               when x86.ATA.LBA48 =>
+                  --  Write higher bytes first.
+                  LBA_Byte := Unsigned_8 (Shift_Right (LBA_U, 24) and 16#FF#);
+                  Write_Byte_To_Register (Bus, Sector_Number_Reg, LBA_Byte);
+
+                  LBA_Byte := Unsigned_8 (Shift_Right (LBA_U, 32) and 16#FF#);
+                  Write_Byte_To_Register (Bus, Sector_Count_Reg, LBA_Byte);
+
+                  LBA_Byte := Unsigned_8 (Shift_Right (LBA_U, 40) and 16#FF#);
+                  Write_Byte_To_Register (Bus, Sector_Count_Reg, LBA_Byte);
+            end case;
 
             LBA_Byte := Unsigned_8 (LBA_U and 16#FF#);
             Write_Byte_To_Register (Bus, Sector_Number_Reg, LBA_Byte);
@@ -515,46 +541,95 @@ package body Cxos.Devices.ATA is
             Write_Byte_To_Register (Bus, Sector_Count_Reg, LBA_Byte);
          end Set_LBA;
 
-      Result := Send_Command (Bus, Read_Sectors_Retry);
+      --  Send the drive select value to the Drive/Head register.
+      x86.ATA.Write_Byte_To_Register (Bus, Drive_Head, Drive_Select_Val);
+
+      --  Delay 400ns post drive selection, as per spec.
+      Drive_Select_Delay;
+
+      --  Send the sector count.
+      Send_Sector_Count :
+         declare
+            --  A temporary byte to allow for easier transfer of the
+            --  sector count value.
+            Sector_Count_Byte : Unsigned_8;
+         begin
+            --  If we're using LBA48 mode, transfer the higher order byte
+            --  of the sector count first.
+            if Mode = x86.ATA.LBA48 then
+               Sector_Count_Byte :=
+                 Shift_Right (Unsigned_8 (Sector_Cnt), 8) and 16#FF#;
+               Write_Byte_To_Register (Bus,
+                 Sector_Count_Reg, Sector_Count_Byte);
+            end if;
+
+            Sector_Count_Byte := Unsigned_8 (Sector_Cnt) and 16#FF#;
+            Write_Byte_To_Register (Bus, Sector_Count_Reg, Sector_Count_Byte);
+         end Send_Sector_Count;
+
+      --  Send the read sectors command.
+      case Mode is
+         when x86.ATA.LBA28 =>
+            Result := Send_Command (Bus, Read_Sectors_Retry);
+         when x86.ATA.LBA48 =>
+            Result := Send_Command (Bus, Read_Sectors_Ext);
+      end case;
+
       if Result /= Success then
-         Cxos.Debug.Put_String ("Error sending read command: ");
-         Print_Process_Result (Result);
-         Cxos.Debug.Put_String ("" & Chars.LF);
+         if DEBUG_PRINT_ERRORS then
+            Cxos.Debug.Put_String ("Error sending read command: ");
+            Print_Process_Result (Result);
+            Cxos.Debug.Put_String ("" & Chars.LF);
+         end if;
 
          return Result;
       end if;
 
-      Check_Device :
-         declare
-            Status_Byte : Unsigned_8;
-         begin
-            Result := Wait_For_Device_Ready (Bus);
-            if Result /= Success then
-               Cxos.Debug.Put_String ("Error waiting for device ready: ");
-               Print_Process_Result (Result);
-               Cxos.Debug.Put_String ("" & Chars.LF);
+      --  A sector count argument of 0 means to read 256 sectors.
+      if Sector_Cnt = 0 then
+         Sector_Read_Count := 256;
+      else
+         Sector_Read_Count := Natural (Sector_Cnt);
+      end if;
 
-               return Result;
-            end if;
+      --  Read each individual sector.
+      for I in Natural range 0 .. (Sector_Read_Count - 1) loop
+         --  Check the device's status and wait until it is ready
+         --  to read in the sector data.
+         Check_Device :
+            begin
+               Result := Wait_For_Device_Ready (Bus, Wait_For_Data => True);
+               if Result /= Success then
+                  if DEBUG_PRINT_ERRORS then
+                     Cxos.Debug.Put_String ("Error waiting for device: ");
+                     Print_Process_Result (Result);
+                     Cxos.Debug.Put_String ("" & Chars.LF);
+                  end if;
 
-            Status_Byte := Read_Byte_From_Register (Bus, Alt_Status);
-            Cxos.Debug.Put_String ("Status: " & Status_Byte'Image & Chars.LF);
-         end Check_Device;
+                  return Result;
+               end if;
+            end Check_Device;
 
-      Read_Buffer :
-         declare
-            Read_Count : Natural;
-         begin
-            if Sector_Cnt = 0 then
-               Read_Count := 256;
-            else
-               Read_Count := Natural (Sector_Cnt);
-            end if;
+         Read_Into_Buffer :
+            declare
+               --  The index into the read buffer to read with each iteration.
+               Buffer_Index : Natural;
+            begin
+               --  Read into the buffer.
+               for J in Natural range 0 .. 255 loop
+                  Buffer_Index := (I * 256) + J;
 
-            for I in Natural range 0 .. (Read_Count - 1) loop
-               Buffer (I) := Read_Word_From_Register (Bus, Data_Reg);
-            end loop;
-         end Read_Buffer;
+                  Buffer (Buffer_Index) :=
+                    Read_Word_From_Register (Bus, Data_Reg);
+               end loop;
+            exception
+               when Constraint_Error =>
+                  if DEBUG_PRINT_ERRORS then
+                     Cxos.Debug.Put_String ("Read buffer overflow" & Chars.LF);
+                  end if;
+                  return Device_Read_Buffer_Overflow;
+            end Read_Into_Buffer;
+      end loop;
 
       return Success;
    exception
@@ -594,9 +669,11 @@ package body Cxos.Devices.ATA is
             --  If the drive is non-ATA.
             Result := Get_Device_Type (Device_Type, Bus, Position);
             if Result /= Success then
-               Cxos.Debug.Put_String ("Error reading device type: ");
-               Print_Process_Result (Result);
-               Cxos.Debug.Put_String ("" & Chars.LF);
+               if DEBUG_PRINT_ERRORS then
+                  Cxos.Debug.Put_String ("Error reading device type: ");
+                  Print_Process_Result (Result);
+                  Cxos.Debug.Put_String ("" & Chars.LF);
+               end if;
 
                return Result;
             end if;
@@ -605,9 +682,11 @@ package body Cxos.Devices.ATA is
             if Device_Type = PATAPI or Device_Type = SATAPI then
                Result := Identify_Packet_Device (Id_Record, Bus, Position);
                if Result /= Success then
-                  Cxos.Debug.Put_String ("Error identifying device: ");
-                  Print_Process_Result (Result);
-                  Cxos.Debug.Put_String ("" & Chars.LF);
+                  if DEBUG_PRINT_ERRORS then
+                     Cxos.Debug.Put_String ("Error identifying device: ");
+                     Print_Process_Result (Result);
+                     Cxos.Debug.Put_String ("" & Chars.LF);
+                  end if;
 
                   return Result;
                end if;
@@ -623,9 +702,11 @@ package body Cxos.Devices.ATA is
                Cxos.Debug.Put_String ("Other non ATA?" & Chars.LF);
             end if;
          when others =>
-            Cxos.Debug.Put_String ("Error identifying device: ");
-            Print_Process_Result (Result);
-            Cxos.Debug.Put_String ("" & Chars.LF);
+            if DEBUG_PRINT_ERRORS then
+               Cxos.Debug.Put_String ("Error identifying device: ");
+               Print_Process_Result (Result);
+               Cxos.Debug.Put_String ("" & Chars.LF);
+            end if;
 
             return Result;
       end case;
@@ -672,18 +753,7 @@ package body Cxos.Devices.ATA is
       end case;
 
       --  Delay 400ns post drive selection, as per spec.
-      Drive_Select_Delay :
-         declare
-            use Cxos.Time_Keeping;
-
-            --  The system time at the start of the timeout.
-            Start_Time : Cxos.Time_Keeping.Time;
-         begin
-            Start_Time := Cxos.Time_Keeping.Clock;
-            while (Cxos.Time_Keeping.Clock - Start_Time) < 1 loop
-               null;
-            end loop;
-         end Drive_Select_Delay;
+      Drive_Select_Delay;
 
       return Success;
    exception
@@ -747,8 +817,9 @@ package body Cxos.Devices.ATA is
    --  Wait_For_Device_Ready
    ----------------------------------------------------------------------------
    function Wait_For_Device_Ready (
-     Bus     : x86.ATA.ATA_Bus;
-     Timeout : Cxos.Time_Keeping.Time := 2000
+     Bus           : x86.ATA.ATA_Bus;
+     Timeout       : Cxos.Time_Keeping.Time := 2000;
+     Wait_For_Data : Boolean := False
    ) return Process_Result is
       use Cxos.Time_Keeping;
 
@@ -768,13 +839,27 @@ package body Cxos.Devices.ATA is
             --  Read device status.
             Drive_Status := x86.ATA.Unsigned_8_To_Device_Status_Record (
               x86.ATA.Read_Byte_From_Register (Bus, Alt_Status));
+
             if Drive_Status.BSY = False then
-               return Success;
+               --  If we are waiting for the device to become ready for
+               --  transferring data.
+               if Wait_For_Data then
+                  if Drive_Status.DRQ = True then
+                     return Success;
+                  end if;
+               else
+                  return Success;
+               end if;
             end if;
 
             --  If an error state is reported, exit here.
             if Drive_Status.ERR = True then
-               return Device_Error_State;
+               return Device_In_Error_State;
+            end if;
+
+            --  If a drive fault is reported, exit here.
+            if Drive_Status.DF = True then
+               return Drive_Fault;
             end if;
 
             --  Check to see whether we have exceeded the timeout threshold.

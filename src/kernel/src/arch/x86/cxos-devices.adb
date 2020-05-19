@@ -13,6 +13,7 @@ with Ada.Characters.Latin_1;
 with Cxos.Debug;
 with Cxos.Devices.ATA;
 with Cxos.Devices.PCI;
+with Cxos.Filesystems.FAT;
 with x86.ATA;
 
 package body Cxos.Devices is
@@ -40,6 +41,17 @@ package body Cxos.Devices is
          Cxos.Debug.Put_String ("Read Error." & Ada.Characters.Latin_1.LF);
          return;
       end if;
+
+      Read_FS :
+         declare
+            BPB : Cxos.Filesystems.FAT.BIOS_Parameter_Block
+            with Import,
+              Convention => Ada,
+              Address => Read_Buf'Address;
+         begin
+            Cxos.Debug.Put_String ("" & BPB.Boot_Jump (1)'Image &
+              BPB.Boot_Jump (2)'Image & Ada.Characters.Latin_1.LF);
+         end Read_FS;
 
    exception
       when Constraint_Error =>

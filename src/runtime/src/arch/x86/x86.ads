@@ -20,7 +20,7 @@ with System;
 --    initialisation code for the platform.
 -------------------------------------------------------------------------------
 package x86 is
-   pragma Preelaborate (x86);
+   pragma Preelaborate;
 
    type Kernel_Process_Result is (
      Failure,

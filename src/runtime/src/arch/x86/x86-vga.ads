@@ -87,5 +87,7 @@ package x86.Vga is
    ----------------------------------------------------------------------------
    --  Vga Buffer type.
    ----------------------------------------------------------------------------
-   type Vga_Buffer is array (Natural range <>) of Vga_Buffer_Char;
+   type Vga_Buffer is
+     array (Natural range 0 .. (VGA_COL_COUNT * VGA_ROW_COUNT) - 1)
+     of Vga_Buffer_Char;
 end x86.Vga;

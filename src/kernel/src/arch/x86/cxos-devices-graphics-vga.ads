@@ -78,7 +78,7 @@ private
    ----------------------------------------------------------------------------
    --  The actual VGA screen buffer memory.
    ----------------------------------------------------------------------------
-   Vga_Output_Buffer : Vga_Buffer (0 .. (VGA_COL_COUNT * VGA_ROW_COUNT) - 1)
+   Vga_Output_Buffer : Vga_Buffer
    with Import,
      Convention => Ada,
      Address    => To_Address (VGA_MEMORY_ADDRESS),

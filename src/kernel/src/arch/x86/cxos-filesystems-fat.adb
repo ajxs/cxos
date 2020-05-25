@@ -6,20 +6,17 @@ package body Cxos.Filesystems.FAT is
 
    ----------------------------------------------------------------------------
    ----------------------------------------------------------------------------
-   function Get_FAT_Size (Boot_Sec : Boot_Sector) return Unsigned_32 is
-   begin
-      return 0;
-   end Get_FAT_Size;
-
-   ----------------------------------------------------------------------------
-   ----------------------------------------------------------------------------
    function Get_Filesystem_Type (Boot_Sec : Boot_Sector) return FAT_Type is
       Total_Sectors : Unsigned_32 := 0;
    begin
       if Boot_Sec.BPB.Total_Sector_Count = 0 then
          Total_Sectors := Boot_Sec.BPB.Large_Sector_Count;
       else
-         Total_Sectors := Boot_Sec.BPB.Total_Sector_Count;
+         Total_Sectors := Unsigned_32 (Boot_Sec.BPB.Total_Sector_Count);
+      end if;
+
+      if Total_Sectors < 10 then
+         return FAT12;
       end if;
 
       return FAT32;

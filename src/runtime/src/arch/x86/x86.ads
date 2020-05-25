@@ -22,26 +22,6 @@ with System;
 package x86 is
    pragma Preelaborate;
 
-   type Kernel_Process_Result is (
-     Failure,
-     Success
-   );
-
-   ----------------------------------------------------------------------------
-   --  Initialise
-   --
-   --  Purpose:
-   --    This procedure initialises the x86 platform.
-   --    This will perform all the necessary system initialisation necessary
-   --    prior to beginning kernel execution.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   procedure Initialise
-   with Export,
-     Convention => Assembler,
-     External_Name => "__system_init";
-
 private
    ----------------------------------------------------------------------------
    --  Last_Chance_Handler
@@ -62,16 +42,4 @@ private
      Convention => C,
      External_Name => "__gnat_last_chance_handler";
 
-   ----------------------------------------------------------------------------
-   --  Protected_Mode_Init
-   --
-   --  Purpose:
-   --    Performs the final jump to protected mode.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   procedure Protected_Mode_Init
-   with Import,
-     Convention    => Assembler,
-     External_Name => "__protected_mode_init";
 end x86;

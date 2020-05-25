@@ -119,12 +119,6 @@ _start:
 	# Initialise Ada runtime.
 	call adainit
 
-	# Initialise the system.
-	# This procedure is defined within the runtime. It performs the initial
-	# initialisation of the x86 platform required by the kernel, such as loading
-	# the GDT/IDT.
-	call __system_init
-
 	# Initialise the kernel.
 	call __kernel_init
 

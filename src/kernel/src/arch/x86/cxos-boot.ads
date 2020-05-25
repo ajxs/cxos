@@ -31,4 +31,18 @@ package Cxos.Boot is
      Convention    => Assembler,
      External_Name => "__kernel_init";
 
+private
+   ----------------------------------------------------------------------------
+   --  Protected_Mode_Init
+   --
+   --  Purpose:
+   --    Performs the final jump to protected mode.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   procedure Protected_Mode_Init
+   with Import,
+     Convention    => Assembler,
+     External_Name => "__protected_mode_init";
+
 end Cxos.Boot;

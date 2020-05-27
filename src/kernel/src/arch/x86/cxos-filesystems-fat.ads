@@ -26,7 +26,8 @@ package Cxos.Filesystems.FAT is
    type FAT_Type is (
      FAT12,
      FAT16,
-     FAT32
+     FAT32,
+     ExFAT
    );
 
    ----------------------------------------------------------------------------
@@ -87,6 +88,7 @@ package Cxos.Filesystems.FAT is
    ----------------------------------------------------------------------------
    type Extended_BIOS_Parameter_Block is
       record
+         BPB                     : BIOS_Parameter_Block;
          Physical_Drive_Number   : Unsigned_8;
          Reserved                : Unsigned_8;
          Extended_Boot_Signature : Unsigned_8;
@@ -94,30 +96,91 @@ package Cxos.Filesystems.FAT is
          Partition_Volume_Label  : Partition_Volume_Label_String;
          File_System_Type        : File_System_Type_String;
       end record
-   with Size => 208;
+   with Size => 408;
    for Extended_BIOS_Parameter_Block use
       record
-         Physical_Drive_Number   at 0 range 0   .. 7;
-         Reserved                at 0 range 8   .. 15;
-         Extended_Boot_Signature at 0 range 16  .. 23;
-         Volume_Id               at 0 range 24  .. 55;
-         Partition_Volume_Label  at 0 range 56  .. 143;
-         File_System_Type        at 0 range 144  .. 207;
+         BPB                     at 0 range 0   .. 199;
+         Physical_Drive_Number   at 0 range 200 .. 207;
+         Reserved                at 0 range 208 .. 215;
+         Extended_Boot_Signature at 0 range 216 .. 223;
+         Volume_Id               at 0 range 224 .. 255;
+         Partition_Volume_Label  at 0 range 256 .. 343;
+         File_System_Type        at 0 range 344 .. 407;
       end record;
+
+   ----------------------------------------------------------------------------
+   ----------------------------------------------------------------------------
+   type FAT32_Volume_Label is array (0 .. 10) of Character;
+
+   ----------------------------------------------------------------------------
+   ----------------------------------------------------------------------------
+   type FAT32_Type_Label is array (0 .. 7) of Character;
+
+   ----------------------------------------------------------------------------
+   ----------------------------------------------------------------------------
+   type FAT32_Reserved_Buffer is array (0 .. 11) of Character;
+
+   ----------------------------------------------------------------------------
+   ----------------------------------------------------------------------------
+   type FAT32_Extended_BIOS_Parameter_Block is
+      record
+         BPB              : BIOS_Parameter_Block;
+         Table_Size       : Unsigned_32;
+         Drive_Desc       : Unsigned_16;
+         Version          : Unsigned_16;
+         Root_Cluster     : Unsigned_32;
+         Info_Sector      : Unsigned_16;
+         Backup_BS_Sector : Unsigned_16;
+         Reserved         : FAT32_Reserved_Buffer;
+         Drive_Number     : Unsigned_8;
+         Reserved_1       : Unsigned_8;
+         Boot_Signature   : Unsigned_8;
+         Volume_ID        : Unsigned_8;
+         Volume_Label     : FAT32_Volume_Label;
+         Type_Label       : FAT32_Type_Label;
+      end record
+   with Size => 610;
+   for FAT32_Extended_BIOS_Parameter_Block use
+      record
+         BPB              at 0 range 0   .. 199;
+         Table_Size       at 0 range 200 .. 231;
+         Drive_Desc       at 0 range 232 .. 247;
+         Version          at 0 range 248 .. 265;
+         Root_Cluster     at 0 range 266 .. 297;
+         Info_Sector      at 0 range 298 .. 313;
+         Backup_BS_Sector at 0 range 314 .. 329;
+         Reserved         at 0 range 330 .. 425;
+         Drive_Number     at 0 range 426 .. 433;
+         Reserved_1       at 0 range 434 .. 441;
+         Boot_Signature   at 0 range 442 .. 449;
+         Volume_ID        at 0 range 450 .. 457;
+         Volume_Label     at 0 range 458 .. 545;
+         Type_Label       at 0 range 546 .. 609;
+      end record;
+
+   ----------------------------------------------------------------------------
+   --  This buffer type represents the space reserved in the FAT boot sector
+   --  for the BIOS Parameter Block.
+   --  This reserved buffer type is used since we will not know ahead of time
+   --  what FAT type we are dealing with, and will need to be able to convert
+   --  between the different BPB types.
+   ----------------------------------------------------------------------------
+   type Reserved_BIOS_Parameter_Block_Buffer is
+     array (Natural range 0 .. 89) of Unsigned_8;
 
    ----------------------------------------------------------------------------
    ----------------------------------------------------------------------------
    type Boot_Sector is
       record
-         Boot_Jump : Boot_Jump_Bytes;
-         OEM_Name  : OEM_Name_Type;
-         BPB       : BIOS_Parameter_Block;
+         Boot_Jump  : Boot_Jump_Bytes;
+         OEM_Name   : OEM_Name_Type;
+         BPB_Buffer : Reserved_BIOS_Parameter_Block_Buffer;
       end record;
    for Boot_Sector use
       record
-         Boot_Jump at 0 range 0  .. 23;
-         OEM_Name  at 0 range 24 .. 87;
-         BPB       at 0 range 88 .. 287;
+         Boot_Jump  at 0 range 0  .. 23;
+         OEM_Name   at 0 range 24 .. 87;
+         BPB_Buffer at 0 range 88 .. 807;
       end record;
 
    ----------------------------------------------------------------------------

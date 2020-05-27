@@ -46,7 +46,7 @@ package body Cxos.Devices is
 
       Read_FS :
          declare
-            use Cxos.Filesystems.FAT;
+            --  use Cxos.Filesystems.FAT;
 
             B_Sec : Cxos.Filesystems.FAT.Boot_Sector
             with Import,
@@ -56,35 +56,35 @@ package body Cxos.Devices is
             Cxos.Debug.Put_String ("" & Chars.LF);
             Cxos.Filesystems.FAT.Print_Filesystem_Info (B_Sec);
 
-            Read_FAT :
-               declare
-                  Target_LBA : ATA_LBA;
-                  FAT_Buf : Cxos.Devices.ATA.ATA_Read_Buffer (0 .. 255);
-               begin
-                  Target_LBA := ATA_LBA (B_Sec.BPB.Reserved_Sector_Count);
-
-                  Result := Cxos.Devices.ATA.Read_ATA_Device (Primary, Slave,
-                    1, Target_LBA, FAT_Buf);
-                  if Result /= Success then
-                     Cxos.Debug.Put_String ("Read Error." & Chars.LF);
-                     return;
-                  end if;
-
-                  Print_FAT :
-                     declare
-                        FAT_Table : FAT12_Table (0 .. 128)
-                        with Import,
-                          Convention => Ada,
-                          Address    => FAT_Buf'Address;
-                     begin
-                        for I in Integer range 0 .. 8 loop
-                           Cxos.Debug.Put_String (I'Image & ": " &
-                             FAT_Table (I)'Image & Chars.LF);
-
-                        end loop;
-                     end Print_FAT;
-
-               end Read_FAT;
+--              Read_FAT :
+--                 declare
+--                    Target_LBA : ATA_LBA;
+--                    FAT_Buf : Cxos.Devices.ATA.ATA_Read_Buffer (0 .. 255);
+--                 begin
+--                    Target_LBA := ATA_LBA (B_Sec.BPB.Reserved_Sector_Count);
+--
+--                    Result := Cxos.Devices.ATA.Read_ATA_Device (Primary,
+            --          Slave, 1, Target_LBA, FAT_Buf);
+--                    if Result /= Success then
+--                       Cxos.Debug.Put_String ("Read Error." & Chars.LF);
+--                       return;
+--                    end if;
+--
+--                    Print_FAT :
+--                       declare
+--                          FAT_Table : FAT12_Table (0 .. 128)
+--                          with Import,
+--                            Convention => Ada,
+--                            Address    => FAT_Buf'Address;
+--                       begin
+--                          for I in Integer range 0 .. 8 loop
+--                             Cxos.Debug.Put_String (I'Image & ": " &
+--                               FAT_Table (I)'Image & Chars.LF);
+--
+--                          end loop;
+--                       end Print_FAT;
+--
+--                 end Read_FAT;
          end Read_FS;
 
    exception

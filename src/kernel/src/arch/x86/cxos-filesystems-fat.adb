@@ -20,9 +20,13 @@ package body Cxos.Filesystems.FAT is
         Convention => Ada,
         Address    => Boot_Sec.BPB_Buffer'Address;
 
+      --  The size of the FAT table.
       FAT_Size       : Unsigned_32 := 0;
+      --  The total number of sectors.
       Total_Sectors  : Unsigned_32 := 0;
+      --  The number of data sectors.
       Data_Sectors   : Unsigned_32 := 0;
+      --  Total clusters.
       Total_Clusters : Unsigned_32 := 0;
    begin
       if EBPB.BPB.Table_Size = 0 then

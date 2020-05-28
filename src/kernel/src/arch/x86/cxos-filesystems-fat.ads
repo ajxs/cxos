@@ -22,6 +22,16 @@ package Cxos.Filesystems.FAT is
    pragma Preelaborate;
 
    ----------------------------------------------------------------------------
+   --  Program status type.
+   --  Used to track the results of functions.
+   ----------------------------------------------------------------------------
+   type Program_Status is (
+     Failure,
+     Success
+   );
+
+   ----------------------------------------------------------------------------
+   --  The type of FAT filesystem.
    ----------------------------------------------------------------------------
    type FAT_Type is (
      FAT12,

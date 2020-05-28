@@ -27,10 +27,8 @@ ISO             := ${ISO_DIR}/build/cxos.img
 
 SERIAL_FILENAME := serial.log
 
-TEST_DISK_IMG      := ../test.fat
-TEST_DISK_IMG_SIZE := 2880
-
-TEST_DRV_IMG       := ../test2.fat
+TEST_DISK_DIR   := "util/test_disk"
+TEST_DISK_IMG   := "${TEST_DISK_DIR}/test_fat16.img"
 
 QEMU_FLAGS :=                                  \
 	-accel tcg,thread=single                     \
@@ -45,7 +43,7 @@ QEMU_FLAGS :=                                  \
 	-usb                                         \
 	-vga std
 
-all: ${ISO} ${TEST_DISK_IMG} ${TEST_DRV_IMG}
+all: ${ISO} ${TEST_DISK_IMG}
 
 ${ISO}: ${KERNEL_BINARY} ${BUILD_DIR}
 	make -C "${ISO_DIR}"
@@ -56,8 +54,7 @@ clean:
 	make clean -C "${ISO_DIR}"
 	make clean -C "${KERNEL_DIR}"
 	make clean -C "${RUNTIME_DIR}"
-	rm -f ${TEST_DISK_IMG}
-	rm -f ${TEST_DRV_IMG}
+	make clean -C "${TEST_DISK_DIR}"
 
 debug: ${ISO}
 	qemu-system-i386                               \
@@ -92,11 +89,4 @@ ${BUILD_DIR}:
 	mkdir -p ${BUILD_DIR}
 
 ${TEST_DISK_IMG}:
-	dd if=/dev/zero of=${TEST_DISK_IMG} bs=1k count=${TEST_DISK_IMG_SIZE}
-	mformat -i ${TEST_DISK_IMG} -f ${TEST_DISK_IMG_SIZE} ::
-	mcopy -i ${TEST_DISK_IMG} README.md ::/README.md
-
-${TEST_DRV_IMG}:
-	dd if=/dev/zero of=${TEST_DRV_IMG} count=1 bs=1M
-	mkfs.fat -F 16 ${TEST_DRV_IMG}
-	mcopy -i ${TEST_DRV_IMG} README.md ::/README.md
+	make -C ${TEST_DISK_DIR}

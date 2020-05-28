@@ -5,8 +5,13 @@ package body Cxos.Filesystems.FAT is
    package Chars renames Ada.Characters.Latin_1;
 
    ----------------------------------------------------------------------------
+   --  Get_Filesystem_Type
    ----------------------------------------------------------------------------
-   function Get_Filesystem_Type (Boot_Sec : Boot_Sector) return FAT_Type is
+   procedure Get_Filesystem_Type (
+     Boot_Sec :     Boot_Sector;
+     FAT_Type : out FAT_Type_T;
+     Status   : out Program_Status
+   ) is
       --  The extended BIOS parameter block, if the filesystem is FAT12/16.
       EBPB : Extended_BIOS_Parameter_Block
       with Import,
@@ -29,6 +34,8 @@ package body Cxos.Filesystems.FAT is
       --  Total clusters.
       Total_Clusters : Unsigned_32 := 0;
    begin
+      Status := Success;
+
       if EBPB.BPB.Table_Size = 0 then
          FAT_Size := FAT32_EBPB.Table_Size;
       else
@@ -49,17 +56,17 @@ package body Cxos.Filesystems.FAT is
         Unsigned_32 (EBPB.BPB.Sectors_Per_Cluster);
 
       if Total_Clusters < 4085 then
-         return FAT12;
+         FAT_Type := FAT12;
       elsif Total_Clusters < 65525 then
-         return FAT16;
+         FAT_Type := FAT16;
       elsif Total_Clusters < 268435445 then
-         return FAT32;
+         FAT_Type := FAT32;
+      else
+         FAT_Type := ExFAT;
       end if;
-
-      return ExFAT;
    exception
       when Constraint_Error =>
-         return FAT32;
+         Status := Failure;
    end Get_Filesystem_Type;
 
    ----------------------------------------------------------------------------
@@ -73,9 +80,13 @@ package body Cxos.Filesystems.FAT is
         Convention => Ada,
         Address    => Boot_Sec.BPB_Buffer'Address;
 
-      Filesystem_Type : FAT_Type := FAT12;
+      Filesystem_Type : FAT_Type_T := FAT12;
+      Status          : Program_Status;
    begin
-      Filesystem_Type := Get_Filesystem_Type (Boot_Sec);
+      Get_Filesystem_Type (Boot_Sec, Filesystem_Type, Status);
+      if Status /= Success then
+         return;
+      end if;
 
       Put_String ("FAT Filesystem:" & Chars.LF);
 

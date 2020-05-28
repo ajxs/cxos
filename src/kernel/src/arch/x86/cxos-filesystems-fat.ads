@@ -33,7 +33,7 @@ package Cxos.Filesystems.FAT is
    ----------------------------------------------------------------------------
    --  The type of FAT filesystem.
    ----------------------------------------------------------------------------
-   type FAT_Type is (
+   type FAT_Type_T is (
      FAT12,
      FAT16,
      FAT32,
@@ -227,7 +227,15 @@ package Cxos.Filesystems.FAT is
    procedure Print_Filesystem_Info (Boot_Sec : Boot_Sector);
 
    ----------------------------------------------------------------------------
+   --  Get_Filesystem_Type
+   --
+   --  Purpose:
+   --    Gets the type of a FAT filesystem.
    ----------------------------------------------------------------------------
-   function Get_Filesystem_Type (Boot_Sec : Boot_Sector) return FAT_Type;
+   procedure Get_Filesystem_Type (
+     Boot_Sec :     Boot_Sector;
+     FAT_Type : out FAT_Type_T;
+     Status   : out Program_Status
+   );
 
 end Cxos.Filesystems.FAT;

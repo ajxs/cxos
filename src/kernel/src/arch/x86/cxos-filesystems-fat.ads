@@ -41,16 +41,21 @@ package Cxos.Filesystems.FAT is
    );
 
    ----------------------------------------------------------------------------
+   --  Boot jump bytest type.
+   --  Contains the filesystem's boot jump bytes.
    ----------------------------------------------------------------------------
-   type Boot_Jump_Bytes is
+   type Boot_Jump_Bytes_T is
      array (1 .. 3) of Unsigned_8;
 
    ----------------------------------------------------------------------------
+   --  OEM name type.
    ----------------------------------------------------------------------------
-   type OEM_Name_Type is
+   type OEM_Name_T is
      array (1 .. 8) of Character;
 
    ----------------------------------------------------------------------------
+   --  The BIOS parameter block.
+   --  Represents a DOS 3.31 BPB type.
    ----------------------------------------------------------------------------
    type BIOS_Parameter_Block is
       record
@@ -85,16 +90,20 @@ package Cxos.Filesystems.FAT is
       end record;
 
    ----------------------------------------------------------------------------
+   --  Partition volume label string type.
    ----------------------------------------------------------------------------
    type Partition_Volume_Label_String is
      array (1 .. 11) of Character;
 
    ----------------------------------------------------------------------------
+   --  File system type string.
    ----------------------------------------------------------------------------
    type File_System_Type_String is
      array (1 .. 8) of Character;
 
    ----------------------------------------------------------------------------
+   --  Extended BIOS parameter block.
+   --  Used in FAT12/FAT16 filesystems.
    ----------------------------------------------------------------------------
    type Extended_BIOS_Parameter_Block is
       record
@@ -119,18 +128,22 @@ package Cxos.Filesystems.FAT is
       end record;
 
    ----------------------------------------------------------------------------
+   --  The volume label used in FAT32 BPBs.
    ----------------------------------------------------------------------------
    type FAT32_Volume_Label is array (0 .. 10) of Character;
 
    ----------------------------------------------------------------------------
+   --  The type label used in FAT32 BPBs.
    ----------------------------------------------------------------------------
    type FAT32_Type_Label is array (0 .. 7) of Character;
 
    ----------------------------------------------------------------------------
+   --  Reserved area in the FAT 32 BPB.
    ----------------------------------------------------------------------------
    type FAT32_Reserved_Buffer is array (0 .. 11) of Character;
 
    ----------------------------------------------------------------------------
+   --  FAT32 Extended BIOS Parameter Block type.
    ----------------------------------------------------------------------------
    type FAT32_Extended_BIOS_Parameter_Block is
       record
@@ -179,11 +192,14 @@ package Cxos.Filesystems.FAT is
      array (Natural range 0 .. 89) of Unsigned_8;
 
    ----------------------------------------------------------------------------
+   --  Type representing the boot sector in a FAT formatted device.
+   --  This contains the BIOS Parameter Block typed as a blank buffer which
+   --  can be cast to the relevant type depending on the FAT version.
    ----------------------------------------------------------------------------
    type Boot_Sector is
       record
-         Boot_Jump  : Boot_Jump_Bytes;
-         OEM_Name   : OEM_Name_Type;
+         Boot_Jump  : Boot_Jump_Bytes_T;
+         OEM_Name   : OEM_Name_T;
          BPB_Buffer : Reserved_BIOS_Parameter_Block_Buffer;
       end record;
    for Boot_Sector use
@@ -194,35 +210,116 @@ package Cxos.Filesystems.FAT is
       end record;
 
    ----------------------------------------------------------------------------
+   --  An entry in a FAT12 formatted table.
    ----------------------------------------------------------------------------
    type FAT12_Table_Entry is mod 2 ** 12
    with Size => 12;
 
    ----------------------------------------------------------------------------
+   --  The file allocation table in a FAT12 formatted device.
    ----------------------------------------------------------------------------
    type FAT12_Table is
      array (Natural range <>) of FAT12_Table_Entry
      with Pack;
 
    ----------------------------------------------------------------------------
+   --  An entry into a FAT16 formatted table.
    ----------------------------------------------------------------------------
    type FAT16_Table_Entry is new Unsigned_16;
 
    ----------------------------------------------------------------------------
+   --  The file allocation table in a FAT16 formatted device.
    ----------------------------------------------------------------------------
    type FAT16_Table is
-     array (Natural range <>) of FAT16_Table_Entry;
+     array (Natural range <>) of FAT16_Table_Entry
+     with Pack;
 
    ----------------------------------------------------------------------------
+   ----------------------------------------------------------------------------
+   type File_Name_Entry is array (0 .. 10) of Character;
+
+   ----------------------------------------------------------------------------
+   ----------------------------------------------------------------------------
+   type Directory_Entry is
+      record
+         File_Name          : File_Name_Entry;
+         Attributes         : Unsigned_8;
+         Reserved           : Unsigned_8;
+         Creation_Seconds   : Unsigned_8;
+         Creation_Time      : Unsigned_16;
+         Creation_Date      : Unsigned_16;
+         Last_Accessed_Date : Unsigned_16;
+         First_Cluster_High : Unsigned_16;
+         Last_Modified_Time : Unsigned_16;
+         Last_Modified_Date : Unsigned_16;
+         First_Cluster_Low  : Unsigned_16;
+         File_Size          : Unsigned_32;
+      end record
+   with Size => 256;
+   for Directory_Entry use
+      record
+         File_Name          at 0 range 0   .. 87;
+         Attributes         at 0 range 88  .. 95;
+         Reserved           at 0 range 96  .. 103;
+         Creation_Seconds   at 0 range 104 .. 111;
+         Creation_Time      at 0 range 112 .. 127;
+         Creation_Date      at 0 range 128 .. 143;
+         Last_Accessed_Date at 0 range 144 .. 159;
+         First_Cluster_High at 0 range 160 .. 175;
+         Last_Modified_Time at 0 range 176 .. 191;
+         Last_Modified_Date at 0 range 192 .. 207;
+         First_Cluster_Low  at 0 range 208 .. 223;
+         File_Size          at 0 range 224 .. 255;
+      end record;
+
+   ----------------------------------------------------------------------------
+   ----------------------------------------------------------------------------
+   type Long_File_Name_String is array (Natural range <>) of Wide_Character
+   with Component_Size => 16;
+
+   ----------------------------------------------------------------------------
+   ----------------------------------------------------------------------------
+   type Long_File_Name_Entry is
+      record
+         Order         : Unsigned_8;
+         Name_1        : Long_File_Name_String (0 .. 4);
+         Attributes    : Unsigned_8;
+         Entry_Type    : Unsigned_8;
+         Checksum      : Unsigned_8;
+         Name_2        : Long_File_Name_String (0 .. 5);
+         First_Cluster : Unsigned_16;
+         Name_3        : Long_File_Name_String (0 .. 1);
+      end record
+   with Size => 256;
+   for Long_File_Name_Entry use
+      record
+         Order         at 0 range 0   .. 7;
+         Name_1        at 0 range 8   .. 87;
+         Attributes    at 0 range 88  .. 95;
+         Entry_Type    at 0 range 96  .. 103;
+         Checksum      at 0 range 104 .. 111;
+         Name_2        at 0 range 112 .. 207;
+         First_Cluster at 0 range 208 .. 223;
+         Name_3        at 0 range 224 .. 255;
+      end record;
+
+   ----------------------------------------------------------------------------
+   --  An entry into a FAT32 formatted table.
    ----------------------------------------------------------------------------
    type FAT32_Table_Entry is new Unsigned_32;
 
    ----------------------------------------------------------------------------
+   --  The file allocation table in a FAT32 formatted device.
    ----------------------------------------------------------------------------
    type FAT32_Table is
-     array (Natural range <>) of aliased FAT32_Table_Entry;
+     array (Natural range <>) of aliased FAT32_Table_Entry
+     with Pack;
 
    ----------------------------------------------------------------------------
+   --  Print_Filesystem_Info
+   --
+   --  Purpose:
+   --    Prints information about a FAT formatted device.
    ----------------------------------------------------------------------------
    procedure Print_Filesystem_Info (Boot_Sec : Boot_Sector);
 

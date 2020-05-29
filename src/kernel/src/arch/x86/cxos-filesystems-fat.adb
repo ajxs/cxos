@@ -70,6 +70,7 @@ package body Cxos.Filesystems.FAT is
    end Get_Filesystem_Type;
 
    ----------------------------------------------------------------------------
+   --  Print_Filesystem_Info
    ----------------------------------------------------------------------------
    procedure Print_Filesystem_Info (Boot_Sec : Boot_Sector) is
       use Cxos.Debug;
@@ -80,11 +81,14 @@ package body Cxos.Filesystems.FAT is
         Convention => Ada,
         Address    => Boot_Sec.BPB_Buffer'Address;
 
+      --  The type of this FAT filesystem.
       Filesystem_Type : FAT_Type_T := FAT12;
+      --  The status of internal operations.
       Status          : Program_Status;
    begin
       Get_Filesystem_Type (Boot_Sec, Filesystem_Type, Status);
       if Status /= Success then
+         Put_String ("Error getting FAT device filesystem type" & Chars.LF);
          return;
       end if;
 

@@ -18,6 +18,7 @@ with x86.ATA;
 
 package body Cxos.Devices is
    package Chars renames Ada.Characters.Latin_1;
+   procedure Debug_Print (Data : String) renames Cxos.Debug.Put_String;
 
    ----------------------------------------------------------------------------
    --  Initialise
@@ -40,21 +41,30 @@ package body Cxos.Devices is
       Result := Cxos.Devices.ATA.Read_ATA_Device (Primary, Slave,
         1, 0, Read_Buf);
       if Result /= Success then
-         Cxos.Debug.Put_String ("Read Error." & Ada.Characters.Latin_1.LF);
+         Debug_Print ("Read Error." & Ada.Characters.Latin_1.LF);
          return;
       end if;
 
       Read_FS :
          declare
-            --  use Cxos.Filesystems.FAT;
+            use Cxos.Filesystems.FAT;
+
+            FAT_Type : FAT_Type_T := FAT12;
+
+            Status   : Cxos.Filesystems.FAT.Program_Status;
 
             B_Sec : Cxos.Filesystems.FAT.Boot_Sector
             with Import,
               Convention => Ada,
               Address    => Read_Buf'Address;
          begin
-            Cxos.Debug.Put_String ("" & Chars.LF);
+            Debug_Print ("" & Chars.LF);
             Cxos.Filesystems.FAT.Print_Filesystem_Info (B_Sec);
+
+            Get_Filesystem_Type (B_Sec, FAT_Type, Status);
+            if Status /= Success then
+               Debug_Print ("Error getting filesystem type" & Chars.LF);
+            end if;
 
 --              Read_FAT :
 --                 declare
@@ -66,7 +76,7 @@ package body Cxos.Devices is
 --                    Result := Cxos.Devices.ATA.Read_ATA_Device (Primary,
             --          Slave, 1, Target_LBA, FAT_Buf);
 --                    if Result /= Success then
---                       Cxos.Debug.Put_String ("Read Error." & Chars.LF);
+--                       Debug_Print ("Read Error." & Chars.LF);
 --                       return;
 --                    end if;
 --
@@ -78,7 +88,7 @@ package body Cxos.Devices is
 --                            Address    => FAT_Buf'Address;
 --                       begin
 --                          for I in Integer range 0 .. 8 loop
---                             Cxos.Debug.Put_String (I'Image & ": " &
+--                             Debug_Print (I'Image & ": " &
 --                               FAT_Table (I)'Image & Chars.LF);
 --
 --                          end loop;
@@ -89,8 +99,7 @@ package body Cxos.Devices is
 
    exception
       when Constraint_Error =>
-         Cxos.Debug.Put_String ("Constraint Error" &
-           Ada.Characters.Latin_1.LF);
+         Debug_Print ("Constraint Error" & Chars.LF);
          return;
    end Initialise;
 

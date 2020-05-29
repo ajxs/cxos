@@ -15,6 +15,7 @@ with Cxos.Debug;
 package body Cxos.Devices.PCI is
    use x86.PCI;
    package Chars renames Ada.Characters.Latin_1;
+   procedure Debug_Print (Data : String) renames Cxos.Debug.Put_String;
 
    ----------------------------------------------------------------------------
    --  Find_Pci_Devices
@@ -29,7 +30,7 @@ package body Cxos.Devices.PCI is
       --  Whether debug device info should be printed to serial out.
       PRINT_INFO  : constant Boolean := True;
    begin
-      Cxos.Debug.Put_String ("Testing PCI Bus" & Chars.LF &
+      Debug_Print ("Testing PCI Bus" & Chars.LF &
         "------------------------" & Chars.LF);
 
       for Bus in Unsigned_8 range 0 .. 255 loop
@@ -39,8 +40,7 @@ package body Cxos.Devices.PCI is
                   --  Test the individual PCI address.
                   Result := Test_Pci_Device (Test_Result, Bus, Device, Func);
                   if Result /= Success then
-                     Cxos.Debug.Put_String ("Error testing PCI device"
-                       & Chars.LF);
+                     Debug_Print ("Error testing PCI device" & Chars.LF);
                      return Unhandled_Exception;
                   end if;
 
@@ -48,8 +48,7 @@ package body Cxos.Devices.PCI is
                      Result := Read_Pci_Device (Device_Info, Bus,
                        Device, Func);
                      if Result /= Success then
-                        Cxos.Debug.Put_String ("Error reading PCI device" &
-                          Chars.LF);
+                        Debug_Print ("Error reading PCI device" & Chars.LF);
                         return Unhandled_Exception;
                      end if;
 
@@ -81,185 +80,179 @@ package body Cxos.Devices.PCI is
       Device : Pci_Device
    ) is
    begin
-      Cxos.Debug.Put_String ("Device:" & Chars.LF);
-      Cxos.Debug.Put_String ("  Bus:       "
-        & Device.Bus_Number'Image & Chars.LF);
-      Cxos.Debug.Put_String ("  Device:    "
-        & Device.Device_Number'Image & Chars.LF);
-      Cxos.Debug.Put_String ("  Function:  "
-        & Device.Function_Number'Image & Chars.LF);
-      Cxos.Debug.Put_String ("  Vendor ID: "
-        & Device.Vendor_Id'Image & Chars.LF);
-      Cxos.Debug.Put_String ("  Device ID: "
-        & Device.Device_Id'Image & Chars.LF);
-      Cxos.Debug.Put_String ("  Class:     ");
+      Debug_Print ("Device:" & Chars.LF);
+      Debug_Print ("  Bus:       " & Device.Bus_Number'Image & Chars.LF);
+      Debug_Print ("  Device:    " & Device.Device_Number'Image & Chars.LF);
+      Debug_Print ("  Function:  " & Device.Function_Number'Image & Chars.LF);
+      Debug_Print ("  Vendor ID: " & Device.Vendor_Id'Image & Chars.LF);
+      Debug_Print ("  Device ID: " & Device.Device_Id'Image & Chars.LF);
+      Debug_Print ("  Class:     ");
       case Device.Device_Class is
          when 1 =>
-            Cxos.Debug.Put_String (" Mass Storage Controller" & Chars.LF);
-            Cxos.Debug.Put_String ("  Subclass:   ");
+            Debug_Print (" Mass Storage Controller" & Chars.LF);
+            Debug_Print ("  Subclass:   ");
             case Device.Subclass is
                when 0 =>
-                  Cxos.Debug.Put_String ("SCSI Bus Controller" & Chars.LF);
+                  Debug_Print ("SCSI Bus Controller" & Chars.LF);
                when 1 =>
-                  Cxos.Debug.Put_String ("IDE Controller" & Chars.LF);
+                  Debug_Print ("IDE Controller" & Chars.LF);
                when 2 =>
-                  Cxos.Debug.Put_String ("Floppy Disk Controller" & Chars.LF);
+                  Debug_Print ("Floppy Disk Controller" & Chars.LF);
                when 3 =>
-                  Cxos.Debug.Put_String ("IPI Bus Controller" & Chars.LF);
+                  Debug_Print ("IPI Bus Controller" & Chars.LF);
                when 4 =>
-                  Cxos.Debug.Put_String ("RAID Controller" & Chars.LF);
+                  Debug_Print ("RAID Controller" & Chars.LF);
                when 5 =>
-                  Cxos.Debug.Put_String ("ATA Controller" & Chars.LF);
+                  Debug_Print ("ATA Controller" & Chars.LF);
                when 6 =>
-                  Cxos.Debug.Put_String ("Serial ATA" & Chars.LF);
+                  Debug_Print ("Serial ATA" & Chars.LF);
                when 7 =>
-                  Cxos.Debug.Put_String ("Serial Attached SCSI" & Chars.LF);
+                  Debug_Print ("Serial Attached SCSI" & Chars.LF);
                when 8 =>
-                  Cxos.Debug.Put_String ("Non-Volatile Memory Controller"
+                  Debug_Print ("Non-Volatile Memory Controller"
                     & Chars.LF);
                when 16#80# =>
-                  Cxos.Debug.Put_String ("Other" & Chars.LF);
+                  Debug_Print ("Other" & Chars.LF);
                when others =>
-                  Cxos.Debug.Put_String ("Unknown: "
+                  Debug_Print ("Unknown: "
                     & Device.Subclass'Image & Chars.LF);
             end case;
          when 2 =>
-            Cxos.Debug.Put_String (" Network Controller" & Chars.LF);
-            Cxos.Debug.Put_String ("  Subclass:   ");
+            Debug_Print (" Network Controller" & Chars.LF);
+            Debug_Print ("  Subclass:   ");
             case Device.Subclass is
                when 0 =>
-                  Cxos.Debug.Put_String ("Ethernet Controller" & Chars.LF);
+                  Debug_Print ("Ethernet Controller" & Chars.LF);
                when 1 =>
-                  Cxos.Debug.Put_String ("Token Ring Controller" & Chars.LF);
+                  Debug_Print ("Token Ring Controller" & Chars.LF);
                when 2 =>
-                  Cxos.Debug.Put_String ("FDDI Controller" & Chars.LF);
+                  Debug_Print ("FDDI Controller" & Chars.LF);
                when 3 =>
-                  Cxos.Debug.Put_String ("ATM Controller" & Chars.LF);
+                  Debug_Print ("ATM Controller" & Chars.LF);
                when 4 =>
-                  Cxos.Debug.Put_String ("ISDN Controller" & Chars.LF);
+                  Debug_Print ("ISDN Controller" & Chars.LF);
                when 5 =>
-                  Cxos.Debug.Put_String ("WorldFip Controller" & Chars.LF);
+                  Debug_Print ("WorldFip Controller" & Chars.LF);
                when 6 =>
-                  Cxos.Debug.Put_String ("PICMG 2.14" & Chars.LF);
+                  Debug_Print ("PICMG 2.14" & Chars.LF);
                when 7 =>
-                  Cxos.Debug.Put_String ("Infiniband Controller" & Chars.LF);
+                  Debug_Print ("Infiniband Controller" & Chars.LF);
                when 8 =>
-                  Cxos.Debug.Put_String ("Fabric Controller" & Chars.LF);
+                  Debug_Print ("Fabric Controller" & Chars.LF);
                when 16#80# =>
-                  Cxos.Debug.Put_String ("Other" & Chars.LF);
+                  Debug_Print ("Other" & Chars.LF);
                when others =>
-                  Cxos.Debug.Put_String ("Unknown: "
-                    & Device.Subclass'Image & Chars.LF);
+                  Debug_Print ("Unknown: " & Device.Subclass'Image & Chars.LF);
             end case;
          when 3 =>
-            Cxos.Debug.Put_String (" VGA Controller" & Chars.LF);
-            Cxos.Debug.Put_String ("  Subclass:   ");
+            Debug_Print (" VGA Controller" & Chars.LF);
+            Debug_Print ("  Subclass:   ");
             case Device.Subclass is
                when 0 =>
-                  Cxos.Debug.Put_String ("VGA Compatible" & Chars.LF);
+                  Debug_Print ("VGA Compatible" & Chars.LF);
                when 1 =>
-                  Cxos.Debug.Put_String ("XSA Controller" & Chars.LF);
+                  Debug_Print ("XSA Controller" & Chars.LF);
                when 2 =>
-                  Cxos.Debug.Put_String ("3D Controller" & Chars.LF);
+                  Debug_Print ("3D Controller" & Chars.LF);
                when 16#80# =>
-                  Cxos.Debug.Put_String ("Other" & Chars.LF);
+                  Debug_Print ("Other" & Chars.LF);
                when others =>
-                  Cxos.Debug.Put_String ("Unknown: "
+                  Debug_Print ("Unknown: "
                     & Device.Subclass'Image & Chars.LF);
             end case;
          when 6 =>
-            Cxos.Debug.Put_String (" Bridge Device" & Chars.LF);
-            Cxos.Debug.Put_String ("  Subclass:   ");
+            Debug_Print (" Bridge Device" & Chars.LF);
+            Debug_Print ("  Subclass:   ");
             case Device.Subclass is
                when 0 =>
-                  Cxos.Debug.Put_String ("Host Bridge" & Chars.LF);
+                  Debug_Print ("Host Bridge" & Chars.LF);
                when 1 =>
-                  Cxos.Debug.Put_String ("ISA Bridge" & Chars.LF);
+                  Debug_Print ("ISA Bridge" & Chars.LF);
                when 2 =>
-                  Cxos.Debug.Put_String ("EISA Bridge" & Chars.LF);
+                  Debug_Print ("EISA Bridge" & Chars.LF);
                when 3 =>
-                  Cxos.Debug.Put_String ("MCA Bridge" & Chars.LF);
+                  Debug_Print ("MCA Bridge" & Chars.LF);
                when 4 =>
-                  Cxos.Debug.Put_String ("PCI-to-PCI Bridge" & Chars.LF);
+                  Debug_Print ("PCI-to-PCI Bridge" & Chars.LF);
                when 5 =>
-                  Cxos.Debug.Put_String ("PCMCIA Bridge" & Chars.LF);
+                  Debug_Print ("PCMCIA Bridge" & Chars.LF);
                when 6 =>
-                  Cxos.Debug.Put_String ("NuBus Bridge" & Chars.LF);
+                  Debug_Print ("NuBus Bridge" & Chars.LF);
                when 7 =>
-                  Cxos.Debug.Put_String ("CardBus Bridge" & Chars.LF);
+                  Debug_Print ("CardBus Bridge" & Chars.LF);
                when 8 =>
-                  Cxos.Debug.Put_String ("RACEway Bridge" & Chars.LF);
+                  Debug_Print ("RACEway Bridge" & Chars.LF);
                when 9 =>
-                  Cxos.Debug.Put_String ("PCI-to-PCI Bridge" & Chars.LF);
+                  Debug_Print ("PCI-to-PCI Bridge" & Chars.LF);
                when 10 =>
-                  Cxos.Debug.Put_String ("InfiniBand Bridge" & Chars.LF);
+                  Debug_Print ("InfiniBand Bridge" & Chars.LF);
                when 16#80# =>
-                  Cxos.Debug.Put_String ("Other" & Chars.LF);
+                  Debug_Print ("Other" & Chars.LF);
                when others =>
-                  Cxos.Debug.Put_String ("Unknown: "
+                  Debug_Print ("Unknown: "
                     & Device.Subclass'Image & Chars.LF);
             end case;
          when 12 =>
-            Cxos.Debug.Put_String (" Serial Bus Controller" & Chars.LF);
-            Cxos.Debug.Put_String ("  Subclass:   ");
+            Debug_Print (" Serial Bus Controller" & Chars.LF);
+            Debug_Print ("  Subclass:   ");
             case Device.Subclass is
                when 0 =>
-                  Cxos.Debug.Put_String ("Firewire Controller" & Chars.LF);
+                  Debug_Print ("Firewire Controller" & Chars.LF);
                when 1 =>
-                  Cxos.Debug.Put_String ("ACCESS Bus" & Chars.LF);
+                  Debug_Print ("ACCESS Bus" & Chars.LF);
                when 2 =>
-                  Cxos.Debug.Put_String ("SSA" & Chars.LF);
+                  Debug_Print ("SSA" & Chars.LF);
                when 3 =>
-                  Cxos.Debug.Put_String ("USB Controller" & Chars.LF);
+                  Debug_Print ("USB Controller" & Chars.LF);
                when 4 =>
-                  Cxos.Debug.Put_String ("Fibre Channel" & Chars.LF);
+                  Debug_Print ("Fibre Channel" & Chars.LF);
                when 5 =>
-                  Cxos.Debug.Put_String ("SMBus" & Chars.LF);
+                  Debug_Print ("SMBus" & Chars.LF);
                when 6 =>
-                  Cxos.Debug.Put_String ("InfiniBand" & Chars.LF);
+                  Debug_Print ("InfiniBand" & Chars.LF);
                when 7 =>
-                  Cxos.Debug.Put_String ("IPMI Interface" & Chars.LF);
+                  Debug_Print ("IPMI Interface" & Chars.LF);
                when 8 =>
-                  Cxos.Debug.Put_String ("Sercos Interface" & Chars.LF);
+                  Debug_Print ("Sercos Interface" & Chars.LF);
                when 9 =>
-                  Cxos.Debug.Put_String ("CANbus" & Chars.LF);
+                  Debug_Print ("CANbus" & Chars.LF);
                when 16#80# =>
-                  Cxos.Debug.Put_String ("Other" & Chars.LF);
+                  Debug_Print ("Other" & Chars.LF);
                when others =>
-                  Cxos.Debug.Put_String ("Unknown: "
+                  Debug_Print ("Unknown: "
                     & Device.Subclass'Image & Chars.LF);
             end case;
          when others =>
-            Cxos.Debug.Put_String (Device.Device_Class'Image & Chars.LF);
-            Cxos.Debug.Put_String ("  Subclass:  "
+            Debug_Print (Device.Device_Class'Image & Chars.LF);
+            Debug_Print ("  Subclass:  "
               & Device.Subclass'Image & Chars.LF);
       end case;
-      Cxos.Debug.Put_String ("  Header:    "
+      Debug_Print ("  Header:    "
         & Device.Header_Type'Image & Chars.LF);
 
       --  Print additional information based on header type.
       case (Device.Header_Type and 16#7F#) is
          when 0 =>
-            Cxos.Debug.Put_String ("  BAR0:      "
+            Debug_Print ("  BAR0:      "
               & Device.BAR0'Image & Chars.LF);
-            Cxos.Debug.Put_String ("  BAR1:      "
+            Debug_Print ("  BAR1:      "
               & Device.BAR1'Image & Chars.LF);
-            Cxos.Debug.Put_String ("  BAR2:      "
+            Debug_Print ("  BAR2:      "
               & Device.BAR2'Image & Chars.LF);
-            Cxos.Debug.Put_String ("  BAR3:      "
+            Debug_Print ("  BAR3:      "
               & Device.BAR3'Image & Chars.LF);
-            Cxos.Debug.Put_String ("  BAR4:      "
+            Debug_Print ("  BAR4:      "
               & Device.BAR4'Image & Chars.LF);
-            Cxos.Debug.Put_String ("  BAR5:      "
+            Debug_Print ("  BAR5:      "
               & Device.BAR5'Image & Chars.LF);
          when others =>
             null;
       end case;
 
-      Cxos.Debug.Put_String ("------------------------" & Chars.LF);
+      Debug_Print ("------------------------" & Chars.LF);
    exception
       when Constraint_Error =>
-         Cxos.Debug.Put_String ("Error printing device: " &
+         Debug_Print ("Error printing device: " &
            "Invalid Value Encountered" & Chars.LF);
          return;
    end Print_Pci_Device;

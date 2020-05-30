@@ -274,8 +274,7 @@ package Cxos.Filesystems.FAT is
 
    ----------------------------------------------------------------------------
    ----------------------------------------------------------------------------
-   type Long_File_Name_String is array (Natural range <>) of Wide_Character
-   with Component_Size => 16;
+   type Long_File_Name_String is array (Natural range <>) of Wide_Character;
 
    ----------------------------------------------------------------------------
    ----------------------------------------------------------------------------
@@ -335,4 +334,10 @@ package Cxos.Filesystems.FAT is
      Status   : out Program_Status
    );
 
+   ----------------------------------------------------------------------------
+   --  Read_Root_Directory
+   ----------------------------------------------------------------------------
+   procedure Read_Root_Directory (
+     Status   : out Program_Status
+   );
 end Cxos.Filesystems.FAT;

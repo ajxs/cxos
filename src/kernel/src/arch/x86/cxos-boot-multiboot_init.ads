@@ -20,7 +20,7 @@ with System;
 --    multiboot information structures provided at system init by the
 --    bootloader.
 -------------------------------------------------------------------------------
-package Cxos.Boot.Multiboot_Init is
+private package Cxos.Boot.Multiboot_Init is
    pragma Preelaborate;
 
    ----------------------------------------------------------------------------

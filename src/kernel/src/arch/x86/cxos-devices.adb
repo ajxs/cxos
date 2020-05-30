@@ -66,6 +66,28 @@ package body Cxos.Devices is
                Debug_Print ("Error getting filesystem type" & Chars.LF);
             end if;
 
+            Read_Directory :
+            declare
+               Target_LBA : ATA_LBA;
+               FAT_Buf    : Cxos.Devices.ATA.ATA_Read_Buffer (0 .. 1023);
+
+               --  The extended BIOS parameter block.
+               EBPB : Extended_BIOS_Parameter_Block
+               with Import,
+                 Convention => Ada,
+                 Address    => B_Sec.BPB_Buffer'Address;
+            begin
+               Target_LBA := 6;
+
+               Result := Cxos.Devices.ATA.Read_ATA_Device (Primary,
+                 Slave, 4, Target_LBA, FAT_Buf);
+               if Result /= Success then
+                  Debug_Print ("Read Error." & Chars.LF);
+                  return;
+               end if;
+
+            end Read_Directory;
+
 --              Read_FAT :
 --                 declare
 --                    Target_LBA : ATA_LBA;

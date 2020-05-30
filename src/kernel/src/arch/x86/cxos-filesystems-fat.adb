@@ -150,4 +150,14 @@ package body Cxos.Filesystems.FAT is
          return;
    end Print_Filesystem_Info;
 
+   ----------------------------------------------------------------------------
+   --  Read_Root_Directory
+   ----------------------------------------------------------------------------
+   procedure Read_Root_Directory (
+     Status   : out Program_Status
+   ) is
+   begin
+      Status := Success;
+   end Read_Root_Directory;
+
 end Cxos.Filesystems.FAT;

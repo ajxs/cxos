@@ -10,6 +10,7 @@
 -------------------------------------------------------------------------------
 
 with Ada.Characters.Latin_1;
+with Interfaces;
 with Cxos.Debug;
 with Cxos.Devices.ATA;
 with Cxos.Devices.PCI;
@@ -46,78 +47,56 @@ package body Cxos.Devices is
       end if;
 
       Read_FS :
+      declare
+         use Cxos.Filesystems.FAT;
+         use Interfaces;
+
+         FAT_Type : FAT_Type_T := FAT12;
+
+         Status   : Cxos.Filesystems.FAT.Program_Status;
+
+         B_Sec : Cxos.Filesystems.FAT.Boot_Sector
+         with Import,
+           Convention => Ada,
+           Address    => Read_Buf'Address;
+
+         --  The extended BIOS parameter block, if the filesystem is FAT12/16.
+         EBPB : Extended_BIOS_Parameter_Block
+         with Import,
+           Convention => Ada,
+           Address    => B_Sec.BPB_Buffer'Address;
+      begin
+         Debug_Print ("" & Chars.LF);
+         Cxos.Filesystems.FAT.Print_Filesystem_Info (B_Sec);
+
+         Get_Filesystem_Type (B_Sec, FAT_Type, Status);
+         if Status /= Success then
+            Debug_Print ("Error getting filesystem type" & Chars.LF);
+         end if;
+
+         Read_Directory :
          declare
-            use Cxos.Filesystems.FAT;
-
-            FAT_Type : FAT_Type_T := FAT12;
-
-            Status   : Cxos.Filesystems.FAT.Program_Status;
-
-            B_Sec : Cxos.Filesystems.FAT.Boot_Sector
-            with Import,
-              Convention => Ada,
-              Address    => Read_Buf'Address;
+            Directory_LBA : ATA_LBA := 0;
+            FAT_Buf    : Cxos.Devices.ATA.ATA_Read_Buffer (0 .. 1023);
          begin
-            Debug_Print ("" & Chars.LF);
-            Cxos.Filesystems.FAT.Print_Filesystem_Info (B_Sec);
+            Directory_LBA := ATA_LBA ((EBPB.BPB.Table_Size *
+              Unsigned_16 (EBPB.BPB.Table_Count)) +
+              EBPB.BPB.Reserved_Sector_Count);
 
-            Get_Filesystem_Type (B_Sec, FAT_Type, Status);
-            if Status /= Success then
-               Debug_Print ("Error getting filesystem type" & Chars.LF);
+            Result := Cxos.Devices.ATA.Read_ATA_Device (Primary,
+              Slave, 4, Directory_LBA, FAT_Buf);
+            if Result /= Success then
+               Debug_Print ("Read Error." & Chars.LF);
+               return;
             end if;
 
-            Read_Directory :
-            declare
-               Target_LBA : ATA_LBA;
-               FAT_Buf    : Cxos.Devices.ATA.ATA_Read_Buffer (0 .. 1023);
+            Parse_Directory (FAT_Buf'Address, 4, Status);
+            if Status /= Success then
+               return;
+            end if;
 
-               --  The extended BIOS parameter block.
-               EBPB : Extended_BIOS_Parameter_Block
-               with Import,
-                 Convention => Ada,
-                 Address    => B_Sec.BPB_Buffer'Address;
-            begin
-               Target_LBA := 6;
-
-               Result := Cxos.Devices.ATA.Read_ATA_Device (Primary,
-                 Slave, 4, Target_LBA, FAT_Buf);
-               if Result /= Success then
-                  Debug_Print ("Read Error." & Chars.LF);
-                  return;
-               end if;
-
-            end Read_Directory;
-
---              Read_FAT :
---                 declare
---                    Target_LBA : ATA_LBA;
---                    FAT_Buf : Cxos.Devices.ATA.ATA_Read_Buffer (0 .. 255);
---                 begin
---                    Target_LBA := ATA_LBA (B_Sec.BPB.Reserved_Sector_Count);
---
---                    Result := Cxos.Devices.ATA.Read_ATA_Device (Primary,
-            --          Slave, 1, Target_LBA, FAT_Buf);
---                    if Result /= Success then
---                       Debug_Print ("Read Error." & Chars.LF);
---                       return;
---                    end if;
---
---                    Print_FAT :
---                       declare
---                          FAT_Table : FAT12_Table (0 .. 128)
---                          with Import,
---                            Convention => Ada,
---                            Address    => FAT_Buf'Address;
---                       begin
---                          for I in Integer range 0 .. 8 loop
---                             Debug_Print (I'Image & ": " &
---                               FAT_Table (I)'Image & Chars.LF);
---
---                          end loop;
---                       end Print_FAT;
---
---                 end Read_FAT;
-         end Read_FS;
+         end Read_Directory;
+      end Read_FS;
 
    exception
       when Constraint_Error =>

@@ -10,6 +10,7 @@
 -------------------------------------------------------------------------------
 
 with Interfaces; use Interfaces;
+with System;
 
 -------------------------------------------------------------------------------
 --  CXOS.FILESYSTEMS.FAT
@@ -274,6 +275,10 @@ package Cxos.Filesystems.FAT is
 
    ----------------------------------------------------------------------------
    ----------------------------------------------------------------------------
+   type Directory_Index is array (Natural range <>) of Directory_Entry;
+
+   ----------------------------------------------------------------------------
+   ----------------------------------------------------------------------------
    type Long_File_Name_String is array (Natural range <>) of Wide_Character;
 
    ----------------------------------------------------------------------------
@@ -335,9 +340,11 @@ package Cxos.Filesystems.FAT is
    );
 
    ----------------------------------------------------------------------------
-   --  Read_Root_Directory
+   --  Parse_Directory
    ----------------------------------------------------------------------------
-   procedure Read_Root_Directory (
-     Status   : out Program_Status
+   procedure Parse_Directory (
+     Directory_Buffer_Addr : System.Address;
+     Directory_Size        : Natural;
+     Status                : out Program_Status
    );
 end Cxos.Filesystems.FAT;

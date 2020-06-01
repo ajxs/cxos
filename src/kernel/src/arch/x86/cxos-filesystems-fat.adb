@@ -3,6 +3,7 @@ with Cxos.Debug;
 
 package body Cxos.Filesystems.FAT is
    package Chars renames Ada.Characters.Latin_1;
+   procedure Debug_Print (Data : String) renames Cxos.Debug.Put_String;
 
    ----------------------------------------------------------------------------
    --  Get_Filesystem_Type
@@ -68,6 +69,38 @@ package body Cxos.Filesystems.FAT is
       when Constraint_Error =>
          Status := Failure;
    end Get_Filesystem_Type;
+
+   ----------------------------------------------------------------------------
+   --  Parse_Directory
+   ----------------------------------------------------------------------------
+   procedure Parse_Directory (
+     Directory_Buffer_Addr : System.Address;
+     Directory_Size        : Natural;
+     Status                : out Program_Status
+   ) is
+   begin
+      Load_Index :
+      declare
+         Index : Directory_Index (1 .. Directory_Size)
+         with Import,
+           Convention => Ada,
+           Address    => Directory_Buffer_Addr;
+      begin
+         for I in 1 .. Directory_Size loop
+            for K in Natural range 0 .. 10 loop
+               Debug_Print ("" & Index (I).File_Name (K));
+            end loop;
+
+            Debug_Print ("" & Chars.LF);
+         end loop;
+
+      end Load_Index;
+
+      Status := Success;
+   exception
+      when Constraint_Error =>
+         null;
+   end Parse_Directory;
 
    ----------------------------------------------------------------------------
    --  Print_Filesystem_Info
@@ -149,15 +182,5 @@ package body Cxos.Filesystems.FAT is
       when Constraint_Error =>
          return;
    end Print_Filesystem_Info;
-
-   ----------------------------------------------------------------------------
-   --  Read_Root_Directory
-   ----------------------------------------------------------------------------
-   procedure Read_Root_Directory (
-     Status   : out Program_Status
-   ) is
-   begin
-      Status := Success;
-   end Read_Root_Directory;
 
 end Cxos.Filesystems.FAT;

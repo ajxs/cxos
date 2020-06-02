@@ -172,7 +172,7 @@ package body Cxos.Memory.Map is
      Status : Memory_Map_Frame_State
    ) return Process_Result is
       --  The page aligned address of the current memory frame.
-      Curr_Frame_Addr  : Unsigned_32;
+      Curr_Frame_Addr  : Integer_Address;
       --  The number of frames within this memory region.
       Frame_Count      : Unsigned_32;
       --  The result of the frame status set process.
@@ -182,12 +182,11 @@ package body Cxos.Memory.Map is
       Frame_Count := 1 + (Length / 16#1000#);
 
       --  Set the initial frame address to a page aligned base address.
-      Curr_Frame_Addr :=
-        Unsigned_32 (To_Integer (Base)) and 16#FFFFF000#;
+      Curr_Frame_Addr := To_Integer (Base) and 16#FFFFF000#;
 
       --  Iterate over each frame in this range, setting its individual status.
       for I in 0 .. Frame_Count loop
-         Set_Frame_State (To_Address (Integer_Address (Curr_Frame_Addr)),
+         Set_Frame_State (To_Address (Curr_Frame_Addr),
            Status, Set_Frame_Result);
 
          if Set_Frame_Result /= Success then

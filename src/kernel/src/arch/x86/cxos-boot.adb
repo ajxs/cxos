@@ -23,6 +23,7 @@ with Cxos.Tasking;
 with Cxos.Time_Keeping;
 with Interfaces; use Interfaces;
 with Multiboot;
+with System.Storage_Elements; use System.Storage_Elements;
 with x86.Vga;
 with x86.IDT;
 with x86.Interrupts;
@@ -38,6 +39,8 @@ package body Cxos.Boot is
    --  Initialise_Kernel
    ----------------------------------------------------------------------------
    procedure Initialise_Kernel is
+      --  The result of subprocedure calls.
+      Status : Program_Status := Unset;
    begin
       --  Initialise the COM1 Serial port, which will be used for all
       --  subsequent debugging output.
@@ -180,21 +183,13 @@ package body Cxos.Boot is
          end Read_Multiboot_Info;
 
       --  Mark the memory used by the kernel as non-present.
-      Mark_Kernel_Memory :
-         declare
-            use Cxos.Memory;
-
-            --  The result of the process.
-            Init_Result : Cxos.Memory.Process_Result;
-         begin
-            Debug_Print ("Marking kernel memory" & Chars.LF);
-            Init_Result := Cxos.Memory.Mark_Kernel_Memory;
-            if Init_Result /= Success then
-               Debug_Print ("Error marking kernel memory" & Chars.LF);
-               return;
-            end if;
-            Debug_Print ("Finished marking kernel memory" & Chars.LF);
-         end Mark_Kernel_Memory;
+      Debug_Print ("Marking kernel memory" & Chars.LF);
+      Mark_Kernel_Memory (Status);
+      if Status /= Success then
+         Debug_Print ("Error marking kernel memory" & Chars.LF);
+         return;
+      end if;
+      Debug_Print ("Finished marking kernel memory" & Chars.LF);
 
       --  Initialise peripheral devices.
       Initialise_Devices :
@@ -210,5 +205,57 @@ package body Cxos.Boot is
       when Constraint_Error =>
          return;
    end Initialise_Kernel;
+
+   ----------------------------------------------------------------------------
+   --  Mark_Kernel_Memory
+   --
+   --  Implementation Notes:
+   --    - Marks the kernel's physical memory as being used.
+   ----------------------------------------------------------------------------
+   procedure Mark_Kernel_Memory (Status : out Program_Status) is
+      use Cxos.Memory;
+      use Cxos.Memory.Map;
+
+      --  The length of the kernel code segment in bytes.
+      Kernel_Length : Unsigned_32 := 0;
+
+      --  The result of the frame status set process.
+      Result : Process_Result := Success;
+
+      --  The start address of the kernel code.
+      Kernel_Start     : constant Unsigned_32
+      with Import,
+        Convention    => Assembler,
+        External_Name => "kernel_start";
+      --  The end address of the kernel code.
+      Kernel_End       : constant Unsigned_32
+      with Import,
+        Convention    => Assembler,
+        External_Name => "kernel_end";
+      --  The physical starting address of the kernel.
+      Kernel_Physical_Start : constant Unsigned_32
+      with Import,
+        Convention    => Assembler,
+        External_name => "KERNEL_PHYS_START";
+   begin
+      Kernel_Length   := Unsigned_32 (
+        To_Integer (Kernel_End'Address) -
+        To_Integer (Kernel_Start'Address));
+
+      Result := Cxos.Memory.Map.Mark_Memory_Range (
+        Kernel_Physical_Start'Address, Kernel_Length, Allocated);
+      if Result /= Success then
+         Debug_Print ("Error marking kernel code segment" & Chars.LF);
+
+         Status := Unhandled_Exception;
+         return;
+      end if;
+
+      Status := Success;
+   exception
+      when Constraint_Error =>
+         Status := Unhandled_Exception;
+         return;
+   end Mark_Kernel_Memory;
 
 end Cxos.Boot;

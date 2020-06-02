@@ -19,6 +19,16 @@ package Cxos.Boot is
    pragma Preelaborate;
 
    ----------------------------------------------------------------------------
+   --  Program status type.
+   --  Used to track the result of individual functions.
+   ----------------------------------------------------------------------------
+   type Program_Status is (
+     Success,
+     Unhandled_Exception,
+     Unset
+   );
+
+   ----------------------------------------------------------------------------
    --  Initialise_Kernel
    --
    --  Purpose:
@@ -32,6 +42,17 @@ package Cxos.Boot is
      External_Name => "__kernel_init";
 
 private
+   ----------------------------------------------------------------------------
+   --  Mark_Kernel_Memory
+   --
+   --  Purpose:
+   --    This procedure marks the memory used by the kernel as being allocated
+   --    and non-free in the memory map.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   procedure Mark_Kernel_Memory (Status : out Program_Status);
+
    ----------------------------------------------------------------------------
    --  Protected_Mode_Init
    --

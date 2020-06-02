@@ -62,17 +62,6 @@ package Cxos.Memory is
      Convention    => Assembler,
      External_Name => "cxos_memory_get_stack_top";
 
-   ----------------------------------------------------------------------------
-   --  Mark_Kernel_Memory
-   --
-   --  Purpose:
-   --    This procedure marks the memory used by the kernel as being allocated
-   --    and non-free in the memory map.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   function Mark_Kernel_Memory return Process_Result;
-
 private
    ----------------------------------------------------------------------------
    --  The size of the kernel stack, in bytes.

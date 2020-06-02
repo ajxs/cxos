@@ -35,7 +35,7 @@ package body Cxos.Memory.Paging is
       Page_Directory_Addr := System.Null_Address;
 
       --  Allocate a page frame for the new page directory.
-      Result := Cxos.Memory.Map.Allocate_Frames (Allocated_Addr);
+      Cxos.Memory.Map.Allocate_Frames (Allocated_Addr, Result);
       if Result /= Success then
          return Result;
       end if;
@@ -95,7 +95,7 @@ package body Cxos.Memory.Paging is
             end loop;
 
             --  Allocate a page frame for the new page table.
-            Result := Cxos.Memory.Map.Allocate_Frames (Stack_Table_Addr);
+            Cxos.Memory.Map.Allocate_Frames (Stack_Table_Addr, Result);
             if Result /= Success then
                return Result;
             end if;
@@ -194,7 +194,7 @@ package body Cxos.Memory.Paging is
             Stack_Frame_Count := KERNEL_STACK_SIZE / 16#1000#;
 
             --  Allocate page frames for the new stack frame.
-            Result := Cxos.Memory.Map.Allocate_Frames (Stack_Addr,
+            Cxos.Memory.Map.Allocate_Frames (Stack_Addr, Result,
               Stack_Frame_Count);
             if Result /= Success then
                return Result;
@@ -262,7 +262,7 @@ package body Cxos.Memory.Paging is
       Page_Table_Addr := System.Null_Address;
 
       --  Allocate a page frame for the new page table.
-      Result := Cxos.Memory.Map.Allocate_Frames (Allocated_Addr);
+      Cxos.Memory.Map.Allocate_Frames (Allocated_Addr, Result);
       if Result /= Success then
          return Result;
       end if;

@@ -15,41 +15,47 @@ package body Cxos.Memory.Map is
    ----------------------------------------------------------------------------
    --  Allocate_Frames
    ----------------------------------------------------------------------------
-   function Allocate_Frames (
-     Addr  : out System.Address;
-     Count :     Natural := 1
-   ) return Process_Result is
+   procedure Allocate_Frames (
+     Addr   : out System.Address;
+     Status : out Process_Result;
+     Count  :     Natural := 1
+   ) is
+      --  The result of subprocedure calls.
       Result : Process_Result;
+      --  The index of the found free frames.
       Index  : Natural;
    begin
-      Result := Find_Free_Frames (Index, Count);
-      if Result /= Success then
-         return Result;
+      Find_Free_Frames (Index, Count, Status);
+      if Status /= Success then
+         return;
       end if;
 
+      --  Output address is set here.
       Result := Get_Frame_Address (Index, Addr);
       if Result /= Success then
-         return Result;
+         Status := Result;
+         return;
       end if;
 
-      Result := Set_Frame_State (Index, Allocated);
-      if Result /= Success then
-         return Result;
+      Set_Frame_State (Index, Allocated, Status);
+      if Status /= Success then
+         return;
       end if;
 
-      return Success;
+      Status := Success;
    exception
       when Constraint_Error =>
-         return Invalid_Address_Argument;
+         Status := Invalid_Address_Argument;
    end Allocate_Frames;
 
    ----------------------------------------------------------------------------
    --  Find_Free_Frames
    ----------------------------------------------------------------------------
-   function Find_Free_Frames (
-     Index : out Natural;
-     Count :     Natural := 1
-   ) return Process_Result is
+   procedure Find_Free_Frames (
+     Index  : out Natural;
+     Count  :     Natural := 1;
+     Status : out Process_Result
+   ) is
    begin
       --  Loop through each frame in the map until we find the requested amount
       --  of contiguous unallocated frames.
@@ -60,7 +66,9 @@ package body Cxos.Memory.Map is
                      --  If only one frame is needed, don't do any range check.
                      if Count = 1 then
                         Index := Curr_Idx;
-                        return Success;
+
+                        Status := Success;
+                        return;
                      end if;
 
                      --  If more than one contiguous frame is required, test
@@ -74,10 +82,10 @@ package body Cxos.Memory.Map is
                            Test_Range := Count - 1;
 
                            for Count_Idx in Natural range 1 .. Test_Range loop
-                              if Memory_Map (Curr_Idx + Count_Idx) = Allocated
-                              then
-                                 exit;
-                              end if;
+                              --  Exit if we're under the desired length and
+                              --  hit an allocated frame.
+                              exit when
+                                Memory_Map (Curr_Idx + Count_Idx) = Allocated;
 
                               --  If the count of contiguous unallocated frames
                               --  is equal to the upper bound of the test range
@@ -85,7 +93,9 @@ package body Cxos.Memory.Map is
                               --  free frames.
                               if Count_Idx = Test_Range then
                                  Index := Curr_Idx;
-                                 return Success;
+
+                                 Status := Success;
+                                 return;
                               end if;
                            end loop;
                         exception
@@ -93,7 +103,8 @@ package body Cxos.Memory.Map is
                               --  If we overflow the total number of frames,
                               --  abort, since there is clearly not the desired
                               --  count of free frames.
-                              return No_Free_Frames;
+                              Status := No_Free_Frames;
+                              return;
                         end Test_Count;
                end if;
             exception
@@ -103,14 +114,14 @@ package body Cxos.Memory.Map is
             end Check_Frame;
       end loop;
 
-      return No_Free_Frames;
+      Status := No_Free_Frames;
    end Find_Free_Frames;
 
    ----------------------------------------------------------------------------
    --  Get_Frame_Address
    ----------------------------------------------------------------------------
    function Get_Frame_Address (
-     Index : Natural;
+     Index :     Natural;
      Addr  : out System.Address
    ) return Process_Result is
    begin
@@ -176,8 +187,8 @@ package body Cxos.Memory.Map is
 
       --  Iterate over each frame in this range, setting its individual status.
       for I in 0 .. Frame_Count loop
-         Set_Frame_Result := Set_Frame_State (
-           To_Address (Integer_Address (Curr_Frame_Addr)), Status);
+         Set_Frame_State (To_Address (Integer_Address (Curr_Frame_Addr)),
+           Status, Set_Frame_Result);
 
          if Set_Frame_Result /= Success then
             return Set_Frame_Result;
@@ -196,22 +207,23 @@ package body Cxos.Memory.Map is
    ----------------------------------------------------------------------------
    --  Set_Frame_State
    ----------------------------------------------------------------------------
-   function Set_Frame_State (
-     Addr  : System.Address;
-     State : Memory_Map_Frame_State
-   ) return Process_Result is
-      Map_Idx : Natural        := 0;
-      Result  : Process_Result := Success;
+   procedure Set_Frame_State (
+     Addr   :     System.Address;
+     State  :     Memory_Map_Frame_State;
+     Status : out Process_Result
+   ) is
+      Map_Idx : Natural := 0;
    begin
       Get_Address_Map_Index :
          begin
-            Result := Get_Frame_Index (Addr, Map_Idx);
-            if Result /= Success then
-               return Result;
+            Status := Get_Frame_Index (Addr, Map_Idx);
+            if Status /= Success then
+               return;
             end if;
          exception
             when Constraint_Error =>
-               return Invalid_Address_Argument;
+               Status := Invalid_Address_Argument;
+               return;
          end Get_Address_Map_Index;
 
       Set_Frame_Use_State :
@@ -219,26 +231,28 @@ package body Cxos.Memory.Map is
             Memory_Map (Map_Idx) := State;
          exception
             when Constraint_Error =>
-               return Invalid_Address_Argument;
+               Status := Invalid_Address_Argument;
+               return;
          end Set_Frame_Use_State;
 
-         return Success;
+         Status := Success;
    end Set_Frame_State;
 
    ----------------------------------------------------------------------------
    --  Set_Frame_State
    ----------------------------------------------------------------------------
-   function Set_Frame_State (
-     Index : Natural;
-     State : Memory_Map_Frame_State
-   ) return Process_Result is
+   procedure Set_Frame_State (
+     Index  :     Natural;
+     State  :     Memory_Map_Frame_State;
+     Status : out Process_Result
+   ) is
    begin
       Memory_Map (Index) := State;
 
-      return Success;
+      Status := Success;
    exception
       when Constraint_Error =>
-         return Invalid_Index_Argument;
+         Status := Invalid_Index_Argument;
    end Set_Frame_State;
 
 end Cxos.Memory.Map;

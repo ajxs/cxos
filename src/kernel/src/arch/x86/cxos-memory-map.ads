@@ -58,11 +58,11 @@ package Cxos.Memory.Map is
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   function Allocate_Frames (
-     Addr  : out System.Address;
-     Count :     Natural := 1
-   ) return Process_Result
-   with Volatile_Function;
+   procedure Allocate_Frames (
+     Addr   : out System.Address;
+     Status : out Process_Result;
+     Count  :     Natural := 1
+   );
 
    ----------------------------------------------------------------------------
    --  Mark_Memory_Range
@@ -88,10 +88,11 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   function Find_Free_Frames (
-     Index : out Natural;
-     Count :     Natural := 1
-   ) return Process_Result;
+   procedure Find_Free_Frames (
+     Index  : out Natural;
+     Count  :     Natural := 1;
+     Status : out Process_Result
+   );
 
    ----------------------------------------------------------------------------
    --  Set_Frame_State
@@ -102,10 +103,11 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   function Set_Frame_State (
-     Addr  : System.Address;
-     State : Memory_Map_Frame_State
-   ) return Process_Result;
+   procedure Set_Frame_State (
+     Addr   :     System.Address;
+     State  :     Memory_Map_Frame_State;
+     Status : out Process_Result
+   );
 
    ----------------------------------------------------------------------------
    --  Set_Frame_State
@@ -116,10 +118,11 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   function Set_Frame_State (
-     Index : Natural;
-     State : Memory_Map_Frame_State
-   ) return Process_Result;
+   procedure Set_Frame_State (
+     Index  :     Natural;
+     State  :     Memory_Map_Frame_State;
+     Status : out Process_Result
+   );
 
    ----------------------------------------------------------------------------
    --  Get_Frame_Address
@@ -131,7 +134,7 @@ private
    --    None.
    ----------------------------------------------------------------------------
    function Get_Frame_Address (
-     Index : Natural;
+     Index :     Natural;
      Addr  : out System.Address
    ) return Process_Result
    with Pure_Function;

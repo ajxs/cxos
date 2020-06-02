@@ -84,16 +84,6 @@ private
    with Volatile_Function;
 
    ----------------------------------------------------------------------------
-   --  Print_Pci_Device
-   --
-   --  Purpose:
-   --    This procedure prints information about a PCI device record.
-   ----------------------------------------------------------------------------
-   procedure Print_Pci_Device (
-     Device : Pci_Device
-   );
-
-   ----------------------------------------------------------------------------
    --  Test_Pci_Device
    --
    --  Purpose:

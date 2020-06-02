@@ -38,7 +38,8 @@ package Cxos.Memory is
      No_Free_Frames,
      Memory_Map_Not_Present,
      Success,
-     Unhandled_Exception
+     Unhandled_Exception,
+     Unset
    );
 
    ----------------------------------------------------------------------------

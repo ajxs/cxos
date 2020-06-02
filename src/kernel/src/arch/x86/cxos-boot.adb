@@ -216,11 +216,11 @@ package body Cxos.Boot is
       use Cxos.Memory;
       use Cxos.Memory.Map;
 
-      --  The length of the kernel code segment in bytes.
+      --  The length of the kernel segments in bytes.
       Kernel_Length : Unsigned_32 := 0;
 
       --  The result of the frame status set process.
-      Result : Process_Result := Success;
+      Result : Process_Result := Unset;
 
       --  The start address of the kernel code.
       Kernel_Start     : constant Unsigned_32
@@ -238,14 +238,12 @@ package body Cxos.Boot is
         Convention    => Assembler,
         External_name => "KERNEL_PHYS_START";
    begin
-      Kernel_Length   := Unsigned_32 (
-        To_Integer (Kernel_End'Address) -
-        To_Integer (Kernel_Start'Address));
+      Kernel_Length := Unsigned_32 (Kernel_End'Address - Kernel_Start'Address);
 
-      Result := Cxos.Memory.Map.Mark_Memory_Range (
-        Kernel_Physical_Start'Address, Kernel_Length, Allocated);
+      Mark_Memory_Range (Kernel_Physical_Start'Address,
+        Kernel_Length, Allocated, Result);
       if Result /= Success then
-         Debug_Print ("Error marking kernel code segment" & Chars.LF);
+         Debug_Print ("Error marking kernel memory" & Chars.LF);
 
          Status := Unhandled_Exception;
          return;
@@ -255,7 +253,6 @@ package body Cxos.Boot is
    exception
       when Constraint_Error =>
          Status := Unhandled_Exception;
-         return;
    end Mark_Kernel_Memory;
 
 end Cxos.Boot;

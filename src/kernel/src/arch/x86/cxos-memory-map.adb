@@ -166,17 +166,18 @@ package body Cxos.Memory.Map is
    ----------------------------------------------------------------------------
    --  Mark_Memory_Range
    ----------------------------------------------------------------------------
-   function Mark_Memory_Range (
-     Base   : System.Address;
-     Length : Unsigned_32;
-     Status : Memory_Map_Frame_State
-   ) return Process_Result is
+   procedure Mark_Memory_Range (
+     Base   :     System.Address;
+     Length :     Unsigned_32;
+     State  :     Memory_Map_Frame_State;
+     Status : out Process_Result
+   ) is
       --  The page aligned address of the current memory frame.
       Curr_Frame_Addr  : Integer_Address;
       --  The number of frames within this memory region.
       Frame_Count      : Unsigned_32;
       --  The result of the frame status set process.
-      Set_Frame_Result : Process_Result;
+      Set_Frame_Result : Process_Result := Unset;
    begin
       --  Calculate the amount of frames within this memory range.
       Frame_Count := 1 + (Length / 16#1000#);
@@ -187,20 +188,21 @@ package body Cxos.Memory.Map is
       --  Iterate over each frame in this range, setting its individual status.
       for I in 0 .. Frame_Count loop
          Set_Frame_State (To_Address (Curr_Frame_Addr),
-           Status, Set_Frame_Result);
+           State, Set_Frame_Result);
 
          if Set_Frame_Result /= Success then
-            return Set_Frame_Result;
+            Status := Set_Frame_Result;
+            return;
          end if;
 
          --  Increment the current frame address by the size of a single frame.
          Curr_Frame_Addr := Curr_Frame_Addr + 16#1000#;
       end loop;
 
-      return Success;
+      Status := Success;
    exception
       when Constraint_Error =>
-         return Invalid_Address_Argument;
+         Status := Invalid_Address_Argument;
    end Mark_Memory_Range;
 
    ----------------------------------------------------------------------------

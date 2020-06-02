@@ -78,11 +78,12 @@ package Cxos.Memory.Map is
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   function Mark_Memory_Range (
-     Base   : System.Address;
-     Length : Unsigned_32;
-     Status : Memory_Map_Frame_State
-   ) return Process_Result;
+   procedure Mark_Memory_Range (
+     Base   :     System.Address;
+     Length :     Unsigned_32;
+     State  :     Memory_Map_Frame_State;
+     Status : out Process_Result
+   );
 
 private
    ----------------------------------------------------------------------------

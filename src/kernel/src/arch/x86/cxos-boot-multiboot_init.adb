@@ -55,8 +55,8 @@ package body Cxos.Boot.Multiboot_Init is
         Multiboot_Reserved_Memory_Start'Address) / 16#1000#;
 
       --  Mark the reserved memory area as unallocated.
-      Result := Cxos.Memory.Map.Mark_Memory_Range (
-        Multiboot_Reserved_Memory_Start, Frame_Count, Unallocated);
+      Cxos.Memory.Map.Mark_Memory_Range (
+        Multiboot_Reserved_Memory_Start, Frame_Count, Unallocated, Result);
       if Result /= Success then
          Debug_Print ("Error marking multiboot memory" & Chars.LF);
          return Unhandled_Exception;
@@ -252,9 +252,11 @@ package body Cxos.Boot.Multiboot_Init is
                --  accordingly in the memory map.
                case Curr_Region.all.Memory_Type is
                   when 1 =>
-                     Result := Cxos.Memory.Map.Mark_Memory_Range (
+                     Cxos.Memory.Map.Mark_Memory_Range (
                        To_Address (Integer_Address (Curr_Region.all.Base)),
-                       Unsigned_32 (Curr_Region.all.Length), Unallocated);
+                       Unsigned_32 (Curr_Region.all.Length),
+                       Unallocated,
+                       Result);
                      if Result /= Success then
                         Debug_Print (
                           "Error setting frame status" & Chars.LF);

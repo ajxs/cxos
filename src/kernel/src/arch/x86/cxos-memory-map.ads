@@ -37,6 +37,12 @@ package Cxos.Memory.Map is
    );
 
    ----------------------------------------------------------------------------
+   --  Memory map range type.
+   --  The range of possible values in the memory map.
+   ----------------------------------------------------------------------------
+   subtype Memory_Map_Index is Natural range 0 .. 16#100000#;
+
+   ----------------------------------------------------------------------------
    --  Initialise
    --
    --  Purpose:
@@ -61,7 +67,7 @@ package Cxos.Memory.Map is
    procedure Allocate_Frames (
      Addr   : out System.Address;
      Status : out Process_Result;
-     Count  :     Natural := 1
+     Count  :     Memory_Map_Index := 1
    );
 
    ----------------------------------------------------------------------------
@@ -89,8 +95,8 @@ private
    --    None.
    ----------------------------------------------------------------------------
    procedure Find_Free_Frames (
-     Index  : out Natural;
-     Count  :     Natural := 1;
+     Index  : out Memory_Map_Index;
+     Count  :     Memory_Map_Index := 1;
      Status : out Process_Result
    );
 
@@ -119,7 +125,7 @@ private
    --    None.
    ----------------------------------------------------------------------------
    procedure Set_Frame_State (
-     Index  :     Natural;
+     Index  :     Memory_Map_Index;
      State  :     Memory_Map_Frame_State;
      Status : out Process_Result
    );
@@ -134,7 +140,7 @@ private
    --    None.
    ----------------------------------------------------------------------------
    function Get_Frame_Address (
-     Index :     Natural;
+     Index :     Memory_Map_Index;
      Addr  : out System.Address
    ) return Process_Result
    with Pure_Function;
@@ -150,7 +156,7 @@ private
    ----------------------------------------------------------------------------
    function Get_Frame_Index (
      Addr  : System.Address;
-     Index : out Natural
+     Index : out Memory_Map_Index
    ) return Process_Result
    with Pure_Function;
 
@@ -158,7 +164,7 @@ private
    --  Memory Map Array type.
    --  Represents all page frames across the full linear address space.
    ----------------------------------------------------------------------------
-   type Memory_Map_Array is array (Natural range 0 .. 16#100000#)
+   type Memory_Map_Array is array (Memory_Map_Index)
      of Memory_Map_Frame_State
    with Pack;
 

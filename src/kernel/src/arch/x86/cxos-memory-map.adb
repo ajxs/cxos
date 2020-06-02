@@ -18,7 +18,7 @@ package body Cxos.Memory.Map is
    procedure Allocate_Frames (
      Addr   : out System.Address;
      Status : out Process_Result;
-     Count  :     Natural := 1
+     Count  :     Memory_Map_Index := 1
    ) is
       --  The result of subprocedure calls.
       Result : Process_Result;
@@ -52,8 +52,8 @@ package body Cxos.Memory.Map is
    --  Find_Free_Frames
    ----------------------------------------------------------------------------
    procedure Find_Free_Frames (
-     Index  : out Natural;
-     Count  :     Natural := 1;
+     Index  : out Memory_Map_Index;
+     Count  :     Memory_Map_Index := 1;
      Status : out Process_Result
    ) is
    begin
@@ -121,7 +121,7 @@ package body Cxos.Memory.Map is
    --  Get_Frame_Address
    ----------------------------------------------------------------------------
    function Get_Frame_Address (
-     Index :     Natural;
+     Index :     Memory_Map_Index;
      Addr  : out System.Address
    ) return Process_Result is
    begin
@@ -138,7 +138,7 @@ package body Cxos.Memory.Map is
    ----------------------------------------------------------------------------
    function Get_Frame_Index (
      Addr  : System.Address;
-     Index : out Natural
+     Index : out Memory_Map_Index
    ) return Process_Result is
    begin
       Index := Natural (To_Integer (Addr) / 16#1000#);
@@ -242,7 +242,7 @@ package body Cxos.Memory.Map is
    --  Set_Frame_State
    ----------------------------------------------------------------------------
    procedure Set_Frame_State (
-     Index  :     Natural;
+     Index  :     Memory_Map_Index;
      State  :     Memory_Map_Frame_State;
      Status : out Process_Result
    ) is

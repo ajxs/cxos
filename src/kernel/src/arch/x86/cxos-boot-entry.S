@@ -98,6 +98,7 @@ _start:
 	subl %eax, %ecx                          # Subtract VMA offset.
 	movl %ecx, %cr3                          # Move the address into CR3.
 
+.enable_paging:
 	# Set write-protect and paging-enabled flags.
 	movl %cr0, %ecx
 	orl $0x80010000, %ecx

@@ -19,17 +19,15 @@ package body Cxos.Memory.Paging is
      Page_Directory_Addr : out System.Address;
      Initial_EIP         :     System.Address
    ) return Process_Result is
-      use x86.Memory.Paging;
-
       --  The address of the newly allocated page frame.
-      Allocated_Addr   : System.Address;
+      Allocated_Addr    : System.Address;
 
       Kernel_Stack_Addr : System.Address;
       --  The temporary virtual address of the mapping to the new structure.
       --  This is used to initialise the newly allocated directory.
-      Dir_Virtual_Addr   : System.Address;
+      Dir_Virtual_Addr  : System.Address;
       --  The result of internal processes.
-      Result             : Process_Result;
+      Result            : Process_Result;
    begin
       --  Set to null address as a default fallback.
       Page_Directory_Addr := System.Null_Address;
@@ -249,8 +247,6 @@ package body Cxos.Memory.Paging is
    function Create_Page_Table (
      Page_Table_Addr : out System.Address
    ) return Process_Result is
-      use x86.Memory.Paging;
-
       --  The address of the newly allocated page frame.
       Allocated_Addr     : System.Address;
       --  The virtual address of the mapping to the new structure.
@@ -307,12 +303,10 @@ package body Cxos.Memory.Paging is
    --  Find_Free_Kernel_Page
    ----------------------------------------------------------------------------
    procedure Find_Free_Kernel_Page (
-     Table_Index : out Natural;
-     Page_Index  : out Natural;
+     Table_Index : out Paging_Index;
+     Page_Index  : out Paging_Index;
      Status      : out Process_Result
    ) is
-      use x86.Memory.Paging;
-
       --  The currently loaded kernel page_directory.
       Kernel_Page_Dir : constant Page_Directory
       with Import,
@@ -332,7 +326,7 @@ package body Cxos.Memory.Paging is
       --  which are marked as present.
       --  The last two directory entries are ignored, since these are
       --  reserved for special functionality.
-      for Dir_Entry_Idx in Integer range 768 .. 1021 loop
+      for Dir_Entry_Idx in Paging_Index range 768 .. 1021 loop
          if Kernel_Page_Dir (Dir_Entry_Idx).Present then
             --  Get the address of this page table in memory.
             Status := Get_Page_Table_Mapped_Address (Dir_Entry_Idx,
@@ -352,7 +346,7 @@ package body Cxos.Memory.Paging is
                     Address    => Table_Addr;
                begin
                   --  Check each frame entry in the page table.
-                  for Frame_Idx in Integer range 0 .. 1023 loop
+                  for Frame_Idx in Paging_Index'Range loop
                      if Kernel_Table (Frame_Idx).Present = False then
                         Table_Index := Dir_Entry_Idx;
                         Page_Index  := Frame_Idx;
@@ -378,8 +372,6 @@ package body Cxos.Memory.Paging is
      Virtual_Addr :     System.Address;
      Status       : out Process_Result
    ) is
-      use x86.Memory.Paging;
-
       --  The table used for temporary mappings.
       Temp_Page_Table : Page_Table
       with Import,
@@ -387,7 +379,7 @@ package body Cxos.Memory.Paging is
         Address    => To_Address (TEMP_TABLE_RECURSIVE_ADDR);
 
       --  The index into the table of the entry to unmap.
-      Table_Idx : Natural;
+      Table_Idx : Paging_Index;
    begin
       --  Ensure that the provided virtual address is within the temp table.
       Check_Virtual_Address :
@@ -408,7 +400,7 @@ package body Cxos.Memory.Paging is
          begin
             --  Subtract the base of the temp table address from the provided
             --  virtual address, then divide it by the size of a page frame.
-            Table_Idx := Natural (To_Integer (Virtual_Addr) -
+            Table_Idx := Paging_Index (To_Integer (Virtual_Addr) -
               TEMP_TABLE_BASE_ADDR) / 16#1000#;
          end Get_Table_Mapping;
 
@@ -428,7 +420,7 @@ package body Cxos.Memory.Paging is
    --  Get_Page_Table_Mapped_Address
    ----------------------------------------------------------------------------
    function Get_Page_Table_Mapped_Address (
-     Table_Index :     Natural;
+     Table_Index :     Paging_Index;
      Mapped_Addr : out System.Address
    ) return Process_Result is
    begin
@@ -448,11 +440,9 @@ package body Cxos.Memory.Paging is
      Virtual_Addr :     System.Address;
      Mapped_Addr  : out System.Address
    ) return Process_Result is
-      use x86.Memory.Paging;
-
       --  The index into the page directory that this virtual address
       --  is mapped at.
-      Directory_Idx : Natural;
+      Directory_Idx : Paging_Index;
       --  The offset from the base mapping offset.
       Table_Offset  : Integer_Address := 0;
    begin
@@ -483,10 +473,9 @@ package body Cxos.Memory.Paging is
      Page_Dir : in out x86.Memory.Paging.Page_Directory;
      Status   :    out Process_Result
    ) is
-      use x86.Memory.Paging;
    begin
       --  Iterate over all 1024 directory entries.
-      for Idx in 0 .. 1023 loop
+      for Idx in Paging_Index'Range loop
          --  Initialise the individual entry.
          Page_Dir (Idx).Present       := False;
          Page_Dir (Idx).Read_Write    := True;
@@ -513,10 +502,9 @@ package body Cxos.Memory.Paging is
      Table  : in out x86.Memory.Paging.Page_Table;
      Status :    out Process_Result
    ) is
-      use x86.Memory.Paging;
    begin
       --  Iterate over all 1024 table entries.
-      for Idx in 0 .. 1023 loop
+      for Idx in Paging_Index'Range loop
          --  Initialise the individual entry.
          Table (Idx).Present      := False;
          Table (Idx).Read_Write   := True;
@@ -545,12 +533,10 @@ package body Cxos.Memory.Paging is
      Read_Write    :     Boolean := True;
      User_Mode     :     Boolean := False
    ) is
-      use x86.Memory.Paging;
-
       --  The index into the page directory of the virtual address.
-      Directory_Idx : Natural;
+      Directory_Idx : Paging_Index;
       --  The index into the relevant page table of the virtual address.
-      Table_Idx     : Natural;
+      Table_Idx     : Paging_Index;
       --  The physical address of the relevant page table.
       Table_Addr    : System.Address;
    begin
@@ -617,8 +603,6 @@ package body Cxos.Memory.Paging is
      Virtual_Addr : out System.Address;
      Status       : out Process_Result
    ) is
-      use x86.Memory.Paging;
-
       --  The temporary mapping page table.
       Temp_Page_Table : Page_Table
       with Import,
@@ -629,7 +613,7 @@ package body Cxos.Memory.Paging is
       Virtual_Addr := System.Null_Address;
 
       --  Check each frame entry in the page table to find a free entry.
-      for Frame_Idx in Integer range 0 .. 1023 loop
+      for Frame_Idx in Paging_Index'Range loop
          --  If a non-present frame is found, map that.
          if Temp_Page_Table (Frame_Idx).Present = False then
             Temp_Page_Table (Frame_Idx).Present      := True;

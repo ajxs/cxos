@@ -11,7 +11,7 @@
 
 with System;
 with System.Storage_Elements; use System.Storage_Elements;
-with x86.Memory.Paging;
+with x86.Memory.Paging; use x86.Memory.Paging;
 
 -------------------------------------------------------------------------------
 --  CXOS.MEMORY.PAGING
@@ -146,8 +146,8 @@ private
    --    None.
    ----------------------------------------------------------------------------
    procedure Find_Free_Kernel_Page (
-     Table_Index : out Natural;
-     Page_Index  : out Natural;
+     Table_Index : out Paging_Index;
+     Page_Index  : out Paging_Index;
      Status      : out Process_Result
    );
 
@@ -161,7 +161,7 @@ private
    --    None.
    ----------------------------------------------------------------------------
    function Get_Page_Table_Mapped_Address (
-     Table_Index :     Natural;
+     Table_Index :     Paging_Index;
      Mapped_Addr : out System.Address
    ) return Process_Result
    with Pure_Function;

@@ -9,6 +9,9 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
+with Interfaces; use Interfaces;
+with x86.PIT; use x86.PIT;
+
 -------------------------------------------------------------------------------
 --  CXOS.PIT
 --
@@ -28,5 +31,21 @@ package Cxos.PIT is
    --    None.
    ----------------------------------------------------------------------------
    procedure Initialise;
+
+private
+   ----------------------------------------------------------------------------
+   --  Initialise_Channel
+   --
+   --  Purpose:
+   --    This procedure initialises an individual PIT channel. This sets the
+   --    initial value for the channel as well as its operating mode.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   procedure Initialise_Channel (
+     Channel        : PIT_Channel;
+     Operating_Mode : Operating_Mode_Type;
+     Initial_Value  : Unsigned_16
+   );
 
 end Cxos.PIT;

@@ -144,21 +144,6 @@ package x86.PIT is
       end record;
 
    ----------------------------------------------------------------------------
-   --  Initialise_Channel
-   --
-   --  Purpose:
-   --    This procedure initialises an individual PIT channel. This sets the
-   --    initial value for the channel as well as its operating mode.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   procedure Initialise_Channel (
-     Channel        : PIT_Channel;
-     Operating_Mode : Operating_Mode_Type;
-     Initial_Value  : Unsigned_16
-   );
-
-   ----------------------------------------------------------------------------
    --  Mode_Select_Register_To_Byte
    --
    --  Purpose:

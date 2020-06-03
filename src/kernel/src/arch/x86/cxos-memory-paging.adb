@@ -42,7 +42,7 @@ package body Cxos.Memory.Paging is
 
       --  Temporarily map the newly allocated page frame into the current
       --  address space so that it can be initialised.
-      Result := Temporarily_Map_Page (Allocated_Addr, Dir_Virtual_Addr);
+      Temporarily_Map_Page (Allocated_Addr, Dir_Virtual_Addr, Result);
       if Result /= Success then
          return Result;
       end if;
@@ -83,7 +83,7 @@ package body Cxos.Memory.Paging is
 
          begin
             --  Initialise the new stack page table.
-            Result := Initialise_Page_Directory (New_Page_Dir);
+            Initialise_Page_Directory (New_Page_Dir, Result);
             if Result /= Success then
                return Result;
             end if;
@@ -102,8 +102,8 @@ package body Cxos.Memory.Paging is
 
             --  Temporarily map the newly allocated page frame into
             --  the current address space so that it can be initialised.
-            Result := Temporarily_Map_Page (Stack_Table_Addr,
-              Stack_Table_Virt_Addr);
+            Temporarily_Map_Page (Stack_Table_Addr,
+              Stack_Table_Virt_Addr, Result);
             if Result /= Success then
                return Result;
             end if;
@@ -125,7 +125,7 @@ package body Cxos.Memory.Paging is
                   Stack_Frame_Count := KERNEL_STACK_SIZE / 16#1000#;
 
                   --  Initialise the new stack table.
-                  Result := Initialise_Page_Table (Stack_Table);
+                  Initialise_Page_Table (Stack_Table, Result);
                   if Result /= Success then
                      return Result;
                   end if;
@@ -149,7 +149,7 @@ package body Cxos.Memory.Paging is
               Convert_To_Page_Aligned_Address (Stack_Table_Addr);
 
             --  Free the temporarily mapped structure.
-            Result := Free_Temporary_Page_Mapping (Stack_Table_Virt_Addr);
+            Free_Temporary_Page_Mapping (Stack_Table_Virt_Addr, Result);
             if Result /= Success then
                return Result;
             end if;
@@ -157,7 +157,7 @@ package body Cxos.Memory.Paging is
          end Init_Page_Directory;
 
       --  Free the temporarily mapped structure.
-      Result := Free_Temporary_Page_Mapping (Dir_Virtual_Addr);
+      Free_Temporary_Page_Mapping (Dir_Virtual_Addr, Result);
       if Result /= Success then
          return Result;
       end if;
@@ -207,8 +207,8 @@ package body Cxos.Memory.Paging is
 
             --  Temporarily map the newly allocated stack into the current
             --  address space.
-            Result := Temporarily_Map_Page (Stack_Top_Addr,
-              Stack_Top_Virt_Addr);
+            Temporarily_Map_Page (Stack_Top_Addr,
+              Stack_Top_Virt_Addr, Result);
             if Result /= Success then
                return Result;
             end if;
@@ -232,7 +232,7 @@ package body Cxos.Memory.Paging is
          end Initialise_Kernel_Stack;
 
       --  Free the temporarily mapped structure.
-      Result :=  Free_Temporary_Page_Mapping (Stack_Top_Virt_Addr);
+      Free_Temporary_Page_Mapping (Stack_Top_Virt_Addr, Result);
       if Result /= Success then
          return Result;
       end if;
@@ -268,7 +268,7 @@ package body Cxos.Memory.Paging is
       end if;
 
       --  Temporarily map the new structure into the current address space.
-      Result := Temporarily_Map_Page (Allocated_Addr, Table_Virtual_Addr);
+      Temporarily_Map_Page (Allocated_Addr, Table_Virtual_Addr, Result);
       if Result /= Success then
          return Result;
       end if;
@@ -282,14 +282,14 @@ package body Cxos.Memory.Paging is
               Convention => Ada,
               Address    => Table_Virtual_Addr;
          begin
-            Result := Initialise_Page_Table (New_Page_Table);
+            Initialise_Page_Table (New_Page_Table, Result);
             if Result /= Success then
                return Result;
             end if;
          end Init_Page_Table;
 
       --  Free the temporarily mapped structure.
-      Result := Free_Temporary_Page_Mapping (Table_Virtual_Addr);
+      Free_Temporary_Page_Mapping (Table_Virtual_Addr, Result);
       if Result /= Success then
          return Result;
       end if;
@@ -306,10 +306,11 @@ package body Cxos.Memory.Paging is
    ----------------------------------------------------------------------------
    --  Find_Free_Kernel_Page
    ----------------------------------------------------------------------------
-   function Find_Free_Kernel_Page (
+   procedure Find_Free_Kernel_Page (
      Table_Index : out Natural;
-     Page_Index  : out Natural
-   ) return Process_Result is
+     Page_Index  : out Natural;
+     Status      : out Process_Result
+   ) is
       use x86.Memory.Paging;
 
       --  The currently loaded kernel page_directory.
@@ -322,9 +323,11 @@ package body Cxos.Memory.Paging is
       --  This will be set to the address that each page table being checked
       --  is recursively mapped into memory.
       Table_Addr : System.Address;
-      --  The result of internal processes.
-      Result     : Process_Result;
    begin
+      --  Initialise out params to NULL values.
+      Table_Index := 0;
+      Page_Index  := 0;
+
       --  Loop over every page in the directory, checking only the entries
       --  which are marked as present.
       --  The last two directory entries are ignored, since these are
@@ -332,10 +335,10 @@ package body Cxos.Memory.Paging is
       for Dir_Entry_Idx in Integer range 768 .. 1021 loop
          if Kernel_Page_Dir (Dir_Entry_Idx).Present then
             --  Get the address of this page table in memory.
-            Result := Get_Page_Table_Mapped_Address (Dir_Entry_Idx,
+            Status := Get_Page_Table_Mapped_Address (Dir_Entry_Idx,
               Table_Addr);
-            if Result /= Success then
-               return Unhandled_Exception;
+            if Status /= Success then
+               return;
             end if;
 
             --  Check the page table for non-present entries, denoting a free
@@ -353,31 +356,28 @@ package body Cxos.Memory.Paging is
                      if Kernel_Table (Frame_Idx).Present = False then
                         Table_Index := Dir_Entry_Idx;
                         Page_Index  := Frame_Idx;
-
-                        return Success;
+                        Status      := Success;
+                        return;
                      end if;
                   end loop;
                end Check_Page_Table;
          end if;
       end loop;
 
-      --  If we have not found an address, set the output to NULL and return
-      --  that there are no free frames.
-      Table_Index := 0;
-      Page_Index  := 0;
-
-      return No_Free_Frames;
+      --  Set the result status to indicate that there are no free frames.
+      Status := No_Free_Frames;
    exception
       when Constraint_Error =>
-         return Unhandled_Exception;
+         Status := Unhandled_Exception;
    end Find_Free_Kernel_Page;
 
    ----------------------------------------------------------------------------
    --  Free_Temporary_Page_Mapping
    ----------------------------------------------------------------------------
-   function Free_Temporary_Page_Mapping (
-     Virtual_Addr : System.Address
-   ) return Process_Result is
+   procedure Free_Temporary_Page_Mapping (
+     Virtual_Addr :     System.Address;
+     Status       : out Process_Result
+   ) is
       use x86.Memory.Paging;
 
       --  The table used for temporary mappings.
@@ -397,7 +397,8 @@ package body Cxos.Memory.Paging is
             then
                --  Return Invalid_Argument in the instance that the provided
                --  address is not mapped in the temporary table.
-               return Invalid_Argument;
+               Status := Invalid_Argument;
+               return;
             end if;
          end Check_Virtual_Address;
 
@@ -417,10 +418,10 @@ package body Cxos.Memory.Paging is
       --  Reload the TLB to free the mapping.
       Flush_Tlb;
 
-      return Success;
+      Status := Success;
    exception
       when Constraint_Error =>
-         return Unhandled_Exception;
+         Status := Unhandled_Exception;
    end Free_Temporary_Page_Mapping;
 
    ----------------------------------------------------------------------------
@@ -478,9 +479,10 @@ package body Cxos.Memory.Paging is
    ----------------------------------------------------------------------------
    --  Initialise_Page_Directory
    ----------------------------------------------------------------------------
-   function Initialise_Page_Directory (
-     Page_Dir : in out x86.Memory.Paging.Page_Directory
-   ) return Process_Result is
+   procedure Initialise_Page_Directory (
+     Page_Dir : in out x86.Memory.Paging.Page_Directory;
+     Status   :    out Process_Result
+   ) is
       use x86.Memory.Paging;
    begin
       --  Iterate over all 1024 directory entries.
@@ -498,18 +500,19 @@ package body Cxos.Memory.Paging is
            Convert_To_Page_Aligned_Address (System.Null_Address);
       end loop;
 
-      return Success;
+      Status := Success;
    exception
       when Constraint_Error =>
-         return Unhandled_Exception;
+         Status := Unhandled_Exception;
    end Initialise_Page_Directory;
 
    ----------------------------------------------------------------------------
    --  Initialise_Page_Table
    ----------------------------------------------------------------------------
-   function Initialise_Page_Table (
-     Table : in out x86.Memory.Paging.Page_Table
-   ) return Process_Result is
+   procedure Initialise_Page_Table (
+     Table  : in out x86.Memory.Paging.Page_Table;
+     Status :    out Process_Result
+   ) is
       use x86.Memory.Paging;
    begin
       --  Iterate over all 1024 table entries.
@@ -525,22 +528,23 @@ package body Cxos.Memory.Paging is
            Convert_To_Page_Aligned_Address (System.Null_Address);
       end loop;
 
-      return Success;
+      Status := Success;
    exception
       when Constraint_Error =>
-         return Unhandled_Exception;
+         Status := Unhandled_Exception;
    end Initialise_Page_Table;
 
    ----------------------------------------------------------------------------
    --  Map_Virtual_Address
    ----------------------------------------------------------------------------
-   function Map_Virtual_Address (
-     Page_Dir      : x86.Memory.Paging.Page_Directory;
-     Virtual_Addr  : System.Address;
-     Physical_Addr : System.Address;
-     Read_Write    : Boolean := True;
-     User_Mode     : Boolean := False
-   ) return Process_Result is
+   procedure Map_Virtual_Address (
+     Page_Dir      :     x86.Memory.Paging.Page_Directory;
+     Virtual_Addr  :     System.Address;
+     Physical_Addr :     System.Address;
+     Status        : out Process_Result;
+     Read_Write    :     Boolean := True;
+     User_Mode     :     Boolean := False
+   ) is
       use x86.Memory.Paging;
 
       --  The index into the page directory of the virtual address.
@@ -549,14 +553,13 @@ package body Cxos.Memory.Paging is
       Table_Idx     : Natural;
       --  The physical address of the relevant page table.
       Table_Addr    : System.Address;
-      --  The result of internal processes.
-      Result        : Process_Result;
    begin
       --  Ensure that the provided addresses are 4K aligned.
       if not Check_Address_Page_Aligned (Virtual_Addr) or
         Check_Address_Page_Aligned (Physical_Addr)
       then
-         return Invalid_Non_Aligned_Address;
+         Status := Invalid_Non_Aligned_Address;
+         return;
       end if;
 
       --  Get the index into the page directory needed to map this page.
@@ -569,13 +572,13 @@ package body Cxos.Memory.Paging is
       --  allocated and the physical address of the new table returned.
       --  Otherwise, the recursively mapped table address will be used.
       if Page_Dir (Directory_Idx).Present = False then
-         Result := Get_Page_Table_Mapped_Address (Directory_Idx, Table_Addr);
+         Status := Get_Page_Table_Mapped_Address (Directory_Idx, Table_Addr);
       else
-         Result := Create_Page_Table (Table_Addr);
+         Status := Create_Page_Table (Table_Addr);
       end if;
 
-      if Result /= Success then
-         return Result;
+      if Status /= Success then
+         return;
       end if;
 
       --  Map the virtual address.
@@ -600,19 +603,20 @@ package body Cxos.Memory.Paging is
             Flush_Tlb;
          end Map_Frame;
 
-      return Success;
+      Status := Success;
    exception
       when Constraint_Error =>
-         return Unhandled_Exception;
+         Status := Unhandled_Exception;
    end Map_Virtual_Address;
 
    ----------------------------------------------------------------------------
    --  Temporarily_Map_Page
    ----------------------------------------------------------------------------
-   function Temporarily_Map_Page (
+   procedure Temporarily_Map_Page (
      Frame_Addr   :     System.Address;
-     Virtual_Addr : out System.Address
-   ) return Process_Result is
+     Virtual_Addr : out System.Address;
+     Status       : out Process_Result
+   ) is
       use x86.Memory.Paging;
 
       --  The temporary mapping page table.
@@ -640,16 +644,17 @@ package body Cxos.Memory.Paging is
             Virtual_Addr := To_Address (TEMP_TABLE_BASE_ADDR +
               Integer_Address (Frame_Idx * 16#1000#));
 
-            return Success;
+            Status := Success;
+            return;
          end if;
       end loop;
 
       --  If we iterate through the entire table and cannot find a free
-      --  frame, return this result.
-      return No_Free_Frames;
+      --  frame, set this result.
+      Status := No_Free_Frames;
    exception
       when Constraint_Error =>
-         return Unhandled_Exception;
+         Status := Unhandled_Exception;
    end Temporarily_Map_Page;
 
 end Cxos.Memory.Paging;

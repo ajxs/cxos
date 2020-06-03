@@ -50,54 +50,54 @@ package Cxos.Memory.Paging is
    --
    --  Purpose:
    --    Maps a virtual address to a physical address in the specified page
-   --    directory. This function does not acknowledge whether or not the
+   --    directory. This procedure does not acknowledge whether or not the
    --    provided virtual address is already mapped, and will overwrite any
    --    existing entry if present.
    --  Exceptions:
    --    Exception conditions will be returned if the provided addresses are
    --    not page-aligned.
    ----------------------------------------------------------------------------
-   function Map_Virtual_Address (
-     Page_Dir      : x86.Memory.Paging.Page_Directory;
-     Virtual_Addr  : System.Address;
-     Physical_Addr : System.Address;
-     Read_Write    : Boolean := True;
-     User_Mode     : Boolean := False
-   ) return Process_Result
-   with Volatile_Function;
+   procedure Map_Virtual_Address (
+     Page_Dir      :     x86.Memory.Paging.Page_Directory;
+     Virtual_Addr  :     System.Address;
+     Physical_Addr :     System.Address;
+     Status        : out Process_Result;
+     Read_Write    :     Boolean := True;
+     User_Mode     :     Boolean := False
+   );
 
    ----------------------------------------------------------------------------
    --  Temporarily_Map_Page
    --
    --  Purpose:
-   --    This function temporarily maps a frame into the current address
+   --    This procedure temporarily maps a frame into the current address
    --    space. The output parameter is set to the temporarily mapped virtual
    --    address of the provided frame address.
    --  Exceptions:
    --    - An exception condition will be returned if there are no free
    --      frames in the temporary mapping table.
    ----------------------------------------------------------------------------
-   function Temporarily_Map_Page (
+   procedure Temporarily_Map_Page (
      Frame_Addr   :     System.Address;
-     Virtual_Addr : out System.Address
-   ) return Process_Result
-   with Volatile_Function;
+     Virtual_Addr : out System.Address;
+     Status       : out Process_Result
+   );
 
    ----------------------------------------------------------------------------
    --  Free_Temporary_Page_Mapping
    --
    --  Purpose:
-   --    This function frees a temporarily mapped address from the temporary
+   --    This procedure frees a temporarily mapped address from the temporary
    --    mapping table. It accepts an address corresponding to a mapping in
    --    the table.
    --  Exceptions:
    --    - An exception condition will be returned if the mapped address is
    --      not within the temporary mapping table.
    ----------------------------------------------------------------------------
-   function Free_Temporary_Page_Mapping (
-     Virtual_Addr : System.Address
-   ) return Process_Result
-   with Volatile_Function;
+   procedure Free_Temporary_Page_Mapping (
+     Virtual_Addr :     System.Address;
+     Status       : out Process_Result
+   );
 
 private
    ----------------------------------------------------------------------------
@@ -139,17 +139,17 @@ private
    --  Find_Free_Kernel_Page
    --
    --  Purpose:
-   --    This function finds the first free page table within Kernel space.
+   --    This procedure finds the first free page table within Kernel space.
    --    It sets the output parameters to the table and frame indexes into
    --    the relevant paging structures.
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   function Find_Free_Kernel_Page (
+   procedure Find_Free_Kernel_Page (
      Table_Index : out Natural;
-     Page_Index  : out Natural
-   ) return Process_Result
-   with Volatile_Function;
+     Page_Index  : out Natural;
+     Status      : out Process_Result
+   );
 
    ----------------------------------------------------------------------------
    --  Get_Page_Table_Mapped_Address
@@ -190,9 +190,10 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   function Initialise_Page_Directory (
-     Page_Dir : in out x86.Memory.Paging.Page_Directory
-   ) return Process_Result;
+   procedure Initialise_Page_Directory (
+     Page_Dir : in out x86.Memory.Paging.Page_Directory;
+     Status   :    out Process_Result
+   );
 
    ----------------------------------------------------------------------------
    --  Initialise_Page_Table
@@ -203,8 +204,9 @@ private
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   function Initialise_Page_Table (
-     Table : in out x86.Memory.Paging.Page_Table
-   ) return Process_Result;
+   procedure Initialise_Page_Table (
+     Table  : in out x86.Memory.Paging.Page_Table;
+     Status :    out Process_Result
+   );
 
 end Cxos.Memory.Paging;

@@ -16,9 +16,8 @@ with x86.Descriptors; use x86.Descriptors;
 --  X86.IDT
 --
 --  Purpose:
---    This package contains code for initialising the Interrupt Descriptor
---    Table. The initialisation procedure within is called by the system
---    init code.
+--    This package contains definitions for the Interrupt Descriptor
+--    Table.
 -------------------------------------------------------------------------------
 package x86.IDT is
    pragma Preelaborate;

@@ -10,45 +10,17 @@
 -------------------------------------------------------------------------------
 
 with Interfaces; use Interfaces;
-with System;
-with System.Storage_Elements; use System.Storage_Elements;
 with x86.Descriptors; use x86.Descriptors;
 
 -------------------------------------------------------------------------------
 --  X86.GDT
 --
 --  Purpose:
---    This package contains code for initialising the Global Descriptor Table.
---    The initialisation procedure within is called by the system init code.
+--    This package contains definitions forthe Global Descriptor Table.
 -------------------------------------------------------------------------------
 package x86.GDT is
    pragma Preelaborate;
 
-   ----------------------------------------------------------------------------
-   --  Finalise
-   --
-   --  Purpose:
-   --    This procedure finalises the initialisation of the GDT.
-   --    This function initiates the loading of the global descriptor table.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   procedure Finalise
-   with Import,
-     Convention    => Assembler,
-     External_Name => "__gdt_load";
-
-   ----------------------------------------------------------------------------
-   --  Initialise
-   --
-   --  Purpose:
-   --    This procedure initialises the x86 platform's Global Descriptor Table.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   procedure Initialise;
-
-private
    ----------------------------------------------------------------------------
    --  The type of this memory segment.
    ----------------------------------------------------------------------------
@@ -78,23 +50,6 @@ private
          E_C        at 0 range 2 .. 2;
          Field_Type at 0 range 3 .. 3;
       end record;
-
-   ----------------------------------------------------------------------------
-   --  Install_Descriptor
-   --
-   --  Purpose:
-   --    This procedure creates an individual descriptor entry in the x86
-   --    platform's Global Descriptor Table.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   procedure Install_Descriptor (
-     Index      : Descriptor_Entry_Range;
-     Base_Addr  : System.Address             := To_Address (0);
-     Limit_Addr : System.Address             := To_Address (0);
-     Privilege  : Descriptor_Privilege_Level := Ring_0;
-     Entry_Type : Segment_Type               := None
-   );
 
    ----------------------------------------------------------------------------
    --  An individual segment descriptor within the GDT.
@@ -137,52 +92,7 @@ private
    ----------------------------------------------------------------------------
    --  GDT table type.
    ----------------------------------------------------------------------------
-   type GDT_Table is array (Descriptor_Entry_Range range <>) of GDT_Descriptor;
-
-   ----------------------------------------------------------------------------
-   --  The number of entries in the Global Descriptor Table.
-   --  Room for this number of entries is statically allocated.
-   ----------------------------------------------------------------------------
-   GDT_LENGTH : constant := 16;
-
-   ----------------------------------------------------------------------------
-   --  The actual global descriptor table entity.
-   --  The length of the entries is statically allocated.
-   ----------------------------------------------------------------------------
-   Global_Descriptor_Table : GDT_Table (0 .. (GDT_LENGTH - 1)) := (others =>
-     (
-       Limit_Low  => 0,
-       Base_Low   => 0,
-       Base_Mid   => 0,
-       Descr_Type => (
-         A          => False,
-         W_R        => False,
-         E_C        => False,
-         Field_Type => False
-       ),
-       S          => False,
-       DPL        => Ring_0,
-       P          => False,
-       Limit_High => 0,
-       AVL        => False,
-       L          => False,
-       DB         => False,
-       G          => False,
-       Base_High  => 0
-     ))
-   with Alignment  => 16,
-     Export,
-     Convention    => Assembler,
-     External_Name => "global_descriptor_table",
-     Volatile;
-
-   ----------------------------------------------------------------------------
-   --  The pointer to the GDT needed by the processor to load the GDT.
-   ----------------------------------------------------------------------------
-   GDT_Ptr : System_Table_Descriptor
-   with Export,
-     Convention    => Assembler,
-     External_Name => "gdt_pointer",
-     Volatile;
+   type Global_Descriptor_Table_T is
+     array (Descriptor_Entry_Range range <>) of GDT_Descriptor;
 
 end x86.GDT;

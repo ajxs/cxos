@@ -15,6 +15,7 @@ with Cxos.Debug;
 with Cxos.Devices;
 with Cxos.Devices.Graphics.Vga;
 with Cxos.Exceptions;
+with Cxos.GDT;
 with Cxos.IDT;
 with Cxos.Interrupts;
 with Cxos.Memory;
@@ -27,7 +28,6 @@ with Multiboot;
 with System.Storage_Elements; use System.Storage_Elements;
 with x86.Vga;
 with x86.Interrupts;
-with x86.GDT;
 with x86.PIC;
 with x86.Serial;
 
@@ -54,7 +54,7 @@ package body Cxos.Boot is
       x86.Interrupts.Set_Interrupt_Flag (False);
 
       Debug_Print ("Initialising GDT" & Chars.LF);
-      x86.GDT.Initialise;
+      Cxos.GDT.Initialise;
       Debug_Print ("Finished initialising GDT" & Chars.LF);
 
       Debug_Print ("Initialising IDT" & Chars.LF);
@@ -65,7 +65,7 @@ package body Cxos.Boot is
       Cxos.IDT.Finalise;
 
       Debug_Print ("Flushing GDT" & Chars.LF);
-      x86.GDT.Finalise;
+      Cxos.GDT.Finalise;
 
       Debug_Print ("Jumping to protected mode" & Chars.LF);
       Protected_Mode_Init;

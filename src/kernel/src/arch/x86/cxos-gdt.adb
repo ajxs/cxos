@@ -9,7 +9,9 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-package body x86.GDT is
+with Interfaces; use Interfaces;
+
+package body Cxos.GDT is
    ----------------------------------------------------------------------------
    --  Initialise
    ----------------------------------------------------------------------------
@@ -119,4 +121,4 @@ package body x86.GDT is
       when Constraint_Error =>
          null;
    end Install_Descriptor;
-end x86.GDT;
+end Cxos.GDT;

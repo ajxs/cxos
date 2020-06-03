@@ -17,8 +17,8 @@
 #  Instructs the processor on the location of the Global Descriptor 
 #  Table.
 #####################################################################
-.global __gdt_load
-.type __gdt_load, @function
-__gdt_load:
+.global cxos_gdt_load
+.type cxos_gdt_load, @function
+cxos_gdt_load:
 	lgdt gdt_pointer
 	ret

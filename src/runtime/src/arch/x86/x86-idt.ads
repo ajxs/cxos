@@ -10,7 +10,6 @@
 -------------------------------------------------------------------------------
 
 with Interfaces; use Interfaces;
-with System;
 with x86.Descriptors; use x86.Descriptors;
 
 -------------------------------------------------------------------------------
@@ -23,60 +22,6 @@ with x86.Descriptors; use x86.Descriptors;
 -------------------------------------------------------------------------------
 package x86.IDT is
    pragma Preelaborate;
-
-   ----------------------------------------------------------------------------
-   --  Finalise
-   --
-   --  Purpose:
-   --    This procedure loads the IDT into the processor register.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   procedure Finalise
-   with Import,
-     Convention    => Assembler,
-     External_Name => "__idt_load";
-
-   ----------------------------------------------------------------------------
-   --  Initialise
-   --
-   --  Purpose:
-   --    This procedure initialises the x86 platform's Interrupt
-   --    Descriptor Table.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   procedure Initialise;
-
-   ----------------------------------------------------------------------------
-   --  Install_Descriptor
-   --
-   --  Purpose:
-   --    This procedure creates an individual descriptor entry in the x86
-   --    platform's Interrupt Descriptor Table.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   procedure Install_Descriptor (
-     Index       : Descriptor_Entry_Range;
-     Offset_Addr : System.Address;
-     Selector    : Unsigned_16;
-     Privilege   : Descriptor_Privilege_Level := Ring_0
-   );
-
-private
-   ----------------------------------------------------------------------------
-   --  Initialise_Descriptor
-   --
-   --  Purpose:
-   --    This initialises a descriptor entry. It creates an unused descriptor
-   --    entry at an arbitrary position in the IDT.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   procedure Initialise_Descriptor (
-     Index : Descriptor_Entry_Range
-   );
 
    ----------------------------------------------------------------------------
    --  Descriptor type information.
@@ -123,31 +68,9 @@ private
          Offset_High at 4 range 16 .. 31;
       end record;
 
-   type IDT_Table is array (Descriptor_Entry_Range range <>) of IDT_Descriptor;
-
    ----------------------------------------------------------------------------
-   --  The number of entries in the Global Descriptor Table.
-   --  Room for this number of entries is statically allocated.
+   --  IDT table type.
    ----------------------------------------------------------------------------
-   IDT_LENGTH : constant := 256;
-
-   ----------------------------------------------------------------------------
-   --  The actual Interrupt descriptor table entity.
-   --  The length of the entries is statically allocated.
-   ----------------------------------------------------------------------------
-   Interrupt_Descriptor_Table : IDT_Table (0 .. (IDT_LENGTH - 1))
-   with Alignment  => 8,
-     Export,
-     Convention    => Assembler,
-     External_Name => "interrupt_descriptor_table",
-     Volatile;
-
-   ----------------------------------------------------------------------------
-   --  The pointer to the IDT needed by the processor to load the IDT.
-   ----------------------------------------------------------------------------
-   IDT_Ptr : System_Table_Descriptor
-   with Export,
-     Convention    => Assembler,
-     External_Name => "idt_pointer",
-     Volatile;
+   type Interrupt_Descriptor_Table_T is
+     array (Descriptor_Entry_Range range <>) of IDT_Descriptor;
 end x86.IDT;

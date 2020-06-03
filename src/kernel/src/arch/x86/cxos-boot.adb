@@ -15,6 +15,7 @@ with Cxos.Debug;
 with Cxos.Devices;
 with Cxos.Devices.Graphics.Vga;
 with Cxos.Exceptions;
+with Cxos.IDT;
 with Cxos.Interrupts;
 with Cxos.Memory;
 with Cxos.Memory.Map;
@@ -25,7 +26,6 @@ with Interfaces; use Interfaces;
 with Multiboot;
 with System.Storage_Elements; use System.Storage_Elements;
 with x86.Vga;
-with x86.IDT;
 with x86.Interrupts;
 with x86.GDT;
 with x86.PIC;
@@ -45,36 +45,31 @@ package body Cxos.Boot is
       --  Initialise the COM1 Serial port, which will be used for all
       --  subsequent debugging output.
       x86.Serial.Initialise (x86.Serial.COM1, 38400);
-      x86.Serial.Put_String (x86.Serial.COM1,
-        "COM1 initialised" & Chars.LF);
+      Debug_Print ("COM1 initialised" & Chars.LF);
 
-      x86.Serial.Put_String (x86.Serial.COM1, "Initialising PIC" & Chars.LF);
+      Debug_Print ("Initialising PIC" & Chars.LF);
       x86.PIC.Initialise;
 
       --  Clear interrupts.
       x86.Interrupts.Set_Interrupt_Flag (False);
 
-      x86.Serial.Put_String (x86.Serial.COM1, "Initialising GDT" & Chars.LF);
+      Debug_Print ("Initialising GDT" & Chars.LF);
       x86.GDT.Initialise;
-      x86.Serial.Put_String (x86.Serial.COM1,
-        "Finished initialising GDT" & Chars.LF);
+      Debug_Print ("Finished initialising GDT" & Chars.LF);
 
-      x86.Serial.Put_String (x86.Serial.COM1, "Initialising IDT" & Chars.LF);
-      x86.IDT.Initialise;
-      x86.Serial.Put_String (x86.Serial.COM1,
-        "Finished initialising IDT" & Chars.LF);
+      Debug_Print ("Initialising IDT" & Chars.LF);
+      Cxos.IDT.Initialise;
+      Debug_Print ("Finished initialising IDT" & Chars.LF);
 
-      x86.Serial.Put_String (x86.Serial.COM1, "Loading IDT" & Chars.LF);
-      x86.IDT.Finalise;
+      Debug_Print ("Loading IDT" & Chars.LF);
+      Cxos.IDT.Finalise;
 
-      x86.Serial.Put_String (x86.Serial.COM1, "Flushing GDT" & Chars.LF);
+      Debug_Print ("Flushing GDT" & Chars.LF);
       x86.GDT.Finalise;
 
-      x86.Serial.Put_String (x86.Serial.COM1,
-        "Jumping to protected mode" & Chars.LF);
+      Debug_Print ("Jumping to protected mode" & Chars.LF);
       Protected_Mode_Init;
-      x86.Serial.Put_String (x86.Serial.COM1,
-        "Protected mode entered" & Chars.LF);
+      Debug_Print ("Protected mode entered" & Chars.LF);
 
       --  Enable interrupts.
       x86.Interrupts.Set_Interrupt_Flag (True);

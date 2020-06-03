@@ -10,7 +10,7 @@
 -------------------------------------------------------------------------------
 
 with Cxos.IRQ_Handlers;
-with x86.IDT;
+with Cxos.IDT;
 with x86.Interrupts.Names;
 with x86.PIC;
 
@@ -24,12 +24,12 @@ package body Cxos.Interrupts is
    begin
       --  Install a handler for IRQ0.
       x86.PIC.Set_Interrupt_Mask (IRQ0, False);
-      x86.IDT.Install_Descriptor (32,
+      Cxos.IDT.Install_Descriptor (32,
         Cxos.IRQ_Handlers.IRQ0_Handler'Address, 16#8#);
 
       --  Install a handler for IRQ1.
       x86.PIC.Set_Interrupt_Mask (IRQ1, False);
-      x86.IDT.Install_Descriptor (33,
+      Cxos.IDT.Install_Descriptor (33,
         Cxos.IRQ_Handlers.IRQ1_Handler'Address, 16#8#);
 
       return Success;

@@ -11,7 +11,7 @@
 
 with System.Storage_Elements; use System.Storage_Elements;
 
-package body x86.IDT is
+package body Cxos.IDT is
    ----------------------------------------------------------------------------
    --  Initialise
    ----------------------------------------------------------------------------
@@ -94,4 +94,4 @@ package body x86.IDT is
       when Constraint_Error =>
          return;
    end Install_Descriptor;
-end x86.IDT;
+end Cxos.IDT;

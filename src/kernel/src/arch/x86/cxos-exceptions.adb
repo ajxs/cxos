@@ -11,10 +11,11 @@
 
 with Ada.Characters.Latin_1;
 with Cxos.Debug;
-with x86.IDT;
+with Cxos.IDT;
 
 package body Cxos.Exceptions is
    package Chars renames Ada.Characters.Latin_1;
+   procedure Debug_Print (Data : String) renames Cxos.Debug.Put_String;
 
    ----------------------------------------------------------------------------
    --  Exception_0_Handler
@@ -24,8 +25,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 0 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 0 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_0_Handler;
 
@@ -37,8 +37,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 10 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 10 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_10_Handler;
 
@@ -50,8 +49,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 11 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 11 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_11_Handler;
 
@@ -63,8 +61,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 12 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 12 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_12_Handler;
 
@@ -76,8 +73,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 13 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 13 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_13_Handler;
 
@@ -89,8 +85,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 14 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 14 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_14_Handler;
 
@@ -102,8 +97,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 15 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 15 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_15_Handler;
 
@@ -115,8 +109,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 16 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 16 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_16_Handler;
 
@@ -128,8 +121,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 17 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 17 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_17_Handler;
 
@@ -141,8 +133,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 18 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 18 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_18_Handler;
 
@@ -154,8 +145,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 19 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 19 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_19_Handler;
 
@@ -167,8 +157,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 1 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 1 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_1_Handler;
 
@@ -180,8 +169,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 20 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 20 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_20_Handler;
 
@@ -193,8 +181,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 21 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 21 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_21_Handler;
 
@@ -206,8 +193,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 22 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 22 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_22_Handler;
 
@@ -219,8 +205,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 23 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 23 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_23_Handler;
 
@@ -232,8 +217,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 24 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 24 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_24_Handler;
 
@@ -245,8 +229,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 25 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 25 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_25_Handler;
 
@@ -258,8 +241,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 26 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 26 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_26_Handler;
 
@@ -271,8 +253,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 27 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 27 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_27_Handler;
 
@@ -284,8 +265,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 28 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 28 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_28_Handler;
 
@@ -297,8 +277,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 29 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 29 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_29_Handler;
 
@@ -310,8 +289,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 2 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 2 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_2_Handler;
 
@@ -323,8 +301,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 30 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 30 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_30_Handler;
 
@@ -336,8 +313,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 31 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 31 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_31_Handler;
 
@@ -349,8 +325,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 3 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 3 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_3_Handler;
 
@@ -362,8 +337,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 4 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 4 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_4_Handler;
 
@@ -375,8 +349,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 5 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 5 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_5_Handler;
 
@@ -388,8 +361,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 6 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 6 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_6_Handler;
 
@@ -401,8 +373,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 7 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 7 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_7_Handler;
 
@@ -414,8 +385,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 8 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 8 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_8_Handler;
 
@@ -427,8 +397,7 @@ package body Cxos.Exceptions is
    ) is
    begin
       pragma Unreferenced (Saved_Registers);
-      Cxos.Debug.Put_String (
-        "Exception 9 occurred. System Halted." & Chars.LF);
+      Debug_Print ("Exception 9 occurred. System Halted." & Chars.LF);
       Halt_Processor;
    end Exception_9_Handler;
 
@@ -554,7 +523,7 @@ package body Cxos.Exceptions is
          when 31 =>
             Exception_31_Handler (Stack_Frame);
          when others =>
-            Cxos.Debug.Put_String (
+            Debug_Print (
               "Unknown Exception occurred. System Halted." & Chars.LF);
             Halt_Processor;
       end case;
@@ -579,38 +548,38 @@ package body Cxos.Exceptions is
    ----------------------------------------------------------------------------
    procedure Initialise is
    begin
-      x86.IDT.Install_Descriptor (0,  Exception_0_Entry'Address, 16#8#);
-      x86.IDT.Install_Descriptor (1,  Exception_1_Entry'Address, 16#8#);
-      x86.IDT.Install_Descriptor (2,  Exception_2_Entry'Address, 16#8#);
-      x86.IDT.Install_Descriptor (3,  Exception_3_Entry'Address, 16#8#);
-      x86.IDT.Install_Descriptor (4,  Exception_4_Entry'Address, 16#8#);
-      x86.IDT.Install_Descriptor (5,  Exception_5_Entry'Address, 16#8#);
-      x86.IDT.Install_Descriptor (6,  Exception_6_Entry'Address, 16#8#);
-      x86.IDT.Install_Descriptor (7,  Exception_7_Entry'Address, 16#8#);
-      x86.IDT.Install_Descriptor (8,  Exception_8_Entry'Address, 16#8#);
-      x86.IDT.Install_Descriptor (9,  Exception_9_Entry'Address, 16#8#);
-      x86.IDT.Install_Descriptor (10, Exception_10_Entry'Address, 16#8#);
-      x86.IDT.Install_Descriptor (11, Exception_11_Entry'Address, 16#8#);
-      x86.IDT.Install_Descriptor (12, Exception_12_Entry'Address, 16#8#);
-      x86.IDT.Install_Descriptor (13, Exception_13_Entry'Address, 16#8#);
-      x86.IDT.Install_Descriptor (14, Exception_14_Entry'Address, 16#8#);
-      x86.IDT.Install_Descriptor (15, Exception_15_Entry'Address, 16#8#);
-      x86.IDT.Install_Descriptor (16, Exception_16_Entry'Address, 16#8#);
-      x86.IDT.Install_Descriptor (17, Exception_17_Entry'Address, 16#8#);
-      x86.IDT.Install_Descriptor (18, Exception_18_Entry'Address, 16#8#);
-      x86.IDT.Install_Descriptor (19, Exception_19_Entry'Address, 16#8#);
-      x86.IDT.Install_Descriptor (20, Exception_20_Entry'Address, 16#8#);
-      x86.IDT.Install_Descriptor (21, Exception_21_Entry'Address, 16#8#);
-      x86.IDT.Install_Descriptor (22, Exception_22_Entry'Address, 16#8#);
-      x86.IDT.Install_Descriptor (23, Exception_23_Entry'Address, 16#8#);
-      x86.IDT.Install_Descriptor (24, Exception_24_Entry'Address, 16#8#);
-      x86.IDT.Install_Descriptor (25, Exception_25_Entry'Address, 16#8#);
-      x86.IDT.Install_Descriptor (26, Exception_26_Entry'Address, 16#8#);
-      x86.IDT.Install_Descriptor (27, Exception_27_Entry'Address, 16#8#);
-      x86.IDT.Install_Descriptor (28, Exception_28_Entry'Address, 16#8#);
-      x86.IDT.Install_Descriptor (29, Exception_29_Entry'Address, 16#8#);
-      x86.IDT.Install_Descriptor (30, Exception_30_Entry'Address, 16#8#);
-      x86.IDT.Install_Descriptor (31, Exception_31_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (0,  Exception_0_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (1,  Exception_1_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (2,  Exception_2_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (3,  Exception_3_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (4,  Exception_4_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (5,  Exception_5_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (6,  Exception_6_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (7,  Exception_7_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (8,  Exception_8_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (9,  Exception_9_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (10, Exception_10_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (11, Exception_11_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (12, Exception_12_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (13, Exception_13_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (14, Exception_14_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (15, Exception_15_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (16, Exception_16_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (17, Exception_17_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (18, Exception_18_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (19, Exception_19_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (20, Exception_20_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (21, Exception_21_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (22, Exception_22_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (23, Exception_23_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (24, Exception_24_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (25, Exception_25_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (26, Exception_26_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (27, Exception_27_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (28, Exception_28_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (29, Exception_29_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (30, Exception_30_Entry'Address, 16#8#);
+      Cxos.IDT.Install_Descriptor (31, Exception_31_Entry'Address, 16#8#);
    end Initialise;
 
 end Cxos.Exceptions;

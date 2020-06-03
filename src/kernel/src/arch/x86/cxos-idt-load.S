@@ -17,8 +17,8 @@
 #  Instructs the processor on the location of the Interrupt
 #  Descriptor Table.
 #####################################################################
-.global __idt_load
-.type __idt_load, @function
-__idt_load:
+.global cxos_idt_load
+.type cxos_idt_load, @function
+cxos_idt_load:
 	lidt idt_pointer
 	ret

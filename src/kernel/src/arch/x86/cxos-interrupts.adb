@@ -13,6 +13,7 @@ with Cxos.IRQ_Handlers;
 with Cxos.IDT;
 with x86.Interrupts.Names;
 with x86.PIC;
+with System.Machine_Code;
 
 package body Cxos.Interrupts is
    use x86.Interrupts.Names;
@@ -34,4 +35,26 @@ package body Cxos.Interrupts is
 
       return Success;
    end Initialise;
+
+   ----------------------------------------------------------------------------
+   --  Set_Interrupt_Flag
+   ----------------------------------------------------------------------------
+   procedure Set_Interrupt_Flag (
+     Status : Boolean
+   ) is
+   begin
+      case Status is
+         when True =>
+            System.Machine_Code.Asm (
+              Template => "sti",
+              Volatile => True);
+         when False =>
+            System.Machine_Code.Asm (
+              Template => "cli",
+              Volatile => True);
+      end case;
+   exception
+      when Constraint_Error =>
+         return;
+   end Set_Interrupt_Flag;
 end Cxos.Interrupts;

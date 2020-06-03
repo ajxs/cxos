@@ -39,4 +39,17 @@ package Cxos.Interrupts is
    ----------------------------------------------------------------------------
    function Initialise return Process_Result;
 
+   ----------------------------------------------------------------------------
+   --  Set_Interrupt_Flag
+   --
+   --  Purpose:
+   --    Sets or clears the interrupt flag in the processor EFLAGS register.
+   --    If this is set to true, the processor begins responding to external
+   --    maskable interrupts. Otherwise all maskable interrupts are ignored.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   procedure Set_Interrupt_Flag (
+     Status : Boolean
+   );
 end Cxos.Interrupts;

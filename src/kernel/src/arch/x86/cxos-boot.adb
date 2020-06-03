@@ -27,7 +27,6 @@ with Interfaces; use Interfaces;
 with Multiboot;
 with System.Storage_Elements; use System.Storage_Elements;
 with x86.Vga;
-with x86.Interrupts;
 with x86.PIC;
 with x86.Serial;
 
@@ -51,7 +50,7 @@ package body Cxos.Boot is
       x86.PIC.Initialise;
 
       --  Clear interrupts.
-      x86.Interrupts.Set_Interrupt_Flag (False);
+      Cxos.Interrupts.Set_Interrupt_Flag (False);
 
       Debug_Print ("Initialising GDT" & Chars.LF);
       Cxos.GDT.Initialise;
@@ -72,7 +71,7 @@ package body Cxos.Boot is
       Debug_Print ("Protected mode entered" & Chars.LF);
 
       --  Enable interrupts.
-      x86.Interrupts.Set_Interrupt_Flag (True);
+      Cxos.Interrupts.Set_Interrupt_Flag (True);
 
       --  Initialise VGA graphics buffer.
       Initialise_Vga :

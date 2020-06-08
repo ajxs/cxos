@@ -76,7 +76,22 @@ private
    function Get_Port_Address (
      Port : Serial_Port
    ) return System.Address
-   with Pure_Function;
+   with Pure_Function,
+     Inline;
+
+   ----------------------------------------------------------------------------
+   --  Get_Register_Address
+   --
+   --  Purpose:
+   --    This function returns the port-mapped address of an individual
+   --    serial port register.
+   ----------------------------------------------------------------------------
+   function Get_Register_Address (
+     Port     : Serial_Port;
+     Register : Serial_Port_Register
+   ) return System.Address
+   with Pure_Function,
+     Inline;
 
    ----------------------------------------------------------------------------
    --  Is_Tx_Empty
@@ -151,4 +166,5 @@ private
      Interrupt_Type : Serial_Interrupt_Type;
      Status         : Boolean
    );
+
 end Cxos.Devices.Serial;

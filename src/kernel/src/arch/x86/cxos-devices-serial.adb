@@ -44,6 +44,48 @@ package body Cxos.Devices.Serial is
    end Get_Port_Address;
 
    ----------------------------------------------------------------------------
+   --  Get_Register_Address
+   ----------------------------------------------------------------------------
+   function Get_Register_Address (
+     Port     : Serial_Port;
+     Register : Serial_Port_Register
+   ) return System.Address is
+      --  The base address of the port.
+      Port_Address : System.Address;
+   begin
+      --  Get the address for the selected serial port.
+      Get_COM_Port_Address :
+         begin
+            Port_Address := Get_Port_Address (Port);
+         exception
+            when Constraint_Error =>
+               return System.Null_Address;
+         end Get_COM_Port_Address;
+
+      case Register is
+         when Rx_Buffer_Tx_Holding =>
+            return Port_Address;
+         when Interrupt_Enable =>
+            return Port_Address + Storage_Offset (1);
+         when Interrupt_Ident_FIFO_Control =>
+            return Port_Address + Storage_Offset (2);
+         when Line_Control =>
+            return Port_Address + Storage_Offset (3);
+         when Modem_Control =>
+            return Port_Address + Storage_Offset (4);
+         when Line_Status =>
+            return Port_Address + Storage_Offset (5);
+         when Modem_Status =>
+            return Port_Address + Storage_Offset (6);
+         when Scratch =>
+            return Port_Address + Storage_Offset (7);
+      end case;
+   exception
+      when Constraint_Error =>
+         return System.Null_Address;
+   end Get_Register_Address;
+
+   ----------------------------------------------------------------------------
    --  Initialise
    --
    --  Implementation Notes:
@@ -212,18 +254,18 @@ package body Cxos.Devices.Serial is
                Divisor := 1;
          end Get_Divisor;
 
-      Get_Divisor_Registers :
+      Get_Divisor_Value :
          begin
             Divisor_Low_Byte := Unsigned_8 (Divisor and 16#FF#);
             Divisor_High_Byte :=
-            Unsigned_8 (Shift_Right (Divisor, 8) and 16#FF#);
+              Unsigned_8 (Shift_Right (Divisor, 8) and 16#FF#);
          exception
             --  In the case of any errors here, default to the
             --  highest baud rate setting.
             when Constraint_Error =>
                Divisor_Low_Byte := 16#01#;
                Divisor_High_Byte := 16#0#;
-         end Get_Divisor_Registers;
+         end Get_Divisor_Value;
 
       --  Enable DLAB.
       Set_Divisor_Latch_State (Port, True);

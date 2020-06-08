@@ -80,6 +80,20 @@ package x86.Serial is
       end record;
 
    ----------------------------------------------------------------------------
+   --  Serial Port register type.
+   ----------------------------------------------------------------------------
+   type Serial_Port_Register is (
+     Rx_Buffer_Tx_Holding,
+     Interrupt_Enable,
+     Interrupt_Ident_FIFO_Control,
+     Line_Control,
+     Modem_Control,
+     Line_Status,
+     Modem_Status,
+     Scratch
+   );
+
+   ----------------------------------------------------------------------------
    --  Byte_To_Port_Interrupt_Status
    --
    --  Purpose:

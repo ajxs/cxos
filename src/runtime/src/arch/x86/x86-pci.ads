@@ -34,12 +34,12 @@ package x86.PCI is
    ----------------------------------------------------------------------------
    --  PCI Device function number type.
    ----------------------------------------------------------------------------
-   type Pci_Function_Number is mod 2 ** 3;
+   type PCI_Function_Number is mod 2 ** 3;
 
    ----------------------------------------------------------------------------
    --  PCI device number type.
    ----------------------------------------------------------------------------
-   type Pci_Device_Number   is mod 2 ** 5;
+   type PCI_Device_Number   is mod 2 ** 5;
 
    ----------------------------------------------------------------------------
    --  PCI Command Register Fields.
@@ -176,8 +176,8 @@ package x86.PCI is
    function Pci_Read_Long (
      Output          : out Unsigned_32;
      Bus_Number      :     Unsigned_8;
-     Device_Number   :     Pci_Device_Number;
-     Function_Number :     Pci_Function_Number;
+     Device_Number   :     PCI_Device_Number;
+     Function_Number :     PCI_Function_Number;
      Offset          :     Unsigned_8
    ) return Process_Result
    with Volatile_Function;
@@ -195,8 +195,8 @@ private
    type Pci_Config_Address is
       record
          Offset          : Unsigned_8;
-         Function_Number : Pci_Function_Number;
-         Device_Number   : Pci_Device_Number;
+         Function_Number : PCI_Function_Number;
+         Device_Number   : PCI_Device_Number;
          Bus_Number      : Unsigned_8;
          Reserved        : Boolean := False;
          Enable          : Boolean;

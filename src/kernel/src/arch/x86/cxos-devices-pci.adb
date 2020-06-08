@@ -14,7 +14,6 @@ with Cxos.Debug;
 with Cxos.Devices.PCI.Print; use Cxos.Devices.PCI.Print;
 
 package body Cxos.Devices.PCI is
-   use x86.PCI;
    package Chars renames Ada.Characters.Latin_1;
    procedure Debug_Print (Data : String) renames Cxos.Debug.Put_String;
 
@@ -35,9 +34,9 @@ package body Cxos.Devices.PCI is
         "------------------------" & Chars.LF);
 
       for Bus in Unsigned_8 range 0 .. 255 loop
-         for Device in x86.PCI.Pci_Device_Number range 0 .. 31 loop
+         for Device in x86.PCI.PCI_Device_Number range 0 .. 31 loop
             Function_Loop :
-               for Func in Pci_Function_Number range 0 .. 7 loop
+               for Func in PCI_Function_Number range 0 .. 7 loop
                   --  Test the individual PCI address.
                   Result := Test_PCI_Device (Test_Result, Bus, Device, Func);
                   if Result /= Success then
@@ -80,8 +79,8 @@ package body Cxos.Devices.PCI is
    function Read_PCI_Device (
      Device          : out PCI_Device_T;
      Bus_Number      :     Unsigned_8;
-     Device_Number   :     Pci_Device_Number;
-     Function_Number :     Pci_Function_Number
+     Device_Number   :     PCI_Device_Number;
+     Function_Number :     PCI_Function_Number
    ) return Process_Result is
       --  The results of internal PCI bus read processes.
       Result : x86.PCI.Process_Result;
@@ -153,8 +152,8 @@ package body Cxos.Devices.PCI is
    function Test_PCI_Device (
      Result          : out Boolean;
      Bus_Number      :     Unsigned_8;
-     Device_Number   :     Pci_Device_Number;
-     Function_Number :     Pci_Function_Number
+     Device_Number   :     PCI_Device_Number;
+     Function_Number :     PCI_Function_Number
    ) return Process_Result is
       --  The result of the bus read process.
       Read_Result : x86.PCI.Process_Result;

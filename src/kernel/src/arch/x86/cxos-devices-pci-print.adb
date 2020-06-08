@@ -13,7 +13,6 @@ with Ada.Characters.Latin_1;
 with Cxos.Debug;
 
 package body Cxos.Devices.PCI.Print is
-   use x86.PCI;
    package Chars renames Ada.Characters.Latin_1;
    procedure Debug_Print (Data : String) renames Cxos.Debug.Put_String;
 

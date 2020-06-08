@@ -19,8 +19,8 @@ package body x86.PCI is
    function Pci_Read_Long (
      Output          : out Unsigned_32;
      Bus_Number      :     Unsigned_8;
-     Device_Number   :     Pci_Device_Number;
-     Function_Number :     Pci_Function_Number;
+     Device_Number   :     PCI_Device_Number;
+     Function_Number :     PCI_Function_Number;
      Offset          :     Unsigned_8
    ) return Process_Result is
       --  The PCI address register value to send to read

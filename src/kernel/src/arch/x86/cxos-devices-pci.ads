@@ -10,7 +10,7 @@
 -------------------------------------------------------------------------------
 
 with Interfaces; use Interfaces;
-with x86.PCI;
+with x86.PCI; use x86.PCI;
 
 -------------------------------------------------------------------------------
 --  CXOS.DEVICES.PCI
@@ -37,8 +37,8 @@ private
    type PCI_Device_T is
       record
          Bus_Number       : Unsigned_8;
-         Device_Number    : x86.PCI.Pci_Device_Number;
-         Function_Number  : x86.PCI.Pci_Function_Number;
+         Device_Number    : x86.PCI.PCI_Device_Number;
+         Function_Number  : x86.PCI.PCI_Function_Number;
          Vendor_Id        : Unsigned_16;
          Device_Id        : Unsigned_16;
          Command          : Unsigned_16;
@@ -78,8 +78,8 @@ private
    function Read_PCI_Device (
      Device          : out PCI_Device_T;
      Bus_Number      :     Unsigned_8;
-     Device_Number   :     x86.PCI.Pci_Device_Number;
-     Function_Number :     x86.PCI.Pci_Function_Number
+     Device_Number   :     x86.PCI.PCI_Device_Number;
+     Function_Number :     x86.PCI.PCI_Function_Number
    ) return Process_Result
    with Volatile_Function;
 
@@ -94,8 +94,8 @@ private
    function Test_PCI_Device (
      Result          : out Boolean;
      Bus_Number      :     Unsigned_8;
-     Device_Number   :     x86.PCI.Pci_Device_Number;
-     Function_Number :     x86.PCI.Pci_Function_Number
+     Device_Number   :     x86.PCI.PCI_Device_Number;
+     Function_Number :     x86.PCI.PCI_Function_Number
    ) return Process_Result;
 
 end Cxos.Devices.PCI;

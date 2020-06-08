@@ -9,7 +9,7 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with x86.Serial;
+with Cxos.Devices.Serial;
 
 package body Cxos.Debug is
    ----------------------------------------------------------------------------
@@ -22,6 +22,6 @@ package body Cxos.Debug is
      Data : String
    ) is
    begin
-      x86.Serial.Put_String (x86.Serial.COM1, Data);
+      Cxos.Devices.Serial.Put_String (Data);
    end Put_String;
 end Cxos.Debug;

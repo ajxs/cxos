@@ -9,13 +9,13 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
+with Cxos.Debug;
 with Cxos.Time_Keeping;
 with Interfaces;
 with System.Storage_Elements;
 with x86.Interrupts.Names;
 with x86.PIC;
 with x86.Port_IO;
-with x86.Serial;
 
 package body Cxos.IRQ_Handlers is
    use x86.Interrupts.Names;
@@ -96,8 +96,7 @@ package body Cxos.IRQ_Handlers is
       --  Read the keycode.
       Keycode := x86.Port_IO.Inb (To_Address (16#60#));
 
-      x86.Serial.Put_String (x86.Serial.COM1,
-        "" & Character'Val (Keycode));
+      Cxos.Debug.Put_String ("" & Character'Val (Keycode));
 
       x86.PIC.Send_EOI (IRQ1);
 

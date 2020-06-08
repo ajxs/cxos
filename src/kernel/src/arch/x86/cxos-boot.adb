@@ -14,6 +14,7 @@ with Cxos.Boot.Multiboot_Init;
 with Cxos.Debug;
 with Cxos.Devices;
 with Cxos.Devices.Graphics.Vga;
+with Cxos.Devices.Serial;
 with Cxos.Exceptions;
 with Cxos.GDT;
 with Cxos.IDT;
@@ -43,7 +44,7 @@ package body Cxos.Boot is
    begin
       --  Initialise the COM1 Serial port, which will be used for all
       --  subsequent debugging output.
-      x86.Serial.Initialise (x86.Serial.COM1, 38400);
+      Cxos.Devices.Serial.Initialise (x86.Serial.COM1, 38400);
       Debug_Print ("COM1 initialised" & Chars.LF);
 
       Debug_Print ("Initialising PIC" & Chars.LF);

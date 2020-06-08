@@ -20,8 +20,8 @@ package body Cxos.Devices.PCI.Print is
    ----------------------------------------------------------------------------
    --  Print_Pci_Device
    ----------------------------------------------------------------------------
-   procedure Print_Pci_Device (
-      Device : Pci_Device
+   procedure Print_PCI_Device (
+      Device : PCI_Device_T
    ) is
    begin
       Debug_Print ("PCI Device:" & Chars.LF);
@@ -199,6 +199,6 @@ package body Cxos.Devices.PCI.Print is
          Debug_Print ("Error printing device: " &
            "Invalid Value Encountered" & Chars.LF);
          return;
-   end Print_Pci_Device;
+   end Print_PCI_Device;
 
 end Cxos.Devices.PCI.Print;

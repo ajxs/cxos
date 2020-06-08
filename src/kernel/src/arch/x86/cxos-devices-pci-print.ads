@@ -24,8 +24,8 @@ private package Cxos.Devices.PCI.Print is
    --  Purpose:
    --    This procedure prints information about a PCI device record.
    ----------------------------------------------------------------------------
-   procedure Print_Pci_Device (
-     Device : Pci_Device
+   procedure Print_PCI_Device (
+     Device : PCI_Device_T
    );
 
 end Cxos.Devices.PCI.Print;

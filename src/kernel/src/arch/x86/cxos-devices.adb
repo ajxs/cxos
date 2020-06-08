@@ -32,7 +32,7 @@ package body Cxos.Devices is
 
       Read_Buf    : Cxos.Devices.ATA.ATA_Read_Buffer (0 .. 255);
    begin
-      Result := Cxos.Devices.PCI.Find_Pci_Devices;
+      Result := Cxos.Devices.PCI.Find_PCI_Devices;
       if Result /= Success then
          return;
       end if;

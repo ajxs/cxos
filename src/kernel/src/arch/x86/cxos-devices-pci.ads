@@ -27,14 +27,14 @@ package Cxos.Devices.PCI is
    --  Purpose:
    --    Searches the PCI Address space to find PCI devices.
    ----------------------------------------------------------------------------
-   function Find_Pci_Devices return Process_Result
+   function Find_PCI_Devices return Process_Result
    with Volatile_Function;
 
 private
    ----------------------------------------------------------------------------
    --  PCI Device Type
    ----------------------------------------------------------------------------
-   type Pci_Device is
+   type PCI_Device_T is
       record
          Bus_Number       : Unsigned_8;
          Device_Number    : x86.PCI.Pci_Device_Number;
@@ -75,8 +75,8 @@ private
    --    This function reads the PCI bus to collect information on a specific
    --    PCI device.
    ----------------------------------------------------------------------------
-   function Read_Pci_Device (
-     Device          : out Pci_Device;
+   function Read_PCI_Device (
+     Device          : out PCI_Device_T;
      Bus_Number      :     Unsigned_8;
      Device_Number   :     x86.PCI.Pci_Device_Number;
      Function_Number :     x86.PCI.Pci_Function_Number
@@ -91,7 +91,7 @@ private
    --    particular address. The function sets a boolean value indicating
    --    whether a valid device is present.
    ----------------------------------------------------------------------------
-   function Test_Pci_Device (
+   function Test_PCI_Device (
      Result          : out Boolean;
      Bus_Number      :     Unsigned_8;
      Device_Number   :     x86.PCI.Pci_Device_Number;

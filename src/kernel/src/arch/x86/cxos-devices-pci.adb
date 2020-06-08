@@ -21,9 +21,9 @@ package body Cxos.Devices.PCI is
    ----------------------------------------------------------------------------
    --  Find_Pci_Devices
    ----------------------------------------------------------------------------
-   function Find_Pci_Devices return Process_Result is
+   function Find_PCI_Devices return Process_Result is
       --  Variable to store the last read device.
-      Device_Info : Pci_Device;
+      Device_Info : PCI_Device_T;
       --  Variable for testing whether a device exists at a specific address.
       Test_Result : Boolean;
       --  The result of internal processes.
@@ -39,14 +39,14 @@ package body Cxos.Devices.PCI is
             Function_Loop :
                for Func in Pci_Function_Number range 0 .. 7 loop
                   --  Test the individual PCI address.
-                  Result := Test_Pci_Device (Test_Result, Bus, Device, Func);
+                  Result := Test_PCI_Device (Test_Result, Bus, Device, Func);
                   if Result /= Success then
                      Debug_Print ("Error testing PCI device" & Chars.LF);
                      return Unhandled_Exception;
                   end if;
 
                   if Test_Result then
-                     Result := Read_Pci_Device (Device_Info, Bus,
+                     Result := Read_PCI_Device (Device_Info, Bus,
                        Device, Func);
                      if Result /= Success then
                         Debug_Print ("Error reading PCI device" & Chars.LF);
@@ -54,7 +54,7 @@ package body Cxos.Devices.PCI is
                      end if;
 
                      if PRINT_INFO then
-                        Print_Pci_Device (Device_Info);
+                        Print_PCI_Device (Device_Info);
                      end if;
 
                      --  If this is not a multi-function device, exit.
@@ -72,13 +72,13 @@ package body Cxos.Devices.PCI is
    exception
       when Constraint_Error =>
          return Unhandled_Exception;
-   end Find_Pci_Devices;
+   end Find_PCI_Devices;
 
    ----------------------------------------------------------------------------
    --  Read_Pci_Device
    ----------------------------------------------------------------------------
-   function Read_Pci_Device (
-     Device          : out Pci_Device;
+   function Read_PCI_Device (
+     Device          : out PCI_Device_T;
      Bus_Number      :     Unsigned_8;
      Device_Number   :     Pci_Device_Number;
      Function_Number :     Pci_Function_Number
@@ -140,7 +140,7 @@ package body Cxos.Devices.PCI is
    exception
       when Constraint_Error =>
          return Bus_Read_Error;
-   end Read_Pci_Device;
+   end Read_PCI_Device;
 
    ----------------------------------------------------------------------------
    --  Test_Pci_Device
@@ -150,7 +150,7 @@ package body Cxos.Devices.PCI is
    --      address. If a null value of 0xFFFFFFFF is returned, we can
    --      conclude that no device exists at this bus address.
    ----------------------------------------------------------------------------
-   function Test_Pci_Device (
+   function Test_PCI_Device (
      Result          : out Boolean;
      Bus_Number      :     Unsigned_8;
      Device_Number   :     Pci_Device_Number;
@@ -179,6 +179,6 @@ package body Cxos.Devices.PCI is
       Result := Output /= 16#FFFF_FFFF#;
 
       return Success;
-   end Test_Pci_Device;
+   end Test_PCI_Device;
 
 end Cxos.Devices.PCI;

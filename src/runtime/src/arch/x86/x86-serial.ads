@@ -82,7 +82,7 @@ package x86.Serial is
    ----------------------------------------------------------------------------
    --  Serial Port register type.
    ----------------------------------------------------------------------------
-   type Serial_Port_Register is (
+   type Serial_Port_Register_Type is (
      Rx_Buffer_Tx_Holding,
      Interrupt_Enable,
      Interrupt_Ident_FIFO_Control,

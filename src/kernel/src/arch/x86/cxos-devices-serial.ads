@@ -88,7 +88,7 @@ private
    ----------------------------------------------------------------------------
    function Get_Register_Address (
      Port     : Serial_Port;
-     Register : Serial_Port_Register
+     Register : Serial_Port_Register_Type
    ) return System.Address
    with Pure_Function,
      Inline;

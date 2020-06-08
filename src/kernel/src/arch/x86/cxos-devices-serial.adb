@@ -48,7 +48,7 @@ package body Cxos.Devices.Serial is
    ----------------------------------------------------------------------------
    function Get_Register_Address (
      Port     : Serial_Port;
-     Register : Serial_Port_Register
+     Register : Serial_Port_Register_Type
    ) return System.Address is
       --  The base address of the port.
       Port_Address : System.Address;

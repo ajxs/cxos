@@ -250,7 +250,8 @@ package x86.ATA is
      Bus      : ATA_Bus;
      Register : ATA_Register_Type
    ) return System.Address
-   with Pure_Function;
+   with Pure_Function,
+     Inline;
 
    ----------------------------------------------------------------------------
    --  ATA Device Serial Number type.

@@ -21,8 +21,7 @@ TEST_DISK_FAT12_IMG_SIZE := 2880
 
 TEST_DISK_FAT16_IMG      := ./test_fat16.img
 
-TEST_DISK_CONTENTS := "../README.md" \
-	"../debugrc"
+TEST_DISK_CONTENTS := $(shell ls -d ./test_disk_files/*)
 
 all: ${TEST_DISK_FAT12_IMG} ${TEST_DISK_FAT16_IMG}
 

@@ -15,6 +15,7 @@ with Cxos.Debug;
 with Cxos.Devices.ATA;
 with Cxos.Devices.PCI;
 with Cxos.Filesystems.FAT;
+with Cxos.Filesystems.FAT.Print;
 with x86.ATA;
 
 package body Cxos.Devices is
@@ -67,7 +68,7 @@ package body Cxos.Devices is
            Address    => B_Sec.BPB_Buffer'Address;
       begin
          Debug_Print ("" & Chars.LF);
-         Cxos.Filesystems.FAT.Print_Filesystem_Info (B_Sec);
+         Cxos.Filesystems.FAT.Print.Print_Filesystem_Info (B_Sec);
 
          Get_Filesystem_Type (B_Sec, FAT_Type, Status);
          if Status /= Success then

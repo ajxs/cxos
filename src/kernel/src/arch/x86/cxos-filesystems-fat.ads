@@ -320,14 +320,6 @@ package Cxos.Filesystems.FAT is
      with Pack;
 
    ----------------------------------------------------------------------------
-   --  Print_Filesystem_Info
-   --
-   --  Purpose:
-   --    Prints information about a FAT formatted device.
-   ----------------------------------------------------------------------------
-   procedure Print_Filesystem_Info (Boot_Sec : Boot_Sector);
-
-   ----------------------------------------------------------------------------
    --  Get_Filesystem_Type
    --
    --  Purpose:

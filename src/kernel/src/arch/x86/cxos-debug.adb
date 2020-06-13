@@ -24,4 +24,16 @@ package body Cxos.Debug is
    begin
       Cxos.Devices.Serial.Put_String (Data);
    end Put_String;
+
+   ----------------------------------------------------------------------------
+   --  Put_String_Wide
+   ----------------------------------------------------------------------------
+   procedure Put_String_Wide (
+     Data : Wide_String
+   ) is
+   begin
+      pragma Unreferenced (Data);
+      null;
+   end Put_String_Wide;
+
 end Cxos.Debug;

@@ -25,4 +25,12 @@ package Cxos.Debug is
    procedure Put_String (
      Data : String
    );
+
+   ----------------------------------------------------------------------------
+   --  Put_String_Wide
+   ----------------------------------------------------------------------------
+   procedure Put_String_Wide (
+     Data : Wide_String
+   );
+
 end Cxos.Debug;

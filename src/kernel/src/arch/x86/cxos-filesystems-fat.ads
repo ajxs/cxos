@@ -9,6 +9,7 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
+with Ada.Unchecked_Conversion;
 with Interfaces; use Interfaces;
 with System;
 
@@ -49,12 +50,6 @@ package Cxos.Filesystems.FAT is
      array (1 .. 3) of Unsigned_8;
 
    ----------------------------------------------------------------------------
-   --  OEM name type.
-   ----------------------------------------------------------------------------
-   type OEM_Name_T is
-     array (1 .. 8) of Character;
-
-   ----------------------------------------------------------------------------
    --  The BIOS parameter block.
    --  Represents a DOS 3.31 BPB type.
    ----------------------------------------------------------------------------
@@ -91,18 +86,6 @@ package Cxos.Filesystems.FAT is
       end record;
 
    ----------------------------------------------------------------------------
-   --  Partition volume label string type.
-   ----------------------------------------------------------------------------
-   type Partition_Volume_Label_String is
-     array (1 .. 11) of Character;
-
-   ----------------------------------------------------------------------------
-   --  File system type string.
-   ----------------------------------------------------------------------------
-   type File_System_Type_String is
-     array (1 .. 8) of Character;
-
-   ----------------------------------------------------------------------------
    --  Extended BIOS parameter block.
    --  Used in FAT12/FAT16 filesystems.
    ----------------------------------------------------------------------------
@@ -113,8 +96,8 @@ package Cxos.Filesystems.FAT is
          Reserved                : Unsigned_8;
          Extended_Boot_Signature : Unsigned_8;
          Volume_Id               : Unsigned_32;
-         Partition_Volume_Label  : Partition_Volume_Label_String;
-         File_System_Type        : File_System_Type_String;
+         Partition_Volume_Label  : String (1 .. 11);
+         File_System_Type        : String (1 .. 8);
       end record
    with Size => 408;
    for Extended_BIOS_Parameter_Block use
@@ -127,16 +110,6 @@ package Cxos.Filesystems.FAT is
          Partition_Volume_Label  at 0 range 256 .. 343;
          File_System_Type        at 0 range 344 .. 407;
       end record;
-
-   ----------------------------------------------------------------------------
-   --  The volume label used in FAT32 BPBs.
-   ----------------------------------------------------------------------------
-   type FAT32_Volume_Label is array (0 .. 10) of Character;
-
-   ----------------------------------------------------------------------------
-   --  The type label used in FAT32 BPBs.
-   ----------------------------------------------------------------------------
-   type FAT32_Type_Label is array (0 .. 7) of Character;
 
    ----------------------------------------------------------------------------
    --  Reserved area in the FAT 32 BPB.
@@ -160,8 +133,8 @@ package Cxos.Filesystems.FAT is
          Reserved_1       : Unsigned_8;
          Boot_Signature   : Unsigned_8;
          Volume_ID        : Unsigned_8;
-         Volume_Label     : FAT32_Volume_Label;
-         Type_Label       : FAT32_Type_Label;
+         Volume_Label     : String (1 .. 11);
+         Type_Label       : String (1 .. 8);
       end record
    with Size => 610;
    for FAT32_Extended_BIOS_Parameter_Block use
@@ -200,7 +173,7 @@ package Cxos.Filesystems.FAT is
    type Boot_Sector is
       record
          Boot_Jump  : Boot_Jump_Bytes_T;
-         OEM_Name   : OEM_Name_T;
+         OEM_Name   : String (1 .. 8);
          BPB_Buffer : Reserved_BIOS_Parameter_Block_Buffer;
       end record;
    for Boot_Sector use
@@ -236,15 +209,34 @@ package Cxos.Filesystems.FAT is
      with Pack;
 
    ----------------------------------------------------------------------------
+   --  File name entry attributes type.
    ----------------------------------------------------------------------------
-   type File_Name_Entry is array (0 .. 10) of Character;
+   type Directory_Entry_Attributes is (
+     Read_Only,
+     Hidden,
+     System_Entry,
+     Volume_Id,
+     Long_File_Name_Entry,
+     Directory,
+     Archive
+   )
+   with Size => 8;
+   for Directory_Entry_Attributes use (
+     Read_Only            => 1,
+     Hidden               => 2,
+     System_Entry         => 4,
+     Volume_Id            => 8,
+     Long_File_Name_Entry => 15,
+     Directory            => 16,
+     Archive              => 32
+   );
 
    ----------------------------------------------------------------------------
    ----------------------------------------------------------------------------
    type Directory_Entry is
       record
-         File_Name          : File_Name_Entry;
-         Attributes         : Unsigned_8;
+         File_Name          : String (1 .. 11);
+         Attributes         : Directory_Entry_Attributes;
          Reserved           : Unsigned_8;
          Creation_Seconds   : Unsigned_8;
          Creation_Time      : Unsigned_16;
@@ -283,19 +275,19 @@ package Cxos.Filesystems.FAT is
 
    ----------------------------------------------------------------------------
    ----------------------------------------------------------------------------
-   type Long_File_Name_Entry is
+   type Long_File_Name_Directory_Entry is
       record
          Order         : Unsigned_8;
-         Name_1        : Long_File_Name_String (0 .. 4);
-         Attributes    : Unsigned_8;
+         Name_1        : Wide_String (1 .. 5);
+         Attributes    : Directory_Entry_Attributes;
          Entry_Type    : Unsigned_8;
          Checksum      : Unsigned_8;
-         Name_2        : Long_File_Name_String (0 .. 5);
+         Name_2        : Wide_String (1 .. 6);
          First_Cluster : Unsigned_16;
-         Name_3        : Long_File_Name_String (0 .. 1);
+         Name_3        : Wide_String (1 .. 2);
       end record
    with Size => 256;
-   for Long_File_Name_Entry use
+   for Long_File_Name_Directory_Entry use
       record
          Order         at 0 range 0   .. 7;
          Name_1        at 0 range 8   .. 87;
@@ -339,4 +331,12 @@ package Cxos.Filesystems.FAT is
      Directory_Size        : Natural;
      Status                : out Program_Status
    );
+
+   ----------------------------------------------------------------------------
+   ----------------------------------------------------------------------------
+   function Dir_Entry_To_LFN_Dir_Entry is
+      new Ada.Unchecked_Conversion (
+        Source => Directory_Entry,
+        Target => Long_File_Name_Directory_Entry
+      );
 end Cxos.Filesystems.FAT;

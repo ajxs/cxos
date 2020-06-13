@@ -87,9 +87,20 @@ package body Cxos.Filesystems.FAT is
            Address    => Directory_Buffer_Addr;
       begin
          for I in 1 .. Directory_Size loop
-            for K in Natural range 0 .. 10 loop
-               Debug_Print ("" & Index (I).File_Name (K));
-            end loop;
+            if Index (I).Attributes = Long_File_Name_Entry then
+               Print_LFN :
+               declare
+                  LFN_Entry : constant Long_File_Name_Directory_Entry :=
+                    Dir_Entry_To_LFN_Dir_Entry (Index (I));
+               begin
+                  for K in Natural range 1 .. 5 loop
+                     Cxos.Debug.Put_String_Wide ("" & LFN_Entry.Name_1 (K));
+                  end loop;
+
+               end Print_LFN;
+            else
+               Debug_Print (Index (I).File_Name);
+            end if;
 
             Debug_Print ("" & Chars.LF);
          end loop;

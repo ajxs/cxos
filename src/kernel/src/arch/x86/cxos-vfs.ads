@@ -20,13 +20,21 @@ package Cxos.VFS is
    pragma Preelaborate;
 
    ----------------------------------------------------------------------------
-   --  Process Result type.
+   --  Program status type.
    --  Used to track the result of package processes.
    ----------------------------------------------------------------------------
-   type Process_Result is (
+   type Program_Status is (
      Success,
      Unhandled_Exception
    );
+
+   ----------------------------------------------------------------------------
+   --  File type.
+   ----------------------------------------------------------------------------
+   type File_T is
+      record
+         null;
+      end record;
 
    ----------------------------------------------------------------------------
    --  Initialise
@@ -36,6 +44,8 @@ package Cxos.VFS is
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   function Initialise return Process_Result;
+   procedure Initialise (
+     Status : out Program_Status
+   );
 
 end Cxos.VFS;

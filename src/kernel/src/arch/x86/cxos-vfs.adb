@@ -13,9 +13,11 @@ package body Cxos.VFS is
    ----------------------------------------------------------------------------
    --  Initialise
    ----------------------------------------------------------------------------
-   function Initialise return Process_Result is
+   procedure Initialise (
+     Status : out Program_Status
+   ) is
    begin
-      return Success;
+      Status := Success;
    end Initialise;
 
 end Cxos.VFS;

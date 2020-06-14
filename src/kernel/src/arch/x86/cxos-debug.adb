@@ -9,7 +9,9 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
+with Ada.Characters.Latin_1;
 with Cxos.Devices.Serial;
+with Interfaces; use Interfaces;
 
 package body Cxos.Debug is
    ----------------------------------------------------------------------------
@@ -32,8 +34,22 @@ package body Cxos.Debug is
      Data : Wide_String
    ) is
    begin
-      pragma Unreferenced (Data);
-      null;
+      for C of Data loop
+         --  Converts each individual wide char and prints it.
+         Print_Wide_Char :
+            declare
+               --  An individual Char converted to its nearest ASCII match.
+               Ascii_Char : Character;
+            begin
+               Ascii_Char :=
+                 Character'Val (Unsigned_8 (Wide_Character'Pos (C)));
+               Cxos.Devices.Serial.Put_String ("" & Ascii_Char);
+            exception
+               when Constraint_Error =>
+                  Cxos.Devices.Serial.
+                    Put_String ("" & Ada.Characters.Latin_1.NUL);
+            end Print_Wide_Char;
+      end loop;
    end Put_String_Wide;
 
 end Cxos.Debug;

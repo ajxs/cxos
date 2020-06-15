@@ -273,11 +273,26 @@ package Cxos.Filesystems.FAT is
    ----------------------------------------------------------------------------
    type Long_File_Name_String is array (Natural range <>) of Wide_Character;
 
+   type Long_File_Name_Sequence is
+      record
+         Number     : Unsigned_5;
+         Empty_1    : Boolean := False;
+         Last_Entry : Boolean;
+         Empty_2    : Boolean := False;
+      end record;
+   for Long_File_Name_Sequence use
+      record
+         Number     at 0 range 0 .. 4;
+         Empty_1    at 0 range 5 .. 5;
+         Last_Entry at 0 range 6 .. 6;
+         Empty_2    at 0 range 7 .. 7;
+      end record;
+
    ----------------------------------------------------------------------------
    ----------------------------------------------------------------------------
    type Long_File_Name_Directory_Entry is
       record
-         Order         : Unsigned_8;
+         Sequence      : Long_File_Name_Sequence;
          Name_1        : Wide_String (1 .. 5);
          Attributes    : Directory_Entry_Attributes;
          Entry_Type    : Unsigned_8;
@@ -289,7 +304,7 @@ package Cxos.Filesystems.FAT is
    with Size => 256;
    for Long_File_Name_Directory_Entry use
       record
-         Order         at 0 range 0   .. 7;
+         Sequence      at 0 range 0   .. 7;
          Name_1        at 0 range 8   .. 87;
          Attributes    at 0 range 88  .. 95;
          Entry_Type    at 0 range 96  .. 103;

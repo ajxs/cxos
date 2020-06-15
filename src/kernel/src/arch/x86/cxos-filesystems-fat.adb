@@ -1,5 +1,6 @@
 with Ada.Characters.Latin_1; use Ada.Characters.Latin_1;
 with Cxos.Debug;
+with Cxos.VFS;
 
 package body Cxos.Filesystems.FAT is
    package Chars renames Ada.Characters.Latin_1;
@@ -85,24 +86,43 @@ package body Cxos.Filesystems.FAT is
          with Import,
            Convention => Ada,
            Address    => Directory_Buffer_Addr;
+
+         File_Idx      : Natural := 1;
+         Directory_Files : array (1 .. 8) of Cxos.VFS.File_T;
       begin
          for I in 1 .. Directory_Size loop
             if Index (I).Attributes = Long_File_Name_Entry then
-               Print_LFN :
+               Read_LFN :
                declare
+                  Curr_File : Cxos.VFS.File_T
+                    renames Directory_Files (File_Idx);
+
+                  Name_Idx : Natural := 1;
+
                   LFN_Entry : constant Long_File_Name_Directory_Entry :=
                     Dir_Entry_To_LFN_Dir_Entry (Index (I));
                begin
-                  for K in Natural range 1 .. 5 loop
-                     Cxos.Debug.Put_String_Wide ("" & LFN_Entry.Name_1 (K));
-                  end loop;
+                  Name_Idx := Natural (LFN_Entry.Sequence.Number) * 13;
 
-               end Print_LFN;
+                  Curr_File.File_Name (Name_Idx .. (Name_Idx + 4))
+                    := LFN_Entry.Name_1 (1 .. 5);
+
+                  Curr_File.File_Name ((Name_Idx + 5) .. (Name_Idx + 10))
+                    := LFN_Entry.Name_2 (1 .. 6);
+
+                  Curr_File.File_Name ((Name_Idx + 11) .. (Name_Idx + 12))
+                    := LFN_Entry.Name_3 (1 .. 2);
+
+               end Read_LFN;
             else
-               Debug_Print (Index (I).File_Name);
-            end if;
+               Debug_Print ("SH: " & Index (I).File_Name);
 
-            Debug_Print ("" & Chars.LF);
+               Cxos.Debug.
+                 Put_String_Wide (Directory_Files (File_Idx).File_Name);
+               Debug_Print ("" & Chars.LF);
+
+               File_Idx := File_Idx + 1;
+            end if;
          end loop;
 
       end Load_Index;
@@ -110,6 +130,7 @@ package body Cxos.Filesystems.FAT is
       Status := Success;
    exception
       when Constraint_Error =>
+         Debug_Print ("Constraint error reading directory");
          null;
    end Parse_Directory;
 

@@ -63,6 +63,9 @@ package Interfaces is
    type Unsigned_4 is mod 2 ** 4;
    for Unsigned_4'Size use  4;
 
+   type Unsigned_5 is mod 2 ** 5;
+   for Unsigned_5'Size use  5;
+
    type Unsigned_8  is mod 2 ** 8;
    for Unsigned_8'Size use  8;
 

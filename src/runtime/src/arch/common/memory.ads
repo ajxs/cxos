@@ -9,8 +9,8 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Interfaces;
-with System;
+with Interfaces; use Interfaces;
+with System; use System;
 
 -------------------------------------------------------------------------------
 --  MEMORY
@@ -29,7 +29,7 @@ package Memory is
    --  stored in registers.
    ----------------------------------------------------------------------------
    type Byte_Array is array (Natural range <>)
-     of aliased Interfaces.Unsigned_8;
+     of aliased Unsigned_8;
 
    ----------------------------------------------------------------------------
    --  Copy
@@ -49,5 +49,20 @@ package Memory is
    with Export,
      Convention    => C,
      External_Name => "memcpy";
+
+   ----------------------------------------------------------------------------
+   --  Move
+   --
+   --  Purpose:
+   --    Generic memmove implementation.
+   ----------------------------------------------------------------------------
+   function Move (
+     Dest   : System.Address;
+     Source : System.Address;
+     Count  : Integer
+   ) return System.Address
+   with Export,
+     Convention    => C,
+     External_Name => "memmove";
 
 end Memory;

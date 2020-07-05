@@ -88,37 +88,45 @@ package body Cxos.Filesystems.FAT is
            Address    => Directory_Buffer_Addr;
 
          File_Idx      : Natural := 1;
-         Directory_Files : array (1 .. 8) of Cxos.VFS.File_T;
+         Directory_Entries : array (1 .. 8) of Cxos.VFS.Directory_Entry_T;
       begin
          for I in 1 .. Directory_Size loop
+            --  If the entry attributes indicate that this is a long file name
+            --  entry, then parse it differently.
             if Index (I).Attributes = Long_File_Name_Entry then
                Read_LFN :
                declare
-                  Curr_File : Cxos.VFS.File_T
-                    renames Directory_Files (File_Idx);
+                  --  The current directory entry being parsed.
+                  Curr_Entry : Cxos.VFS.Directory_Entry_T
+                    renames Directory_Entries (File_Idx);
+                  --  The current offset into reading the name.
+                  Name_offset : Natural := 1;
 
-                  Name_Idx : Natural := 1;
-
-                  LFN_Entry : constant Long_File_Name_Directory_Entry :=
-                    Dir_Entry_To_LFN_Dir_Entry (Index (I));
+                  --  The long file name entry being parsed.
+                  LFN_Entry : Long_File_Name_Directory_Entry
+                  with Import,
+                    Convention => Ada,
+                    Address    => Index (I)'Address;
                begin
-                  Name_Idx := Natural (LFN_Entry.Sequence.Number) * 13;
+                  --  The offset into the name is always the sequence number
+                  --  multiplied by the maximum string length that each
+                  --  entry holds, which is 13.
+                  Name_offset := Natural (LFN_Entry.Sequence.Number) * 13;
 
-                  Curr_File.File_Name (Name_Idx .. (Name_Idx + 4))
+                  --  Copy each of the string sections contained in this
+                  --  file name entry into the current directory entry.
+                  Curr_Entry.Name (Name_offset .. Name_offset + 4)
                     := LFN_Entry.Name_1 (1 .. 5);
-
-                  Curr_File.File_Name ((Name_Idx + 5) .. (Name_Idx + 10))
+                  Curr_Entry.Name (Name_offset + 5 .. Name_offset + 10)
                     := LFN_Entry.Name_2 (1 .. 6);
-
-                  Curr_File.File_Name ((Name_Idx + 11) .. (Name_Idx + 12))
+                  Curr_Entry.Name (Name_offset + 11 .. Name_offset + 12)
                     := LFN_Entry.Name_3 (1 .. 2);
-
                end Read_LFN;
             else
                Debug_Print ("SH: " & Index (I).File_Name);
 
                Cxos.Debug.
-                 Put_String_Wide (Directory_Files (File_Idx).File_Name);
+                 Put_String_Wide (Directory_Entries (File_Idx).Name);
                Debug_Print ("" & Chars.LF);
 
                File_Idx := File_Idx + 1;
@@ -130,7 +138,7 @@ package body Cxos.Filesystems.FAT is
       Status := Success;
    exception
       when Constraint_Error =>
-         Debug_Print ("Constraint error reading directory");
+         Debug_Print ("Constraint error reading directory" & Chars.LF);
          null;
    end Parse_Directory;
 

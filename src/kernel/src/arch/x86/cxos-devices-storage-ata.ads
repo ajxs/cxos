@@ -10,24 +10,18 @@
 -------------------------------------------------------------------------------
 
 with Ada.Unchecked_Conversion;
-with Interfaces; use Interfaces;
 with Cxos.Time_Keeping;
 with x86.ATA; use x86.ATA;
 
 -------------------------------------------------------------------------------
---  CXOS.DEVICES.ATA
+--  CXOS.DEVICES.STORAGE.ATA
 --
 --  Purpose:
 --    This package contains definitons and functionality for working with
 --    ATA devices.
 -------------------------------------------------------------------------------
-package Cxos.Devices.ATA is
+package Cxos.Devices.Storage.ATA is
    pragma Preelaborate;
-
-   ----------------------------------------------------------------------------
-   --  Whether errors should be printed to the debug output.
-   ----------------------------------------------------------------------------
-   DEBUG_PRINT_ERRORS : constant Boolean := True;
 
    ----------------------------------------------------------------------------
    --  ATA read buffer type.
@@ -98,7 +92,7 @@ private
    function Read_ATA_Device_Info (
      Device   : out ATA_Device;
      Bus      :     ATA_Bus;
-     Position :   ATA_Device_Position
+     Position :     ATA_Device_Position
    ) return Process_Result
    with Volatile_Function;
 
@@ -220,4 +214,4 @@ private
      Result : Process_Result
    );
 
-end Cxos.Devices.ATA;
+end Cxos.Devices.Storage.ATA;

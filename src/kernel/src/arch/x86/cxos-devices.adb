@@ -12,10 +12,10 @@
 with Ada.Characters.Latin_1;
 with Interfaces;
 with Cxos.Debug;
-with Cxos.Devices.ATA;
 with Cxos.Devices.PCI;
 with Cxos.Filesystems.FAT;
 with Cxos.Filesystems.FAT.Print;
+with Cxos.Devices.Storage.ATA;
 with x86.ATA;
 
 package body Cxos.Devices is
@@ -31,16 +31,16 @@ package body Cxos.Devices is
       --  The result of internal functionality.
       Result : Process_Result;
 
-      Read_Buf    : Cxos.Devices.ATA.ATA_Read_Buffer (0 .. 255);
+      Read_Buf    : Cxos.Devices.Storage.ATA.ATA_Read_Buffer (0 .. 255);
    begin
       Result := Cxos.Devices.PCI.Find_PCI_Devices;
       if Result /= Success then
          return;
       end if;
 
-      Cxos.Devices.ATA.Find_ATA_Devices;
+      Cxos.Devices.Storage.ATA.Find_ATA_Devices;
 
-      Result := Cxos.Devices.ATA.Read_ATA_Device (Primary, Slave,
+      Result := Cxos.Devices.Storage.ATA.Read_ATA_Device (Primary, Slave,
         1, 0, Read_Buf);
       if Result /= Success then
          Debug_Print ("Read Error." & Ada.Characters.Latin_1.LF);
@@ -78,20 +78,20 @@ package body Cxos.Devices is
          Read_Directory :
          declare
             Directory_LBA : ATA_LBA := 0;
-            FAT_Buf    : Cxos.Devices.ATA.ATA_Read_Buffer (0 .. 1023);
+            FAT_Buf    : Cxos.Devices.Storage.ATA.ATA_Read_Buffer (0 .. 1023);
          begin
             Directory_LBA := ATA_LBA ((EBPB.BPB.Table_Size *
               Unsigned_16 (EBPB.BPB.Table_Count)) +
               EBPB.BPB.Reserved_Sector_Count);
 
-            Result := Cxos.Devices.ATA.Read_ATA_Device (Primary,
+            Result := Cxos.Devices.Storage.ATA.Read_ATA_Device (Primary,
               Slave, 4, Directory_LBA, FAT_Buf);
             if Result /= Success then
                Debug_Print ("Read Error." & Chars.LF);
                return;
             end if;
 
-            Parse_Directory (FAT_Buf'Address, 4, Status);
+            Parse_Directory (FAT_Buf'Address, 12, Status);
             if Status /= Success then
                return;
             end if;

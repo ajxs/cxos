@@ -9,13 +9,21 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
+with Interfaces; use Interfaces;
+
 -------------------------------------------------------------------------------
---  CXOS.DEVICES.ATAPI
+--  CXOS.DEVICES.STORAGE
 --
 --  Purpose:
 --    This package contains definitons and functionality for working with
---    ATA devices implementing the packet interface.
+--    storage devices.
 -------------------------------------------------------------------------------
-package Cxos.Devices.ATAPI is
+package Cxos.Devices.Storage is
    pragma Preelaborate;
-end Cxos.Devices.ATAPI;
+
+   ----------------------------------------------------------------------------
+   --  Storage device read buffer type.
+   --  Acts as a generic buffer type to use when reading from storage devices.
+   ----------------------------------------------------------------------------
+   type Read_Buffer is array (Natural range <>) of Unsigned_8;
+end Cxos.Devices.Storage;

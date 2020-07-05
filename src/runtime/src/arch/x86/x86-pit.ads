@@ -11,6 +11,7 @@
 
 with Ada.Unchecked_Conversion;
 with Interfaces; use Interfaces;
+with System;
 
 -------------------------------------------------------------------------------
 --  X86.PIT

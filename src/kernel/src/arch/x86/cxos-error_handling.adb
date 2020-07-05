@@ -9,7 +9,12 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-package body x86 is
+with Ada.Characters.Latin_1;
+with Cxos.Debug;
+
+package body Cxos.Error_Handling is
+   package Chars renames Ada.Characters.Latin_1;
+
    ----------------------------------------------------------------------------
    --  Last_Chance_Handler
    ----------------------------------------------------------------------------
@@ -21,4 +26,15 @@ package body x86 is
       null;
    end Last_Chance_Handler;
 
-end x86;
+   ----------------------------------------------------------------------------
+   --  Log_Kernel_Error
+   ----------------------------------------------------------------------------
+   procedure Log_Kernel_Error (
+     Message : String
+   ) is
+   begin
+      if DEBUG_PRINT_ERRORS then
+         Cxos.Debug.Put_String (Message & Chars.LF);
+      end if;
+   end Log_Kernel_Error;
+end Cxos.Error_Handling;

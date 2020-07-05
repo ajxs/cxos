@@ -9,8 +9,6 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with System;
-
 -------------------------------------------------------------------------------
 --  SYSTEM.X86
 --
@@ -21,25 +19,4 @@ with System;
 -------------------------------------------------------------------------------
 package x86 is
    pragma Preelaborate;
-
-private
-   ----------------------------------------------------------------------------
-   --  Last_Chance_Handler
-   --
-   --  Purpose:
-   --    The runtime Last_Chance_Handler function.
-   --    This procedure is the GNAT mandated handler for any uncaught
-   --    exceptions that are propagated to the top level.
-   --    This runtime, like other bareboard targets, does not support exception
-   --    propagation. So any uncaught exception will be handled here.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   procedure Last_Chance_Handler (
-     Msg  : System.Address;
-     Line : Integer
-   ) with Export,
-     Convention => C,
-     External_Name => "__gnat_last_chance_handler";
-
 end x86;

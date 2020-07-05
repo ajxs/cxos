@@ -11,6 +11,7 @@
 
 with Interfaces; use Interfaces;
 with Ada.Unchecked_Conversion;
+with System;
 
 -------------------------------------------------------------------------------
 --  X86.ATA

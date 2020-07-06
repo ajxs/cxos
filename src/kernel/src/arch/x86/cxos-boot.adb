@@ -15,6 +15,7 @@ with Cxos.Debug;
 with Cxos.Devices;
 with Cxos.Devices.Graphics.Vga;
 with Cxos.Devices.Serial;
+with Cxos.Error_Handling;
 with Cxos.Exceptions;
 with Cxos.GDT;
 with Cxos.IDT;
@@ -22,7 +23,6 @@ with Cxos.Interrupts;
 with Cxos.Memory;
 with Cxos.Memory.Map;
 with Cxos.PIT;
-with Cxos.Tasking;
 with Cxos.Time_Keeping;
 with Interfaces; use Interfaces;
 with Multiboot;
@@ -34,6 +34,9 @@ with x86.Serial;
 package body Cxos.Boot is
    package Chars renames Ada.Characters.Latin_1;
    procedure Debug_Print (Data : String) renames Cxos.Debug.Put_String;
+   --  Error logging function shorthand.
+   procedure Log_Error (Message : String)
+     renames Cxos.Error_Handling.Log_Kernel_Error;
 
    ----------------------------------------------------------------------------
    --  Initialise_Kernel
@@ -95,7 +98,7 @@ package body Cxos.Boot is
             Debug_Print ("Initialising Interrupts" & Chars.LF);
             Init_Result := Cxos.Interrupts.Initialise;
             if Init_Result /= Success then
-               Debug_Print ("Error initialising Interrupts" & Chars.LF);
+               Log_Error ("Error initialising Interrupts" & Chars.LF);
                return;
             end if;
             Debug_Print ("Finished initialising interrupts" & Chars.LF);
@@ -155,20 +158,20 @@ package body Cxos.Boot is
 
                Init_Result := Cxos.Boot.Multiboot_Init.Parse_Multiboot_Info;
                if Init_Result /= Success then
-                  Debug_Print ("Error parsing multiboot info" & Chars.LF);
+                  Log_Error ("Error parsing multiboot info" & Chars.LF);
                   return;
                end if;
 
                Init_Result :=
                  Cxos.Boot.Multiboot_Init.Clear_Multiboot_Reserved_Data;
                if Init_Result /= Success then
-                  Debug_Print ("Error freeing multiboot memory" & Chars.LF);
+                  Log_Error ("Error freeing multiboot memory" & Chars.LF);
                   return;
                end if;
 
                Debug_Print ("Finished parsing multiboot info" & Chars.LF);
             else
-               Debug_Print (
+               Log_Error (
                  "Unable to detect valid Multiboot magic number" & Chars.LF);
 
                --  Exit here in the instance that we can't find a valid
@@ -181,7 +184,7 @@ package body Cxos.Boot is
       Debug_Print ("Marking kernel memory" & Chars.LF);
       Mark_Kernel_Memory (Status);
       if Status /= Success then
-         Debug_Print ("Error marking kernel memory" & Chars.LF);
+         Log_Error ("Error marking kernel memory" & Chars.LF);
          return;
       end if;
       Debug_Print ("Finished marking kernel memory" & Chars.LF);
@@ -191,13 +194,9 @@ package body Cxos.Boot is
          begin
             Cxos.Devices.Initialise;
          end Initialise_Devices;
-
-      Initialise_Tasking :
-         begin
-            Cxos.Tasking.Initialise;
-         end Initialise_Tasking;
    exception
       when Constraint_Error =>
+         Log_Error ("Constraint violation during kernel init" & Chars.LF);
          return;
    end Initialise_Kernel;
 

@@ -18,6 +18,8 @@ KERNEL_PHYS_START = 0x100000;
 KERNEL_VMA_OFFSET = 0xC0000000;
 /** The size of the kernel stack. */
 KERNEL_STACK_SIZE = 0x4000;
+/** The size of the kernel secondary stack. */
+KERNEL_SEC_STACK_SIZE = 0x1000;
 
 ENTRY (_start)
 SECTIONS {
@@ -57,6 +59,12 @@ SECTIONS {
 		kernel_stack_bottom = .;
 		. += KERNEL_STACK_SIZE;
 		kernel_stack_top = .;
+
+		. = ALIGN (4K);
+    /** Secondary stack grows upwards, towards higher addresses. **/
+		kernel_sec_stack_top = .;
+		. += KERNEL_SEC_STACK_SIZE;
+		kernel_sec_stack_bottom = .;
 
 		/** Reserve 1MB for saving any needed multiboot data. */
 		. = ALIGN (4K);

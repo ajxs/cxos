@@ -48,7 +48,6 @@ pragma Restrictions (No_Protected_Types);
 pragma Restrictions (No_Recursion);
 pragma Restrictions (No_Relative_Delay);
 pragma Restrictions (No_Requeue_Statements);
-pragma Restrictions (No_Secondary_Stack);
 pragma Restrictions (No_Select_Statements);
 pragma Restrictions (No_Specific_Termination_Handlers);
 pragma Restrictions (No_Stream_Optimizations);

@@ -331,10 +331,10 @@ init_boot_page_directory:
 
 # Map the kernel stack into the stack table.
 .map_kernel_stack:
-	movl $kernel_stack_table, %edi             # Move system table address into EDI.
+	movl $kernel_stack_table, %edi           # Move system table address into EDI.
 	subl %eax, %edi                          # Subtract VMA offset.
 
-	movl $kernel_stack_bottom, %esi                 # Move the stack bottom address into ESI.
+	movl $kernel_stack_bottom, %esi          # Move the stack bottom address into ESI.
 	subl %eax, %esi                          # Subtract VMA offset.
 	orl $3, %esi                             # Apply flags.
 
@@ -346,6 +346,31 @@ init_boot_page_directory:
 	loop .map_kernel_stack_frame
 
 .end_kernel_stack_frame:
+
+
+
+# Map the kernel stack into the stack table.
+.map_kernel_sec_stack:
+	movl $kernel_stack_table, %edi           # Move system table address into EDI.
+	addl $512, %edi                          # Start at entry 512 in the stack table.
+	subl %eax, %edi                          # Subtract VMA offset.
+
+# Note: The secondary stack grows upwards, towards higher addresses.
+	movl $kernel_sec_stack_top, %esi         # Move the stack top address into ESI.
+	subl %eax, %esi                          # Subtract VMA offset.
+	orl $3, %esi                             # Apply flags.
+
+	movl $4, %ecx                            # Map 4 stack frames.
+.map_kernel_sec_stack_frame:
+	movl %esi, (%edi)
+	addl $4, %edi
+	addl $0x1000, %esi
+	loop .map_kernel_sec_stack_frame
+
+.end_kernel_sec_stack_frame:
+
+
+
 
 # Map the final entry in the page directory to itself.
 .recursively_map_boot_directory:

@@ -32,6 +32,7 @@ package Cxos is
      Convention    => Ada,
      External_Name => "__main";
 
+private
    ----------------------------------------------------------------------------
    --  Print_Splash
    --

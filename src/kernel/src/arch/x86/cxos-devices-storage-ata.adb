@@ -54,12 +54,8 @@ package body Cxos.Devices.Storage.ATA is
          for Bus in ATA_Bus'Range loop
             Result := Reset_Bus (Bus);
             if Result /= Success then
-               --  if DEBUG_PRINT_ERRORS then
-               --     Cxos.Debug.Put_String ("Error resetting ATA bus: ");
-               --     Print_Process_Result (Result);
-               --     Cxos.Debug.Put_String ("" & Chars.LF);
-               --  end if;
-                  Log_Error ("Error resetting ATA bus");
+                  Log_Error ("Error resetting ATA bus: " &
+                    Print_Program_Status (Result) & Chars.LF);
                return;
             end if;
 
@@ -70,13 +66,8 @@ package body Cxos.Devices.Storage.ATA is
                   Result := Read_ATA_Device_Info (ATA_Devices (Device_Idx),
                     Bus, Position);
                   if Result /= Success then
-                     --  if DEBUG_PRINT_ERRORS then
-                     --   Cxos.Debug.Put_String ("Error reading ATA device: ");
-                     --     Print_Process_Result (Result);
-                     --     Cxos.Debug.Put_String ("" & Chars.LF);
-                     --  end if;
-
-                     Log_Error ("Error reading ATA device");
+                     Log_Error ("Error reading ATA device: " &
+                       Print_Program_Status (Result) & Chars.LF);
                   else
                      Device_Idx := Device_Idx + 1;
                   end if;
@@ -448,38 +439,40 @@ package body Cxos.Devices.Storage.ATA is
    end Print_ATA_Device;
 
    ----------------------------------------------------------------------------
-   --  Print_Process_Result
+   --  Print_Program_Status
    ----------------------------------------------------------------------------
-   procedure Print_Process_Result (
+   function Print_Program_Status (
      Result : Process_Result
-   ) is
+   ) return String is
    begin
       case Result is
          when Command_Aborted =>
-            Cxos.Debug.Put_String ("Command aborted");
+            return "Command aborted";
          when Device_Busy =>
-            Cxos.Debug.Put_String ("Device Busy");
+            return "Device Busy";
          when Device_In_Error_State =>
-            Cxos.Debug.Put_String ("Device is in error state");
+            return "Device is in error state";
          when Device_Non_ATA =>
-            Cxos.Debug.Put_String ("Device is non-ATA");
+            return "Device is non-ATA";
          when Device_Not_Present =>
-            Cxos.Debug.Put_String ("Device not present");
+            return "Device not present";
          when Invalid_Command =>
-            Cxos.Debug.Put_String ("Invalid command");
+            return "Invalid command";
          when Packet_Interface_Not_Supported =>
-            Cxos.Debug.Put_String ("Packet interface not supported");
+            return "Packet interface not supported";
          when Success =>
-            Cxos.Debug.Put_String ("Success");
+            return "Success";
          when Unhandled_Exception =>
-            Cxos.Debug.Put_String ("Unhandled Exception");
+            return "Unhandled Exception";
          when others =>
-            Cxos.Debug.Put_String ("Other");
+            null;
       end case;
+
+      return "Other";
    exception
       when Constraint_Error =>
-         null;
-   end Print_Process_Result;
+         return "Error while fetching process result";
+   end Print_Program_Status;
 
    ----------------------------------------------------------------------------
    --  Read_ATA_Device
@@ -583,13 +576,8 @@ package body Cxos.Devices.Storage.ATA is
       end case;
 
       if Result /= Success then
-         --  if DEBUG_PRINT_ERRORS then
-         --     Cxos.Debug.Put_String ("Error sending read command: ");
-         --     Print_Process_Result (Result);
-         --     Cxos.Debug.Put_String ("" & Chars.LF);
-         --  end if;
-         --
-            Log_Error ("Error sending read command");
+         Log_Error ("Error sending read command: " &
+           Print_Program_Status (Result) & Chars.LF);
 
          return Result;
       end if;
@@ -609,13 +597,8 @@ package body Cxos.Devices.Storage.ATA is
             begin
                Result := Wait_For_Device_Ready (Bus, Wait_For_Data => True);
                if Result /= Success then
-                  --  if DEBUG_PRINT_ERRORS then
-                  --     Cxos.Debug.Put_String ("Error waiting for device: ");
-                  --     Print_Process_Result (Result);
-                  --     Cxos.Debug.Put_String ("" & Chars.LF);
-                  --  end if;
-                  --
-                     Log_Error ("Error waiting for device");
+                  Log_Error ("Error waiting for device: " &
+                    Print_Program_Status (Result) & Chars.LF);
 
                   return Result;
                end if;
@@ -679,13 +662,8 @@ package body Cxos.Devices.Storage.ATA is
             --  If the drive is non-ATA.
             Result := Get_Device_Type (Device_Type, Bus, Position);
             if Result /= Success then
-               --  if DEBUG_PRINT_ERRORS then
-               --     Cxos.Debug.Put_String ("Error reading device type: ");
-               --     Print_Process_Result (Result);
-               --     Cxos.Debug.Put_String ("" & Chars.LF);
-               --  end if;
-               --
-                  Log_Error ("Error reading device type");
+               Log_Error ("Error reading device type: " &
+                 Print_Program_Status (Result) & Chars.LF);
 
                return Result;
             end if;
@@ -694,13 +672,8 @@ package body Cxos.Devices.Storage.ATA is
             if Device_Type = PATAPI or Device_Type = SATAPI then
                Result := Identify_Packet_Device (Id_Record, Bus, Position);
                if Result /= Success then
-                  --  if DEBUG_PRINT_ERRORS then
-                  --     Cxos.Debug.Put_String ("Error identifying device: ");
-                  --     Print_Process_Result (Result);
-                  --     Cxos.Debug.Put_String ("" & Chars.LF);
-                  --  end if;
-
-                  Log_Error ("Error identifying device");
+                  Log_Error ("Error identifying device: " &
+                    Print_Program_Status (Result) & Chars.LF);
 
                   return Result;
                end if;
@@ -716,13 +689,8 @@ package body Cxos.Devices.Storage.ATA is
                Cxos.Debug.Put_String ("Other non ATA?" & Chars.LF);
             end if;
          when others =>
-            --  if DEBUG_PRINT_ERRORS then
-            --     Cxos.Debug.Put_String ("Error identifying device: ");
-            --     Print_Process_Result (Result);
-            --     Cxos.Debug.Put_String ("" & Chars.LF);
-            --  end if;
-            --
-            Log_Error ("Error identifying device");
+            Log_Error ("Error identifying device: " &
+              Print_Program_Status (Result) & Chars.LF);
 
             return Result;
       end case;

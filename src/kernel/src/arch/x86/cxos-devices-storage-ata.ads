@@ -205,13 +205,13 @@ private
    with Volatile_Function;
 
    ----------------------------------------------------------------------------
-   --  Print_Process_Result
+   --  Print_Program_Status
    --
    --  Purpose:
-   --    Prints a string representing a process result object.
+   --    Returns a string representing a process result object.
    ----------------------------------------------------------------------------
-   procedure Print_Process_Result (
+   function Print_Program_Status (
      Result : Process_Result
-   );
+   ) return String;
 
 end Cxos.Devices.Storage.ATA;

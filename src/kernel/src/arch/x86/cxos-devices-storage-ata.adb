@@ -52,7 +52,7 @@ package body Cxos.Devices.Storage.ATA is
 
       Bus_Loop :
          for Bus in ATA_Bus'Range loop
-            Result := Reset_Bus (Bus);
+            Reset_Bus (Bus, Result);
             if Result /= Success then
                   Log_Error ("Error resetting ATA bus: " &
                     Print_Program_Status (Result) & Chars.LF);
@@ -63,8 +63,8 @@ package body Cxos.Devices.Storage.ATA is
             Position_Loop :
                for Position in ATA_Device_Position'Range loop
                   --  Read the invidual ATA device at this position.
-                  Result := Read_ATA_Device_Info (ATA_Devices (Device_Idx),
-                    Bus, Position);
+                  Read_ATA_Device_Info (ATA_Devices (Device_Idx),
+                    Bus, Position, Result);
                   if Result /= Success then
                      Log_Error ("Error reading ATA device: " &
                        Print_Program_Status (Result) & Chars.LF);
@@ -90,54 +90,55 @@ package body Cxos.Devices.Storage.ATA is
    ----------------------------------------------------------------------------
    --  Flush_Write_Cache
    ----------------------------------------------------------------------------
-   function Flush_Bus_Write_Cache (
-     Bus : x86.ATA.ATA_Bus
-   ) return Process_Result is
-      --  The result of internal processes.
-      Result : Process_Result;
+   procedure Flush_Bus_Write_Cache (
+     Bus :        x86.ATA.ATA_Bus;
+     Status : out Process_Result
+   ) is
    begin
-      Result := Send_Command (Bus, Flush_Write_Cache);
-      if Result /= Success then
-         return Result;
+      Send_Command (Bus, Flush_Write_Cache, Status);
+      if Status /= Success then
+         return;
       end if;
 
       --  Wait until the device is ready to receive commands.
-      Result := Wait_For_Device_Ready (Bus);
-      if Result /= Success then
-         return Result;
+      Wait_For_Device_Ready (Bus, Status);
+      if Status /= Success then
+         return;
       end if;
 
-      return Success;
+      Status := Success;
    exception
       when Constraint_Error =>
-         return Unhandled_Exception;
+         Status := Unhandled_Exception;
    end Flush_Bus_Write_Cache;
 
    ----------------------------------------------------------------------------
    --  Get_Device_Type
    ----------------------------------------------------------------------------
-   function Get_Device_Type (
+   procedure Get_Device_Type (
      Device_Type : out x86.ATA.ATA_Device_Type;
      Bus         :     x86.ATA.ATA_Bus;
-     Position    :     x86.ATA.ATA_Device_Position
-   ) return Process_Result is
-      --  The result of internal processes.
-      Result            : Process_Result;
+     Position    :     x86.ATA.ATA_Device_Position;
+     Status      : out Process_Result
+   ) is
       --  The cylinder high value.
       Cylinder_High_Val : Unsigned_8;
       --  The cylinder low value.
       Cylinder_Low_Val  : Unsigned_8;
    begin
+      --  Set device type to unknown by default.
+      Device_Type := Unknown_ATA_Device;
+
       --  Select the master/slave device.
-      Result := Select_Device_Position (Bus, Position);
-      if Result /= Success then
-         return Result;
+      Select_Device_Position (Bus, Position, Status);
+      if Status /= Success then
+         return;
       end if;
 
       --  Wait until the device is ready to receive commands.
-      Result := Wait_For_Device_Ready (Bus);
-      if Result /= Success then
-         return Result;
+      Wait_For_Device_Ready (Bus, Status);
+      if Status /= Success then
+         return;
       end if;
 
       --  Read device identification info.
@@ -156,10 +157,10 @@ package body Cxos.Devices.Storage.ATA is
          Device_Type := Unknown_ATA_Device;
       end if;
 
-      return Success;
+      Status := Success;
    exception
       when Constraint_Error =>
-         return Unhandled_Exception;
+         Status := Unhandled_Exception;
    end Get_Device_Type;
 
    ----------------------------------------------------------------------------
@@ -190,13 +191,13 @@ package body Cxos.Devices.Storage.ATA is
             Write_Word_To_Register (Bus, Cylinder_Low, 0);
 
             --  Select the master/slave device.
-            Result := Select_Device_Position (Bus, Position);
+            Select_Device_Position (Bus, Position, Result);
             if Result /= Success then
                return Result;
             end if;
 
             --  Send the identify command.
-            Result := Send_Command (Bus, Identify_Device);
+            Send_Command (Bus, Identify_Device, Result);
             if Result /= Success then
                return Result;
             end if;
@@ -214,7 +215,7 @@ package body Cxos.Devices.Storage.ATA is
                end Check_Device_Status;
 
             --  Read the device status until the device is ready.
-            Result := Wait_For_Device_Ready (Bus);
+            Wait_For_Device_Ready (Bus, Result);
             if Result /= Success then
                return Result;
             end if;
@@ -275,13 +276,13 @@ package body Cxos.Devices.Storage.ATA is
             Write_Byte_To_Register (Bus, Cylinder_Low, 0);
 
             --  Select the master/slave device.
-            Result := Select_Device_Position (Bus, Position);
+            Select_Device_Position (Bus, Position, Result);
             if Result /= Success then
                return Result;
             end if;
 
             --  Send the identify command.
-            Result := Send_Command (Bus, Identify_Device);
+            Send_Command (Bus, Identify_Device, Result);
             if Result /= Success then
                return Result;
             end if;
@@ -307,7 +308,7 @@ package body Cxos.Devices.Storage.ATA is
             end if;
 
             --  Read the device status until the device is ready.
-            Result := Wait_For_Device_Ready (Bus);
+            Wait_For_Device_Ready (Bus, Result);
             if Result /= Success then
                return Result;
             end if;
@@ -477,21 +478,20 @@ package body Cxos.Devices.Storage.ATA is
    ----------------------------------------------------------------------------
    --  Read_ATA_Device
    ----------------------------------------------------------------------------
-   function Read_ATA_Device (
+   procedure Read_ATA_Device (
      Bus        :     x86.ATA.ATA_Bus;
      Position   :     x86.ATA.ATA_Device_Position;
      Sector_Cnt :     x86.ATA.ATA_Sector_Count;
      LBA        :     x86.ATA.ATA_LBA;
      Buffer     : out ATA_Read_Buffer;
+     Status     : out Process_Result;
      Mode       :     x86.ATA.LBA_Mode := x86.ATA.LBA28
-   ) return Process_Result is
+   ) is
       --  The value to send to the Drive/Head register to set the addressing
       --  mode, and select the drive position.
       Drive_Select_Val  : Unsigned_8;
       --  The number of sectors to read.
       Sector_Read_Count : Natural;
-      --  The result of internal processes.
-      Result            : Process_Result;
    begin
       --  Set the LBA and reserved fields in the Drive/Head register value.
       Drive_Select_Val := 16#E0#;
@@ -570,16 +570,16 @@ package body Cxos.Devices.Storage.ATA is
       --  Send the read sectors command.
       case Mode is
          when x86.ATA.LBA28 =>
-            Result := Send_Command (Bus, Read_Sectors_Retry);
+            Send_Command (Bus, Read_Sectors_Retry, Status);
          when x86.ATA.LBA48 =>
-            Result := Send_Command (Bus, Read_Sectors_Ext);
+            Send_Command (Bus, Read_Sectors_Ext, Status);
       end case;
 
-      if Result /= Success then
+      if Status /= Success then
          Log_Error ("Error sending read command: " &
-           Print_Program_Status (Result) & Chars.LF);
+           Print_Program_Status (Status) & Chars.LF);
 
-         return Result;
+         return;
       end if;
 
       --  A sector count argument of 0 means to read 256 sectors.
@@ -595,12 +595,12 @@ package body Cxos.Devices.Storage.ATA is
          --  to read in the sector data.
          Check_Device :
             begin
-               Result := Wait_For_Device_Ready (Bus, Wait_For_Data => True);
-               if Result /= Success then
+               Wait_For_Device_Ready (Bus, Status, Wait_For_Data => True);
+               if Status /= Success then
                   Log_Error ("Error waiting for device: " &
-                    Print_Program_Status (Result) & Chars.LF);
+                    Print_Program_Status (Status) & Chars.LF);
 
-                  return Result;
+                  return;
                end if;
             end Check_Device;
 
@@ -619,31 +619,32 @@ package body Cxos.Devices.Storage.ATA is
             exception
                when Constraint_Error =>
                   Log_Error ("Read buffer overflow");
+                  Status := Device_Read_Buffer_Overflow;
 
-                  return Device_Read_Buffer_Overflow;
+                  return;
             end Read_Into_Buffer;
       end loop;
 
-      return Success;
+      Status := Success;
    exception
       when Constraint_Error =>
-         return Unhandled_Exception;
+         Status := Unhandled_Exception;
    end Read_ATA_Device;
 
    ----------------------------------------------------------------------------
    --  Read_ATA_Device_Info
    ----------------------------------------------------------------------------
-   function Read_ATA_Device_Info (
+   procedure Read_ATA_Device_Info (
      Device   : out ATA_Device;
      Bus      :     ATA_Bus;
-     Position :   ATA_Device_Position
-   ) return Process_Result is
+     Position :     ATA_Device_Position;
+     Status   : out Process_Result
+   ) is
       Device_Type : x86.ATA.ATA_Device_Type;
-      Result      : Process_Result;
       Id_Record   : Device_Identification_Record;
    begin
-      Result := Identify (Id_Record, Bus, Position);
-      case Result is
+      Status := Identify (Id_Record, Bus, Position);
+      case Status is
          when Success =>
             Device := (
               Present        => True,
@@ -653,29 +654,29 @@ package body Cxos.Devices.Storage.ATA is
               Identification => Id_Record
             );
 
-            return Success;
+            return;
          when Device_Not_Present =>
             null;
          when Device_Non_ATA =>
             Device_Type := Unknown_ATA_Device;
 
             --  If the drive is non-ATA.
-            Result := Get_Device_Type (Device_Type, Bus, Position);
-            if Result /= Success then
+            Get_Device_Type (Device_Type, Bus, Position, Status);
+            if Status /= Success then
                Log_Error ("Error reading device type: " &
-                 Print_Program_Status (Result) & Chars.LF);
+                 Print_Program_Status (Status) & Chars.LF);
 
-               return Result;
+               return;
             end if;
 
             --  If this is a packet device, identify.
             if Device_Type = PATAPI or Device_Type = SATAPI then
-               Result := Identify_Packet_Device (Id_Record, Bus, Position);
-               if Result /= Success then
+               Status := Identify_Packet_Device (Id_Record, Bus, Position);
+               if Status /= Success then
                   Log_Error ("Error identifying device: " &
-                    Print_Program_Status (Result) & Chars.LF);
+                    Print_Program_Status (Status) & Chars.LF);
 
-                  return Result;
+                  return;
                end if;
 
                Device := (
@@ -690,31 +691,32 @@ package body Cxos.Devices.Storage.ATA is
             end if;
          when others =>
             Log_Error ("Error identifying device: " &
-              Print_Program_Status (Result) & Chars.LF);
+              Print_Program_Status (Status) & Chars.LF);
 
-            return Result;
+            return;
       end case;
 
-      return Success;
+      Status := Success;
    exception
       when Constraint_Error =>
-         return Unhandled_Exception;
+         Status := Unhandled_Exception;
    end Read_ATA_Device_Info;
 
    ----------------------------------------------------------------------------
    --  Reset_Bus
    ----------------------------------------------------------------------------
-   function Reset_Bus (
-     Bus : x86.ATA.ATA_Bus
-   ) return Process_Result is
+   procedure Reset_Bus (
+     Bus    :     x86.ATA.ATA_Bus;
+     Status : out Process_Result
+   ) is
    begin
       x86.ATA.Write_Byte_To_Register (Bus, Device_Control, 4);
       x86.ATA.Write_Byte_To_Register (Bus, Device_Control, 0);
 
-      return Success;
+      Status := Success;
    exception
       when Constraint_Error =>
-         return Unhandled_Exception;
+         Status := Unhandled_Exception;
    end Reset_Bus;
 
    ----------------------------------------------------------------------------
@@ -724,10 +726,11 @@ package body Cxos.Devices.Storage.ATA is
    --    - Introduces an articial 1ms delay after selecting the device to
    --      ensure that the correct device is selected.
    ----------------------------------------------------------------------------
-   function Select_Device_Position (
-     Bus      : x86.ATA.ATA_Bus;
-     Position : x86.ATA.ATA_Device_Position
-   ) return Process_Result is
+   procedure Select_Device_Position (
+     Bus      :     x86.ATA.ATA_Bus;
+     Position :     x86.ATA.ATA_Device_Position;
+     Status   : out Process_Result
+   ) is
    begin
       case Position is
          when Master =>
@@ -739,19 +742,20 @@ package body Cxos.Devices.Storage.ATA is
       --  Delay 400ns post drive selection, as per spec.
       Drive_Select_Delay;
 
-      return Success;
+      Status := Success;
    exception
       when Constraint_Error =>
-         return Unhandled_Exception;
+         Status := Unhandled_Exception;
    end Select_Device_Position;
 
    ----------------------------------------------------------------------------
    --  Send_Command
    ----------------------------------------------------------------------------
-   function Send_Command (
-     Bus          : x86.ATA.ATA_Bus;
-     Command_Type : x86.ATA.ATA_Command
-   ) return Process_Result is
+   procedure Send_Command (
+     Bus          :     x86.ATA.ATA_Bus;
+     Command_Type :     x86.ATA.ATA_Command;
+     Status       : out Process_Result
+   ) is
       --  The byte value to send.
       Command_Byte     : Unsigned_8;
    begin
@@ -784,27 +788,30 @@ package body Cxos.Devices.Storage.ATA is
                when Read_DMA_Ext =>
                   Command_Byte := 16#25#;
                when others =>
-                  return Invalid_Command;
+                  Status := Invalid_Command;
+
+                  return;
             end case;
          end Set_Command_Byte;
 
       --  Send Command.
       x86.ATA.Write_Byte_To_Register (Bus, Command_Reg, Command_Byte);
 
-      return Success;
+      Status := Success;
    exception
       when Constraint_Error =>
-         return Unhandled_Exception;
+         Status := Unhandled_Exception;
    end Send_Command;
 
    ----------------------------------------------------------------------------
    --  Wait_For_Device_Ready
    ----------------------------------------------------------------------------
-   function Wait_For_Device_Ready (
-     Bus           : x86.ATA.ATA_Bus;
-     Timeout       : Cxos.Time_Keeping.Time := 2000;
-     Wait_For_Data : Boolean := False
-   ) return Process_Result is
+   procedure Wait_For_Device_Ready (
+     Bus           :     x86.ATA.ATA_Bus;
+     Status        : out Process_Result;
+     Timeout       :     Cxos.Time_Keeping.Time := 2000;
+     Wait_For_Data :     Boolean := False
+   ) is
       use Cxos.Time_Keeping;
 
       --  The status value read from the device.
@@ -829,21 +836,29 @@ package body Cxos.Devices.Storage.ATA is
                --  transferring data.
                if Wait_For_Data then
                   if Drive_Status.DRQ = True then
-                     return Success;
+                     Status := Success;
+
+                     return;
                   end if;
                else
-                  return Success;
+                  Status := Success;
+
+                  return;
                end if;
             end if;
 
             --  If an error state is reported, exit here.
             if Drive_Status.ERR = True then
-               return Device_In_Error_State;
+               Status := Device_In_Error_State;
+
+               return;
             end if;
 
             --  If a drive fault is reported, exit here.
             if Drive_Status.DF = True then
-               return Drive_Fault;
+               Status := Drive_Fault;
+
+               return;
             end if;
 
             --  Check to see whether we have exceeded the timeout threshold.
@@ -854,10 +869,10 @@ package body Cxos.Devices.Storage.ATA is
 
       --  If no value has been returned within the attempt threshold,
       --  return this status.
-      return Device_Busy;
+      Status := Device_Busy;
    exception
       when Constraint_Error =>
-         return Unhandled_Exception;
+         Status := Unhandled_Exception;
    end Wait_For_Device_Ready;
 
 end Cxos.Devices.Storage.ATA;

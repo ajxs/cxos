@@ -75,26 +75,26 @@ package Cxos.Devices.Storage.ATA is
    ----------------------------------------------------------------------------
    --  Read_ATA_Device
    ----------------------------------------------------------------------------
-   function Read_ATA_Device (
+   procedure Read_ATA_Device (
      Bus        :     x86.ATA.ATA_Bus;
      Position   :     x86.ATA.ATA_Device_Position;
      Sector_Cnt :     x86.ATA.ATA_Sector_Count;
      LBA        :     x86.ATA.ATA_LBA;
      Buffer     : out ATA_Read_Buffer;
+     Status     : out Process_Result;
      Mode       :     x86.ATA.LBA_Mode := LBA28
-   ) return Process_Result
-   with Volatile_Function;
+   );
 
 private
    ----------------------------------------------------------------------------
    --  Read_ATA_Device_Info
    ----------------------------------------------------------------------------
-   function Read_ATA_Device_Info (
+   procedure Read_ATA_Device_Info (
      Device   : out ATA_Device;
      Bus      :     ATA_Bus;
-     Position :     ATA_Device_Position
-   ) return Process_Result
-   with Volatile_Function;
+     Position :     ATA_Device_Position;
+     Status   : out Process_Result
+   );
 
    ----------------------------------------------------------------------------
    --  Identify
@@ -128,12 +128,12 @@ private
    --  Purpose:
    --    Returns the type of the specified ATA device.
    ----------------------------------------------------------------------------
-   function Get_Device_Type (
+   procedure Get_Device_Type (
      Device_Type : out x86.ATA.ATA_Device_Type;
      Bus         :     x86.ATA.ATA_Bus;
-     Position    :     x86.ATA.ATA_Device_Position
-   ) return Process_Result
-   with Volatile_Function;
+     Position    :     x86.ATA.ATA_Device_Position;
+     Status      : out Process_Result
+   );
 
    ----------------------------------------------------------------------------
    --  Reset_Bus
@@ -141,10 +141,10 @@ private
    --  Purpose:
    --    Performs a software reset of an ATA device bus.
    ----------------------------------------------------------------------------
-   function Reset_Bus (
-     Bus : x86.ATA.ATA_Bus
-   ) return Process_Result
-   with Volatile_Function;
+   procedure Reset_Bus (
+     Bus    :     x86.ATA.ATA_Bus;
+     Status : out Process_Result
+   );
 
    ----------------------------------------------------------------------------
    --  Drive_Select_Delay
@@ -161,11 +161,11 @@ private
    --    Selects which device position (Master/Slave) is selected on a
    --    particular ATA bus.
    ----------------------------------------------------------------------------
-   function Select_Device_Position (
-     Bus      : x86.ATA.ATA_Bus;
-     Position : x86.ATA.ATA_Device_Position
-   ) return Process_Result
-   with Volatile_Function;
+   procedure Select_Device_Position (
+     Bus      :     x86.ATA.ATA_Bus;
+     Position :     x86.ATA.ATA_Device_Position;
+     Status   : out Process_Result
+   );
 
    ----------------------------------------------------------------------------
    --  Send_Command
@@ -173,36 +173,36 @@ private
    --  Purpose:
    --    Sends a command to the currently selected device on an ATA bus.
    ----------------------------------------------------------------------------
-   function Send_Command (
-     Bus          : x86.ATA.ATA_Bus;
-     Command_Type : x86.ATA.ATA_Command
-   ) return Process_Result
-   with Volatile_Function;
+   procedure Send_Command (
+     Bus          :     x86.ATA.ATA_Bus;
+     Command_Type :     x86.ATA.ATA_Command;
+     Status       : out Process_Result
+   );
 
    ----------------------------------------------------------------------------
    --  Wait_For_Device_Ready
    --
    --  Purpose:
    --    Polls the specified Bus/Device until it is ready to receive commands.
-   --    Alternatively, this function can be used to poll until a device
+   --    Alternatively, this procedure can be used to poll until a device
    --    is ready to transfer data.
    --    A timeout value can be specified. This will dictate at what point to
    --    timeout and return a busy status.
    ----------------------------------------------------------------------------
-   function Wait_For_Device_Ready (
-     Bus           : x86.ATA.ATA_Bus;
-     Timeout       : Cxos.Time_Keeping.Time := 2000;
-     Wait_For_Data : Boolean := False
-   ) return Process_Result
-   with Volatile_Function;
+   procedure Wait_For_Device_Ready (
+     Bus           :     x86.ATA.ATA_Bus;
+     Status        : out Process_Result;
+     Timeout       :     Cxos.Time_Keeping.Time := 2000;
+     Wait_For_Data :     Boolean := False
+   );
 
    ----------------------------------------------------------------------------
    --  Flush_Bus_Write_Cache
    ----------------------------------------------------------------------------
-   function Flush_Bus_Write_Cache (
-     Bus : x86.ATA.ATA_Bus
-   ) return Process_Result
-   with Volatile_Function;
+   procedure Flush_Bus_Write_Cache (
+     Bus    : x86.ATA.ATA_Bus;
+     Status : out Process_Result
+   );
 
    ----------------------------------------------------------------------------
    --  Print_Program_Status

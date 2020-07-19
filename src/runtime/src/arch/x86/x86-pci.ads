@@ -23,15 +23,6 @@ package x86.PCI is
    pragma Preelaborate;
 
    ----------------------------------------------------------------------------
-   --  Result type to track the outcome of procedures.
-   ----------------------------------------------------------------------------
-   type Process_Result is (
-     Invalid_Argument,
-     Misaligned_Offset,
-     Success
-   );
-
-   ----------------------------------------------------------------------------
    --  PCI Device function number type.
    ----------------------------------------------------------------------------
    type PCI_Function_Number is mod 2 ** 3;
@@ -167,22 +158,6 @@ package x86.PCI is
         Target => Pci_Status
       );
 
-   ----------------------------------------------------------------------------
-   --  Pci_Read_Long
-   --
-   --  Purpose:
-   --    This function reads an unsigned long from the PCI bus.
-   ----------------------------------------------------------------------------
-   function Pci_Read_Long (
-     Output          : out Unsigned_32;
-     Bus_Number      :     Unsigned_8;
-     Device_Number   :     PCI_Device_Number;
-     Function_Number :     PCI_Function_Number;
-     Offset          :     Unsigned_8
-   ) return Process_Result
-   with Volatile_Function;
-
-private
    ----------------------------------------------------------------------------
    --  Config and data port addresses.
    ----------------------------------------------------------------------------

@@ -10,26 +10,55 @@
 -------------------------------------------------------------------------------
 
 with Ada.Characters.Latin_1;
+with System.Storage_Elements; use System.Storage_Elements;
 with Cxos.Debug;
 with Cxos.Devices.PCI.Print; use Cxos.Devices.PCI.Print;
+with x86.Port_IO;
 
 package body Cxos.Devices.PCI is
    package Chars renames Ada.Characters.Latin_1;
    procedure Debug_Print (Data : String) renames Cxos.Debug.Put_String;
 
    ----------------------------------------------------------------------------
-   --  Find_Pci_Devices
+   --  Image_Status
    ----------------------------------------------------------------------------
-   function Find_PCI_Devices return Process_Result is
+   function Image_Status (Status : Program_Status) return String is
+   begin
+      case Status is
+         when Bus_Read_Error =>
+            return "Bus read error";
+         when Invalid_Argument =>
+            return "Invalid argument";
+         when Misaligned_Offset =>
+            return "Misaligned offset";
+         when Success =>
+            return "Success";
+         when Unhandled_Exception =>
+            return "Unhandled Exception";
+      end case;
+   exception
+      when Constraint_Error =>
+         return "Unknown";
+   end Image_Status;
+
+   ----------------------------------------------------------------------------
+   --  Query_PCI_Bus
+   ----------------------------------------------------------------------------
+   procedure Query_PCI_Bus (
+     PCI_Bus : out Device_Bus_T;
+     Status  : out Program_Status
+   ) is
       --  Variable to store the last read device.
-      Device_Info : PCI_Device_T;
+      Device_Info : Device_T;
       --  Variable for testing whether a device exists at a specific address.
       Test_Result : Boolean;
-      --  The result of internal processes.
-      Result      : Process_Result;
       --  Whether debug device info should be printed to serial out.
       PRINT_INFO  : constant Boolean := True;
    begin
+      PCI_Bus := (
+         Device_Bus_Type => Device_Bus_Type_PCI
+      );
+
       Debug_Print ("Testing PCI Bus" & Chars.LF &
         "------------------------" & Chars.LF);
 
@@ -38,18 +67,21 @@ package body Cxos.Devices.PCI is
             Function_Loop :
                for Func in PCI_Function_Number range 0 .. 7 loop
                   --  Test the individual PCI address.
-                  Result := Test_PCI_Device (Test_Result, Bus, Device, Func);
-                  if Result /= Success then
-                     Debug_Print ("Error testing PCI device" & Chars.LF);
-                     return Unhandled_Exception;
+                  Test_PCI_Device (Test_Result, Bus, Device, Func, Status);
+                  if Status /= Success then
+                     Debug_Print ("Error testing PCI device: " &
+                       Image_Status (Status) & Chars.LF);
+
+                     return;
                   end if;
 
                   if Test_Result then
-                     Result := Read_PCI_Device (Device_Info, Bus,
-                       Device, Func);
-                     if Result /= Success then
-                        Debug_Print ("Error reading PCI device" & Chars.LF);
-                        return Unhandled_Exception;
+                     Read_PCI_Device (Device_Info, Bus, Device, Func, Status);
+                     if Status /= Success then
+                        Debug_Print ("Error reading PCI device: " &
+                          Image_Status (Status) & Chars.LF);
+
+                        return;
                      end if;
 
                      if PRINT_INFO then
@@ -67,23 +99,65 @@ package body Cxos.Devices.PCI is
          end loop;
       end loop;
 
-      return Success;
+      Status := Success;
    exception
       when Constraint_Error =>
-         return Unhandled_Exception;
-   end Find_PCI_Devices;
+         Status := Unhandled_Exception;
+   end Query_PCI_Bus;
+
+   ----------------------------------------------------------------------------
+   --  Read_Long
+   ----------------------------------------------------------------------------
+   procedure Read_Long (
+     Output          : out Unsigned_32;
+     Bus_Number      :     Unsigned_8;
+     Device_Number   :     PCI_Device_Number;
+     Function_Number :     PCI_Function_Number;
+     Offset          :     Unsigned_8;
+     Status          : out Program_Status
+   ) is
+      --  The PCI address register value to send to read
+      --  the value back from.
+      Register_Address : Pci_Config_Address;
+   begin
+      --  Offset addresses consecutive DWORDs in the PCI addres space, as such
+      --  it must be a multiple of 4.
+      if (Offset and 3) /= 0 then
+         Status := Misaligned_Offset;
+         Output := 0;
+
+         return;
+      end if;
+
+      --  Configure the register address to read.
+      Register_Address := (
+        Offset          => Offset,
+        Function_Number => Function_Number,
+        Device_Number   => Device_Number,
+        Bus_Number      => Bus_Number,
+        Reserved        => False,
+        Enable          => True
+      );
+
+      --  Set the address register.
+      x86.Port_IO.Outl (To_Address (PCI_CONFIG_ADDRESS_PORT),
+        Pci_Config_Address_To_Long (Register_Address));
+      --  Read the data in.
+      Output := x86.Port_IO.Inl (To_Address (PCI_CONFIG_DATA_PORT));
+
+      Status := Success;
+   end Read_Long;
 
    ----------------------------------------------------------------------------
    --  Read_Pci_Device
    ----------------------------------------------------------------------------
-   function Read_PCI_Device (
-     Device          : out PCI_Device_T;
+   procedure Read_PCI_Device (
+     Device          : out Device_T;
      Bus_Number      :     Unsigned_8;
      Device_Number   :     PCI_Device_Number;
-     Function_Number :     PCI_Function_Number
-   ) return Process_Result is
-      --  The results of internal PCI bus read processes.
-      Result : x86.PCI.Process_Result;
+     Function_Number :     PCI_Function_Number;
+     Status          : out Program_Status
+   ) is
       --  Array type to hold the data read from the PCI bus.
       type Bus_Output_Array is array (Unsigned_8 range 0 .. 31)
         of Unsigned_32;
@@ -94,14 +168,15 @@ package body Cxos.Devices.PCI is
       Read_Bus :
          begin
             for I in Bus_Output_Array'Range loop
-               Result := x86.PCI.Pci_Read_Long (Bus_Output (I), Bus_Number,
-                 Device_Number, Function_Number, I * 4);
-               if Result /= Success then
-                  return Bus_Read_Error;
+               Read_Long (Bus_Output (I), Bus_Number,
+                 Device_Number, Function_Number, I * 4, Status);
+               if Status /= Success then
+                  return;
                end if;
             end loop;
          end Read_Bus;
 
+      --  Device.Device_Type     := Device_Type_PCI;
       Device.Bus_Number      := Bus_Number;
       Device.Device_Number   := Device_Number;
       Device.Function_Number := Function_Number;
@@ -135,10 +210,10 @@ package body Cxos.Devices.PCI is
             null;
       end case;
 
-      return Success;
+      Status := Success;
    exception
       when Constraint_Error =>
-         return Bus_Read_Error;
+         Status := Unhandled_Exception;
    end Read_PCI_Device;
 
    ----------------------------------------------------------------------------
@@ -149,35 +224,38 @@ package body Cxos.Devices.PCI is
    --      address. If a null value of 0xFFFFFFFF is returned, we can
    --      conclude that no device exists at this bus address.
    ----------------------------------------------------------------------------
-   function Test_PCI_Device (
+   procedure Test_PCI_Device (
      Result          : out Boolean;
      Bus_Number      :     Unsigned_8;
      Device_Number   :     PCI_Device_Number;
-     Function_Number :     PCI_Function_Number
-   ) return Process_Result is
-      --  The result of the bus read process.
-      Read_Result : x86.PCI.Process_Result;
+     Function_Number :     PCI_Function_Number;
+     Status          : out Program_Status
+   ) is
       --  The long integer read from the bus during the test process.
       Output      : Unsigned_32;
    begin
       --  Read the first DWORD from the PCI Bus.
       Read_Bus :
          begin
-            Read_Result := x86.PCI.Pci_Read_Long (Output, Bus_Number,
-              Device_Number, Function_Number, 0);
-            if Read_Result /= Success then
-               return Bus_Read_Error;
+            Read_Long (Output, Bus_Number, Device_Number,
+              Function_Number, 0, Status);
+            if Status /= Success then
+               Result := False;
+
+               return;
             end if;
          exception
             when Constraint_Error =>
-               return Bus_Read_Error;
+               Status := Unhandled_Exception;
+
+               return;
          end Read_Bus;
 
       --  Test whether reading the first DWORD of the device at this address
       --  returns a null value of 0xFFFF_FFFF.
       Result := Output /= 16#FFFF_FFFF#;
 
-      return Success;
+      Status := Success;
    end Test_PCI_Device;
 
 end Cxos.Devices.PCI;

@@ -209,4 +209,17 @@ private
      Status :    out Process_Result
    );
 
+   ----------------------------------------------------------------------------
+   --  Flush_Tlb
+   --
+   --  Purpose:
+   --    Flushes and reloads the Translation Lookaside Buffer.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   procedure Flush_Tlb
+   with Import,
+     Convention    => Assembler,
+     External_Name => "cxos_memory_paging_flush_tlb";
+
 end Cxos.Memory.Paging;

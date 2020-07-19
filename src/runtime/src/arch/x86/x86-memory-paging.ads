@@ -121,19 +121,6 @@ package x86.Memory.Paging is
    with Pure_Function;
 
    ----------------------------------------------------------------------------
-   --  Flush_Tlb
-   --
-   --  Purpose:
-   --    Flushes and reloads the Translation Lookaside Buffer.
-   --  Exceptions:
-   --    None.
-   ----------------------------------------------------------------------------
-   procedure Flush_Tlb
-   with Import,
-     Convention    => Assembler,
-     External_Name => "__flush_tlb";
-
-   ----------------------------------------------------------------------------
    --  Page table/directory range type.
    ----------------------------------------------------------------------------
    subtype Paging_Index is Natural range 0 .. 1023;

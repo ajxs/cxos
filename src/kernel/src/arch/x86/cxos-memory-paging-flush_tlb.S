@@ -17,9 +17,9 @@
 #
 #  Reloads the Translation Lookaside Buffer.
 #####################################################################
-.global __flush_tlb
-.type __flush_tlb, @function
-__flush_tlb:
+.global cxos_memory_paging_flush_tlb
+.type cxos_memory_paging_flush_tlb, @function
+cxos_memory_paging_flush_tlb:
 	movl %cr3, %eax
 	movl %eax, %cr3
 

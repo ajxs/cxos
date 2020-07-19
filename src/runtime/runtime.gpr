@@ -27,8 +27,7 @@ library project Runtime is
    for Object_Dir use "obj";
 
    for Languages use (
-     "Ada",
-     "Asm_Cpp"
+     "Ada"
    );
 
    package Builder is

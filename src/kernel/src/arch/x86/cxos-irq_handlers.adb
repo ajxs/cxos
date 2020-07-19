@@ -10,18 +10,14 @@
 -------------------------------------------------------------------------------
 
 with Cxos.Debug;
+with Cxos.Devices.PIC;
 with Cxos.Time_Keeping;
-with Interfaces;
-with System.Storage_Elements;
-with x86.Interrupts.Names;
-with x86.PIC;
+with Interfaces; use Interfaces;
+with System.Storage_Elements; use System.Storage_Elements;
+with x86.Interrupts.Names; use x86.Interrupts.Names;
 with x86.Port_IO;
 
 package body Cxos.IRQ_Handlers is
-   use x86.Interrupts.Names;
-   use Interfaces;
-   use System.Storage_Elements;
-
    ----------------------------------------------------------------------------
    --  IRQ0_Internal_Handler
    --
@@ -34,7 +30,7 @@ package body Cxos.IRQ_Handlers is
       --  Trigger the internal System Tick Handler to signal that a
       --  timer tick has occurred.
       Cxos.Time_Keeping.System_Tick_Handler;
-      x86.PIC.Send_EOI (IRQ0);
+      Cxos.Devices.PIC.Send_EOI (IRQ0);
 
    end IRQ0_Internal_Handler;
 
@@ -43,7 +39,7 @@ package body Cxos.IRQ_Handlers is
    ----------------------------------------------------------------------------
    procedure IRQ10_Internal_Handler is
    begin
-      x86.PIC.Send_EOI (IRQ10);
+      Cxos.Devices.PIC.Send_EOI (IRQ10);
    end IRQ10_Internal_Handler;
 
    ----------------------------------------------------------------------------
@@ -51,7 +47,7 @@ package body Cxos.IRQ_Handlers is
    ----------------------------------------------------------------------------
    procedure IRQ11_Internal_Handler is
    begin
-      x86.PIC.Send_EOI (IRQ11);
+      Cxos.Devices.PIC.Send_EOI (IRQ11);
    end IRQ11_Internal_Handler;
 
    ----------------------------------------------------------------------------
@@ -59,7 +55,7 @@ package body Cxos.IRQ_Handlers is
    ----------------------------------------------------------------------------
    procedure IRQ12_Internal_Handler is
    begin
-      x86.PIC.Send_EOI (IRQ12);
+      Cxos.Devices.PIC.Send_EOI (IRQ12);
    end IRQ12_Internal_Handler;
 
    ----------------------------------------------------------------------------
@@ -67,7 +63,7 @@ package body Cxos.IRQ_Handlers is
    ----------------------------------------------------------------------------
    procedure IRQ13_Internal_Handler is
    begin
-      x86.PIC.Send_EOI (IRQ13);
+      Cxos.Devices.PIC.Send_EOI (IRQ13);
    end IRQ13_Internal_Handler;
 
    ----------------------------------------------------------------------------
@@ -75,7 +71,7 @@ package body Cxos.IRQ_Handlers is
    ----------------------------------------------------------------------------
    procedure IRQ14_Internal_Handler is
    begin
-      x86.PIC.Send_EOI (IRQ14);
+      Cxos.Devices.PIC.Send_EOI (IRQ14);
    end IRQ14_Internal_Handler;
 
    ----------------------------------------------------------------------------
@@ -83,7 +79,7 @@ package body Cxos.IRQ_Handlers is
    ----------------------------------------------------------------------------
    procedure IRQ15_Internal_Handler is
    begin
-      x86.PIC.Send_EOI (IRQ15);
+      Cxos.Devices.PIC.Send_EOI (IRQ15);
    end IRQ15_Internal_Handler;
 
    ----------------------------------------------------------------------------
@@ -95,11 +91,8 @@ package body Cxos.IRQ_Handlers is
    begin
       --  Read the keycode.
       Keycode := x86.Port_IO.Inb (To_Address (16#60#));
-
       Cxos.Debug.Put_String ("" & Character'Val (Keycode));
-
-      x86.PIC.Send_EOI (IRQ1);
-
+      Cxos.Devices.PIC.Send_EOI (IRQ1);
    end IRQ1_Internal_Handler;
 
    ----------------------------------------------------------------------------
@@ -107,7 +100,7 @@ package body Cxos.IRQ_Handlers is
    ----------------------------------------------------------------------------
    procedure IRQ2_Internal_Handler is
    begin
-      x86.PIC.Send_EOI (IRQ2);
+      Cxos.Devices.PIC.Send_EOI (IRQ2);
    end IRQ2_Internal_Handler;
 
    ----------------------------------------------------------------------------
@@ -115,7 +108,7 @@ package body Cxos.IRQ_Handlers is
    ----------------------------------------------------------------------------
    procedure IRQ3_Internal_Handler is
    begin
-      x86.PIC.Send_EOI (IRQ3);
+      Cxos.Devices.PIC.Send_EOI (IRQ3);
    end IRQ3_Internal_Handler;
 
    ----------------------------------------------------------------------------
@@ -123,7 +116,7 @@ package body Cxos.IRQ_Handlers is
    ----------------------------------------------------------------------------
    procedure IRQ4_Internal_Handler is
    begin
-      x86.PIC.Send_EOI (IRQ4);
+      Cxos.Devices.PIC.Send_EOI (IRQ4);
    end IRQ4_Internal_Handler;
 
    ----------------------------------------------------------------------------
@@ -131,9 +124,7 @@ package body Cxos.IRQ_Handlers is
    ----------------------------------------------------------------------------
    procedure IRQ5_Internal_Handler is
    begin
-
-      x86.PIC.Send_EOI (IRQ5);
-
+      Cxos.Devices.PIC.Send_EOI (IRQ5);
    end IRQ5_Internal_Handler;
 
    ----------------------------------------------------------------------------
@@ -141,9 +132,7 @@ package body Cxos.IRQ_Handlers is
    ----------------------------------------------------------------------------
    procedure IRQ6_Internal_Handler is
    begin
-
-      x86.PIC.Send_EOI (IRQ6);
-
+      Cxos.Devices.PIC.Send_EOI (IRQ6);
    end IRQ6_Internal_Handler;
 
    ----------------------------------------------------------------------------
@@ -151,9 +140,7 @@ package body Cxos.IRQ_Handlers is
    ----------------------------------------------------------------------------
    procedure IRQ7_Internal_Handler is
    begin
-
-      x86.PIC.Send_EOI (IRQ7);
-
+      Cxos.Devices.PIC.Send_EOI (IRQ7);
    end IRQ7_Internal_Handler;
 
    ----------------------------------------------------------------------------
@@ -161,9 +148,7 @@ package body Cxos.IRQ_Handlers is
    ----------------------------------------------------------------------------
    procedure IRQ8_Internal_Handler is
    begin
-
-      x86.PIC.Send_EOI (IRQ8);
-
+      Cxos.Devices.PIC.Send_EOI (IRQ8);
    end IRQ8_Internal_Handler;
 
    ----------------------------------------------------------------------------
@@ -171,9 +156,7 @@ package body Cxos.IRQ_Handlers is
    ----------------------------------------------------------------------------
    procedure IRQ9_Internal_Handler is
    begin
-
-      x86.PIC.Send_EOI (IRQ9);
-
+      Cxos.Devices.PIC.Send_EOI (IRQ9);
    end IRQ9_Internal_Handler;
 
 end Cxos.IRQ_Handlers;

@@ -9,35 +9,51 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with System;
+with Ada.Interrupts; use Ada.Interrupts;
 
 -------------------------------------------------------------------------------
---  X86.PIC
+--  CXOS.DEVICES.PIC
 --
 --  Purpose:
 --    This package contains code for working with the x86 8259A programmable
 --    interrupt controller.
 -------------------------------------------------------------------------------
-package x86.PIC is
+package Cxos.Devices.PIC is
    pragma Preelaborate;
 
    ----------------------------------------------------------------------------
-   --  PIC Controller type.
-   --  Used in selecting which PIC to perform an operation on.
+   --  Initialise
+   --
+   --  Purpose:
+   --    This procedure initialises the x86 PIC.
+   --  Exceptions:
+   --    None.
    ----------------------------------------------------------------------------
-   type PIC_Controller is (
-     PIC1,
-     PIC2
+   procedure Initialise_PIC;
+
+   ----------------------------------------------------------------------------
+   --  Send_EOI
+   --
+   --  Purpose:
+   --    This function sends an EOI signal to the PIC controller.
+   --  Exceptions:
+   --    None.
+   ----------------------------------------------------------------------------
+   procedure Send_EOI (
+     IRQ : Interrupt_ID
    );
 
    ----------------------------------------------------------------------------
-   --  Get_Controller_Base_Address
+   --  Set_Interrupt_Mask
    --
    --  Purpose:
-   --    This function gets the base address for a particular PIC controller.
+   --    Sets the mask status of an individual interrupt.
+   --  Exceptions:
+   --    None.
    ----------------------------------------------------------------------------
-   function Get_Controller_Base_Address (
-      Controller : PIC_Controller
-   ) return System.Address;
+   procedure Set_Interrupt_Mask (
+     IRQ    : Interrupt_ID;
+     Status : Boolean
+   );
 
-end x86.PIC;
+end Cxos.Devices.PIC;

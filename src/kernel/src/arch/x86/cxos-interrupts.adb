@@ -11,8 +11,8 @@
 
 with Cxos.IRQ_Handlers;
 with Cxos.IDT;
+with Cxos.Devices.PIC;
 with x86.Interrupts.Names;
-with x86.PIC;
 with System.Machine_Code;
 
 package body Cxos.Interrupts is
@@ -24,12 +24,12 @@ package body Cxos.Interrupts is
    function Initialise return Process_Result is
    begin
       --  Install a handler for IRQ0.
-      x86.PIC.Set_Interrupt_Mask (IRQ0, False);
+      Cxos.Devices.PIC.Set_Interrupt_Mask (IRQ0, False);
       Cxos.IDT.Install_Descriptor (32,
         Cxos.IRQ_Handlers.IRQ0_Handler'Address, 16#8#);
 
       --  Install a handler for IRQ1.
-      x86.PIC.Set_Interrupt_Mask (IRQ1, False);
+      Cxos.Devices.PIC.Set_Interrupt_Mask (IRQ1, False);
       Cxos.IDT.Install_Descriptor (33,
         Cxos.IRQ_Handlers.IRQ1_Handler'Address, 16#8#);
 

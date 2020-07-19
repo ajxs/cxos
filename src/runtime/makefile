@@ -34,16 +34,13 @@ clean:
 	gprclean -P${RUNTIME_PROJ}
 	rm -rf ${BUILD_DIR}
 
-${RUNTIME_BINARY}: ${INCLUDE_DIR}/*.ad[sb] ${INCLUDE_DIR}/*.S \
+${RUNTIME_BINARY}: ${INCLUDE_DIR}/*.ad[sb] \
 	${LIB_DIR}
 	gprbuild -P${RUNTIME_PROJ}
 
 ${INCLUDE_DIR}/*.ad[sb]: ${ARCH_SRC_DIR}/*.ad[sb] ${COMMON_SRC_DIR}/*.ad[sb] ${INCLUDE_DIR}
 	cp -a ${ARCH_SRC_DIR}/*.ad[sb] ${INCLUDE_DIR}
 	cp -a ${COMMON_SRC_DIR}/*.ad[sb] ${INCLUDE_DIR}
-
-${INCLUDE_DIR}/*.S: ${ARCH_SRC_DIR}/*.S ${INCLUDE_DIR}
-	cp -a ${ARCH_SRC_DIR}/*.S ${INCLUDE_DIR}
 
 ${INCLUDE_DIR}:
 	mkdir -p ${INCLUDE_DIR}

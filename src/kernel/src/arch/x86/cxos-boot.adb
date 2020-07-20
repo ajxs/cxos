@@ -14,7 +14,6 @@ with Cxos.Boot.Multiboot_Init;
 with Cxos.Debug;
 with Cxos.Devices;
 with Cxos.Devices.Graphics.Vga;
-with Cxos.Devices.PIC;
 with Cxos.Devices.Serial;
 with Cxos.Error_Handling;
 with Cxos.Exceptions;
@@ -23,6 +22,7 @@ with Cxos.IDT;
 with Cxos.Interrupts;
 with Cxos.Memory;
 with Cxos.Memory.Map;
+with Cxos.PIC;
 with Cxos.PIT;
 with Cxos.Time_Keeping;
 with Interfaces; use Interfaces;
@@ -51,7 +51,7 @@ package body Cxos.Boot is
       Debug_Print ("COM1 initialised" & Chars.LF);
 
       Debug_Print ("Initialising PIC" & Chars.LF);
-      Cxos.Devices.PIC.Initialise_PIC;
+      Cxos.PIC.Initialise;
 
       --  Clear interrupts.
       Cxos.Interrupts.Set_Interrupt_Flag (False);

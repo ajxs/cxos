@@ -49,7 +49,7 @@ package body Cxos.Devices.PCI is
      Status  : out Program_Status
    ) is
       --  Variable to store the last read device.
-      Device_Info : Device_T;
+      Device_Info : PCI_Device_T;
       --  Variable for testing whether a device exists at a specific address.
       Test_Result : Boolean;
       --  Whether debug device info should be printed to serial out.
@@ -152,7 +152,7 @@ package body Cxos.Devices.PCI is
    --  Read_Pci_Device
    ----------------------------------------------------------------------------
    procedure Read_PCI_Device (
-     Device          : out Device_T;
+     Device          : out PCI_Device_T;
      Bus_Number      :     Unsigned_8;
      Device_Number   :     PCI_Device_Number;
      Function_Number :     PCI_Function_Number;
@@ -176,7 +176,6 @@ package body Cxos.Devices.PCI is
             end loop;
          end Read_Bus;
 
-      --  Device.Device_Type     := Device_Type_PCI;
       Device.Bus_Number      := Bus_Number;
       Device.Device_Number   := Device_Number;
       Device.Function_Number := Function_Number;

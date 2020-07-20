@@ -9,19 +9,20 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
+with Interfaces; use Interfaces;
 with System.Storage_Elements; use System.Storage_Elements;
 with x86.PIC; use x86.PIC;
 with x86.Port_IO;
 
-package body Cxos.Devices.PIC is
+package body Cxos.PIC is
    ----------------------------------------------------------------------------
-   --  Initialise_PIC
+   --  Initialise
    --
    --  Implementation Notes:
    --   - Does not preserve configured interrupt mask during initialisation.
    --   - All interrupts are masked initially.
    ----------------------------------------------------------------------------
-   procedure Initialise_PIC is
+   procedure Initialise is
       PIC1_Addr : constant System.Address :=
         Get_Controller_Base_Address (PIC1);
       PIC2_Addr : constant System.Address :=
@@ -60,7 +61,7 @@ package body Cxos.Devices.PIC is
       x86.Port_IO.Outb (
         PIC2_Addr + Storage_Offset (1), not 16#0#);
 
-   end Initialise_PIC;
+   end Initialise;
 
    ----------------------------------------------------------------------------
    --  Send_EOI
@@ -158,4 +159,4 @@ package body Cxos.Devices.PIC is
          return;
    end Set_Interrupt_Mask;
 
-end Cxos.Devices.PIC;
+end Cxos.PIC;

@@ -18,7 +18,7 @@ with Ada.Interrupts; use Ada.Interrupts;
 --    This package contains code for working with the x86 8259A programmable
 --    interrupt controller.
 -------------------------------------------------------------------------------
-package Cxos.Devices.PIC is
+package Cxos.PIC is
    pragma Preelaborate;
 
    ----------------------------------------------------------------------------
@@ -29,7 +29,7 @@ package Cxos.Devices.PIC is
    --  Exceptions:
    --    None.
    ----------------------------------------------------------------------------
-   procedure Initialise_PIC;
+   procedure Initialise;
 
    ----------------------------------------------------------------------------
    --  Send_EOI
@@ -56,4 +56,4 @@ package Cxos.Devices.PIC is
      Status : Boolean
    );
 
-end Cxos.Devices.PIC;
+end Cxos.PIC;

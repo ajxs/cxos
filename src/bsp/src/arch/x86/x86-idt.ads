@@ -27,13 +27,13 @@ package x86.IDT is
    --  Differs from GDT descriptor type field.
    --  Refer to Page 197. Intel IA-32 SDM 3a.
    ----------------------------------------------------------------------------
-   type Descriptor_Type is (
+   type Descriptor_Type_T is (
      None,
      Interrupt_Gate_16_Bit,
      Interrupt_Gate_32_Bit
    )
    with Size => 4;
-   for Descriptor_Type use (
+   for Descriptor_Type_T use (
      None                  => 0,
      Interrupt_Gate_16_Bit => 16#6#,
      Interrupt_Gate_32_Bit => 16#E#
@@ -45,26 +45,26 @@ package x86.IDT is
    ----------------------------------------------------------------------------
    type IDT_Descriptor is
       record
-         Offset_Low  : Unsigned_16;
-         Selector    : Unsigned_16;
-         Reserved    : Unsigned_8;
-         Descr_Type  : Descriptor_Type;
-         S           : Boolean;
-         DPL         : Descriptor_Privilege_Level;
-         P           : Boolean;
-         Offset_High : Unsigned_16;
+         Offset_Low      : Unsigned_16;
+         Selector        : Unsigned_16;
+         Reserved        : Unsigned_8;
+         Descriptor_Type : Descriptor_Type_T;
+         S               : Boolean;
+         DPL             : Descriptor_Privilege_Level;
+         P               : Boolean;
+         Offset_High     : Unsigned_16;
       end record
    with Size => 64;
    for IDT_Descriptor use
       record
-         Offset_Low  at 0 range 0  .. 15;
-         Selector    at 0 range 16 .. 31;
-         Reserved    at 4 range 0  .. 7;
-         Descr_Type  at 4 range 8  .. 11;
-         S           at 4 range 12 .. 12;
-         DPL         at 4 range 13 .. 14;
-         P           at 4 range 15 .. 15;
-         Offset_High at 4 range 16 .. 31;
+         Offset_Low      at 0 range 0  .. 15;
+         Selector        at 0 range 16 .. 31;
+         Reserved        at 4 range 0  .. 7;
+         Descriptor_Type at 4 range 8  .. 11;
+         S               at 4 range 12 .. 12;
+         DPL             at 4 range 13 .. 14;
+         P               at 4 range 15 .. 15;
+         Offset_High     at 4 range 16 .. 31;
       end record;
 
    ----------------------------------------------------------------------------

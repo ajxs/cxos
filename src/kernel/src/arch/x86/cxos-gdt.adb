@@ -67,7 +67,7 @@ package body Cxos.GDT is
                Limit_Low  => Unsigned_16 (Limit and 16#FFFF#),
                Base_Low   => Unsigned_16 (Base and 16#FFFF#),
                Base_Mid   => Unsigned_8 (Shift_Right (Base, 16) and 16#FF#),
-               Descr_Type => (
+               Descriptor_Type => (
                   A          => False,
                   W_R        => True,
                   E_C        => False,
@@ -94,9 +94,10 @@ package body Cxos.GDT is
             --  code segment.
             null;
          when Data =>
-            Global_Descriptor_Table (Index).Descr_Type.Field_Type := False;
+            Global_Descriptor_Table (Index)
+              .Descriptor_Type.Field_Type := False;
          when Task_Type =>
-            Global_Descriptor_Table (Index).Descr_Type := (
+            Global_Descriptor_Table (Index).Descriptor_Type := (
                A          => True,
                W_R        => False,
                E_C        => False,
@@ -104,7 +105,7 @@ package body Cxos.GDT is
             );
             Global_Descriptor_Table (Index).S   := False;
          when None =>
-            Global_Descriptor_Table (Index).Descr_Type := (
+            Global_Descriptor_Table (Index).Descriptor_Type := (
                A          => False,
                W_R        => False,
                E_C        => False,

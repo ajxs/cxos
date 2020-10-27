@@ -16,6 +16,9 @@ with Cxos.Devices.PCI.Print; use Cxos.Devices.PCI.Print;
 package body Cxos.Devices.PCI is
    package Chars renames Ada.Characters.Latin_1;
    procedure Debug_Print (Data : String) renames Cxos.Debug.Put_String;
+   --  Error logging function shorthand.
+   procedure Log_Error (Message : String)
+     renames Cxos.Error_Handling.Log_Kernel_Error;
 
    ----------------------------------------------------------------------------
    --  Find_Pci_Devices
@@ -40,7 +43,7 @@ package body Cxos.Devices.PCI is
                   --  Test the individual PCI address.
                   Result := Test_PCI_Device (Test_Result, Bus, Device, Func);
                   if Result /= Success then
-                     Debug_Print ("Error testing PCI device" & Chars.LF);
+                     Log_Error ("Error testing PCI device" & Chars.LF);
                      return Unhandled_Exception;
                   end if;
 
@@ -48,7 +51,7 @@ package body Cxos.Devices.PCI is
                      Result := Read_PCI_Device (Device_Info, Bus,
                        Device, Func);
                      if Result /= Success then
-                        Debug_Print ("Error reading PCI device" & Chars.LF);
+                        Log_Error ("Error reading PCI device" & Chars.LF);
                         return Unhandled_Exception;
                      end if;
 

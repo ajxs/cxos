@@ -15,6 +15,9 @@ with Cxos.Debug;
 package body Cxos.Devices.PCI.Print is
    package Chars renames Ada.Characters.Latin_1;
    procedure Debug_Print (Data : String) renames Cxos.Debug.Put_String;
+   --  Error logging function shorthand.
+   procedure Log_Error (Message : String)
+     renames Cxos.Error_Handling.Log_Kernel_Error;
 
    ----------------------------------------------------------------------------
    --  Print_Pci_Device
@@ -195,7 +198,7 @@ package body Cxos.Devices.PCI.Print is
       Debug_Print ("------------------------" & Chars.LF);
    exception
       when Constraint_Error =>
-         Debug_Print ("Error printing device: " &
+         Log_Error ("Error printing device: " &
            "Invalid Value Encountered" & Chars.LF);
          return;
    end Print_PCI_Device;

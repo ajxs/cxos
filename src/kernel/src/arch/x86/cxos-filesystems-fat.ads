@@ -170,13 +170,13 @@ package Cxos.Filesystems.FAT is
    --  This contains the BIOS Parameter Block typed as a blank buffer which
    --  can be cast to the relevant type depending on the FAT version.
    ----------------------------------------------------------------------------
-   type Boot_Sector is
+   type Boot_Sector_T is
       record
          Boot_Jump  : Boot_Jump_Bytes_T;
          OEM_Name   : String (1 .. 8);
          BPB_Buffer : Reserved_BIOS_Parameter_Block_Buffer;
       end record;
-   for Boot_Sector use
+   for Boot_Sector_T use
       record
          Boot_Jump  at 0 range 0  .. 23;
          OEM_Name   at 0 range 24 .. 87;
@@ -333,7 +333,7 @@ package Cxos.Filesystems.FAT is
    --    Gets the type of a FAT filesystem.
    ----------------------------------------------------------------------------
    procedure Get_Filesystem_Type (
-     Boot_Sec :     Boot_Sector;
+     Boot_Sec :     Boot_Sector_T;
      FAT_Type : out FAT_Type_T;
      Status   : out Program_Status
    );

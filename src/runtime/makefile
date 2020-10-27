@@ -34,8 +34,7 @@ clean:
 	gprclean -P${RUNTIME_PROJ}
 	rm -rf ${BUILD_DIR}
 
-${RUNTIME_BINARY}: ${INCLUDE_DIR}/*.ad[sb] \
-	${LIB_DIR}
+${RUNTIME_BINARY}: ${INCLUDE_DIR}/*.ad[sb] ${LIB_DIR}
 	gprbuild -P${RUNTIME_PROJ}
 
 ${INCLUDE_DIR}/*.ad[sb]: ${ARCH_SRC_DIR}/*.ad[sb] ${COMMON_SRC_DIR}/*.ad[sb] ${INCLUDE_DIR}

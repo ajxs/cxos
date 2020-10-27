@@ -42,14 +42,14 @@ package body Cxos.IDT is
    ) is
    begin
       Interrupt_Descriptor_Table (Index) := (
-         Offset_Low  => 0,
-         Selector    => 0,
-         Reserved    => 0,
-         Descr_Type  => None,
-         S           => False,
-         DPL         => Ring_0,
-         P           => False,
-         Offset_High => 0
+         Offset_Low      => 0,
+         Selector        => 0,
+         Reserved        => 0,
+         Descriptor_Type => None,
+         S               => False,
+         DPL             => Ring_0,
+         P               => False,
+         Offset_High     => 0
       );
 
    exception
@@ -84,7 +84,8 @@ package body Cxos.IDT is
          end Set_Descriptor_Offset;
 
       Interrupt_Descriptor_Table (Index).Selector   := Selector;
-      Interrupt_Descriptor_Table (Index).Descr_Type := Interrupt_Gate_32_Bit;
+      Interrupt_Descriptor_Table (Index).Descriptor_Type
+        := Interrupt_Gate_32_Bit;
       Interrupt_Descriptor_Table (Index).Reserved   := 0;
       Interrupt_Descriptor_Table (Index).S          := False;
       Interrupt_Descriptor_Table (Index).DPL        := Privilege;

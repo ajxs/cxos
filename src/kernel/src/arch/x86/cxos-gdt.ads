@@ -82,7 +82,7 @@ private
        Limit_Low  => 0,
        Base_Low   => 0,
        Base_Mid   => 0,
-       Descr_Type => (
+       Descriptor_Type => (
          A          => False,
          W_R        => False,
          E_C        => False,

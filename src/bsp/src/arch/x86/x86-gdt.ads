@@ -35,7 +35,7 @@ package x86.GDT is
    --  Descriptor type information.
    --  Refer to Page 100. Intel IA-32 SDM 3a.
    ----------------------------------------------------------------------------
-   type Descriptor_Type is
+   type Descriptor_Type_T is
       record
          A          : Boolean;
          W_R        : Boolean;
@@ -43,7 +43,7 @@ package x86.GDT is
          Field_Type : Boolean;
       end record
    with Size => 4;
-   for Descriptor_Type use
+   for Descriptor_Type_T use
       record
          A          at 0 range 0 .. 0;
          W_R        at 0 range 1 .. 1;
@@ -57,36 +57,36 @@ package x86.GDT is
    ----------------------------------------------------------------------------
    type GDT_Descriptor is
       record
-         Limit_Low  : Unsigned_16;
-         Base_Low   : Unsigned_16;
-         Base_Mid   : Unsigned_8;
-         Descr_Type : Descriptor_Type;
-         S          : Boolean;
-         DPL        : Descriptor_Privilege_Level;
-         P          : Boolean;
-         Limit_High : Unsigned_4;
-         AVL        : Boolean;
-         L          : Boolean;
-         DB         : Boolean;
-         G          : Boolean;
-         Base_High  : Unsigned_8;
+         Limit_Low       : Unsigned_16;
+         Base_Low        : Unsigned_16;
+         Base_Mid        : Unsigned_8;
+         Descriptor_Type : Descriptor_Type_T;
+         S               : Boolean;
+         DPL             : Descriptor_Privilege_Level;
+         P               : Boolean;
+         Limit_High      : Unsigned_4;
+         AVL             : Boolean;
+         L               : Boolean;
+         DB              : Boolean;
+         G               : Boolean;
+         Base_High       : Unsigned_8;
       end record
    with Size => 64;
    for GDT_Descriptor use
       record
-         Limit_Low   at 0 range 0  .. 15;
-         Base_Low    at 0 range 16 .. 31;
-         Base_Mid    at 4 range 0  .. 7;
-         Descr_Type  at 4 range 8  .. 11;
-         S           at 4 range 12 .. 12;
-         DPL         at 4 range 13 .. 14;
-         P           at 4 range 15 .. 15;
-         Limit_High  at 4 range 16 .. 19;
-         AVL         at 4 range 20 .. 20;
-         L           at 4 range 21 .. 21;
-         DB          at 4 range 22 .. 22;
-         G           at 4 range 23 .. 23;
-         Base_High   at 4 range 24 .. 31;
+         Limit_Low       at 0 range 0  .. 15;
+         Base_Low        at 0 range 16 .. 31;
+         Base_Mid        at 4 range 0  .. 7;
+         Descriptor_Type at 4 range 8  .. 11;
+         S               at 4 range 12 .. 12;
+         DPL             at 4 range 13 .. 14;
+         P               at 4 range 15 .. 15;
+         Limit_High      at 4 range 16 .. 19;
+         AVL             at 4 range 20 .. 20;
+         L               at 4 range 21 .. 21;
+         DB              at 4 range 22 .. 22;
+         G               at 4 range 23 .. 23;
+         Base_High       at 4 range 24 .. 31;
       end record;
 
    ----------------------------------------------------------------------------

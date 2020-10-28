@@ -20,7 +20,7 @@ package body x86.PIT is
    --   - Returns a constant value stored within the function.
    ----------------------------------------------------------------------------
    function Get_Register_Address (
-     Register : PIT_Register
+     Register : PIT_Register_T
    ) return System.Address is
       Channel_0_Address : constant System.Address := To_Address (16#40#);
       Channel_1_Address : constant System.Address := To_Address (16#41#);

@@ -163,7 +163,7 @@ package Cxos.Filesystems.FAT is
    --  between the different BPB types.
    ----------------------------------------------------------------------------
    type Reserved_BIOS_Parameter_Block_Buffer is
-     array (Natural range 0 .. 89) of Unsigned_8;
+     array (Natural range 0 .. 500) of Unsigned_8;
 
    ----------------------------------------------------------------------------
    --  Type representing the boot sector in a FAT formatted device.
@@ -175,12 +175,13 @@ package Cxos.Filesystems.FAT is
          Boot_Jump  : Boot_Jump_Bytes_T;
          OEM_Name   : String (1 .. 8);
          BPB_Buffer : Reserved_BIOS_Parameter_Block_Buffer;
-      end record;
+      end record
+   with Size => 4096;
    for Boot_Sector_T use
       record
          Boot_Jump  at 0 range 0  .. 23;
          OEM_Name   at 0 range 24 .. 87;
-         BPB_Buffer at 0 range 88 .. 807;
+         BPB_Buffer at 0 range 88 .. 4095;
       end record;
 
    ----------------------------------------------------------------------------
@@ -342,8 +343,8 @@ package Cxos.Filesystems.FAT is
    --  Parse_Directory
    ----------------------------------------------------------------------------
    procedure Parse_Directory (
-     Directory_Buffer_Addr : System.Address;
-     Directory_Size        : Natural;
+     Directory_Buffer_Addr :     System.Address;
+     Directory_Size        :     Natural;
      Status                : out Program_Status
    );
 

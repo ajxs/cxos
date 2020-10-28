@@ -16,7 +16,7 @@ with Interfaces; use Interfaces;
 --  X86.SERIAL
 --
 --  Purpose:
---    This package contains a basic Serial I/O driver.
+--    This package contains the type definitons for a basic Serial I/O driver.
 --    The procedures and type definitions contained within this module can be
 --    used to interact with the system's serial ports.
 -------------------------------------------------------------------------------

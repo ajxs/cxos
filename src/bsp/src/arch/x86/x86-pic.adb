@@ -16,7 +16,7 @@ package body x86.PIC is
    --  Get_Port_Address
    ----------------------------------------------------------------------------
    function Get_Controller_Base_Address (
-      Controller : PIC_Controller
+      Controller : PIC_Controller_T
    ) return System.Address is
    begin
       case Controller is

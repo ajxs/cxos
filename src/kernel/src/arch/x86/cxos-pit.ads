@@ -43,7 +43,7 @@ private
    --    None.
    ----------------------------------------------------------------------------
    procedure Initialise_Channel (
-     Channel        : PIT_Channel;
+     Channel        : PIT_Channel_T;
      Operating_Mode : Operating_Mode_Type;
      Initial_Value  : Unsigned_16
    );

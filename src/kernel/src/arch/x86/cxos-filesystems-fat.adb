@@ -79,8 +79,8 @@ package body Cxos.Filesystems.FAT is
    --  Parse_Directory
    ----------------------------------------------------------------------------
    procedure Parse_Directory (
-     Directory_Buffer_Addr : System.Address;
-     Directory_Size        : Natural;
+     Directory_Buffer_Addr :     System.Address;
+     Directory_Size        :     Natural;
      Status                : out Program_Status
    ) is
    begin
@@ -91,7 +91,7 @@ package body Cxos.Filesystems.FAT is
            Convention => Ada,
            Address    => Directory_Buffer_Addr;
 
-         File_Idx      : Natural := 1;
+         File_Idx          : Natural := 1;
          Directory_Entries : array (1 .. 8) of Cxos.VFS.Directory_Entry_T;
       begin
          for I in 1 .. Directory_Size loop

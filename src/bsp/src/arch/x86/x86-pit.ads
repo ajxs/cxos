@@ -27,7 +27,7 @@ package x86.PIT is
    --  PIT Channel type.
    --  Used in selecting which PIT Channel to perform an operation on.
    ----------------------------------------------------------------------------
-   type PIT_Channel is (
+   type PIT_Channel_T is (
      Channel_0,
      Channel_1,
      Channel_2
@@ -37,7 +37,7 @@ package x86.PIT is
    --  PIT register type.
    --  Used in selecting which PIT Channel to perform an operation on.
    ----------------------------------------------------------------------------
-   type PIT_Register is (
+   type PIT_Register_T is (
      Channel_0_Data,
      Channel_1_Data,
      Channel_2_Data,
@@ -54,8 +54,9 @@ package x86.PIT is
    --    None.
    ----------------------------------------------------------------------------
    function Get_Register_Address (
-     Register : PIT_Register
-   ) return System.Address;
+     Register : PIT_Register_T
+   ) return System.Address
+   with Pure_Function;
 
    ----------------------------------------------------------------------------
    --  PIT Channel select type.

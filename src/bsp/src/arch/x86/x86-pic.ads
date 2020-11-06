@@ -25,7 +25,7 @@ package x86.PIC is
    --  PIC Controller type.
    --  Used in selecting which PIC to perform an operation on.
    ----------------------------------------------------------------------------
-   type PIC_Controller is (
+   type PIC_Controller_T is (
      PIC1,
      PIC2
    );
@@ -37,7 +37,7 @@ package x86.PIC is
    --    This function gets the base address for a particular PIC controller.
    ----------------------------------------------------------------------------
    function Get_Controller_Base_Address (
-      Controller : PIC_Controller
+      Controller : PIC_Controller_T
    ) return System.Address;
 
 end x86.PIC;

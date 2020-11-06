@@ -1,16 +1,20 @@
 with Ada.Characters.Latin_1; use Ada.Characters.Latin_1;
 with Cxos.Debug;
+with Cxos.Error_Handling;
 with Cxos.VFS;
 
 package body Cxos.Filesystems.FAT is
    package Chars renames Ada.Characters.Latin_1;
    procedure Debug_Print (Data : String) renames Cxos.Debug.Put_String;
+   --  Error logging function shorthand.
+   procedure Log_Error (Message : String)
+     renames Cxos.Error_Handling.Log_Kernel_Error;
 
    ----------------------------------------------------------------------------
    --  Get_Filesystem_Type
    ----------------------------------------------------------------------------
    procedure Get_Filesystem_Type (
-     Boot_Sec :     Boot_Sector;
+     Boot_Sec :     Boot_Sector_T;
      FAT_Type : out FAT_Type_T;
      Status   : out Program_Status
    ) is
@@ -75,8 +79,8 @@ package body Cxos.Filesystems.FAT is
    --  Parse_Directory
    ----------------------------------------------------------------------------
    procedure Parse_Directory (
-     Directory_Buffer_Addr : System.Address;
-     Directory_Size        : Natural;
+     Directory_Buffer_Addr :     System.Address;
+     Directory_Size        :     Natural;
      Status                : out Program_Status
    ) is
    begin
@@ -87,7 +91,7 @@ package body Cxos.Filesystems.FAT is
            Convention => Ada,
            Address    => Directory_Buffer_Addr;
 
-         File_Idx      : Natural := 1;
+         File_Idx          : Natural := 1;
          Directory_Entries : array (1 .. 8) of Cxos.VFS.Directory_Entry_T;
       begin
          for I in 1 .. Directory_Size loop
@@ -138,7 +142,7 @@ package body Cxos.Filesystems.FAT is
       Status := Success;
    exception
       when Constraint_Error =>
-         Debug_Print ("Constraint error reading directory" & Chars.LF);
+         Log_Error ("Constraint error reading directory" & Chars.LF);
          null;
    end Parse_Directory;
 

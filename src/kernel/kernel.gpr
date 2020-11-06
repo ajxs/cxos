@@ -23,6 +23,7 @@ project Kernel is
    ARCH : Arch_Type := "x86";
 
    for Source_Dirs use (
+     "../bsp/src/arch/" & ARCH,
      "src",
      "src/arch/common",
      "src/arch/" & ARCH

@@ -25,6 +25,6 @@ package Cxos.Filesystems.FAT.Print is
    --  Purpose:
    --    Prints information about a FAT formatted device.
    ----------------------------------------------------------------------------
-   procedure Print_Filesystem_Info (Boot_Sec : Boot_Sector);
+   procedure Print_Filesystem_Info (Boot_Sec : Boot_Sector_T);
 
 end Cxos.Filesystems.FAT.Print;

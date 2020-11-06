@@ -27,8 +27,6 @@ package Cxos.Devices.Graphics.Vga is
    --  Purpose:
    --    This procedure prints a string to an arbitrary position within
    --    the VGA text-mode buffer.
-   --  Exceptions:
-   --    None.
    ----------------------------------------------------------------------------
    procedure Put_String (
      X  : Col;
@@ -44,9 +42,7 @@ package Cxos.Devices.Graphics.Vga is
    --  Purpose:
    --    This procedure clears the VGA text-mode buffer.
    --    Calling this function will clear the screen, filling it with the
-   --    supplied background colour.
-   --  Exceptions:
-   --    None.
+   --    specified background colour.
    ----------------------------------------------------------------------------
    procedure Clear (
      Bg : Color

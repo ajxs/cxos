@@ -36,7 +36,7 @@ package body Cxos.PIT is
    --     any race conditions in different threads, if applicable.
    ----------------------------------------------------------------------------
    procedure Initialise_Channel (
-     Channel        : PIT_Channel;
+     Channel        : PIT_Channel_T;
      Operating_Mode : Operating_Mode_Type;
      Initial_Value  : Unsigned_16
    ) is
@@ -51,7 +51,7 @@ package body Cxos.PIT is
       --  Get the register address for the selected PIT channel.
       Get_Channel_Register_Address :
          declare
-            Channel_Register : PIT_Register;
+            Channel_Register : PIT_Register_T;
          begin
             case Channel is
                when Channel_0 =>

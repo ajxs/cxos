@@ -9,25 +9,37 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
+with System;
 with System.Storage_Elements; use System.Storage_Elements;
 
-package body x86.PIC is
+package body x86.PIT is
    ----------------------------------------------------------------------------
-   --  Get_Port_Address
+   --  Get_Register_Address
+   --
+   --  Implementation Notes:
+   --   - Returns a constant value stored within the function.
    ----------------------------------------------------------------------------
-   function Get_Controller_Base_Address (
-      Controller : PIC_Controller
+   function Get_Register_Address (
+     Register : PIT_Register_T
    ) return System.Address is
+      Channel_0_Address : constant System.Address := To_Address (16#40#);
+      Channel_1_Address : constant System.Address := To_Address (16#41#);
+      Channel_2_Address : constant System.Address := To_Address (16#42#);
+      Command_Address   : constant System.Address := To_Address (16#43#);
    begin
-      case Controller is
-         when PIC1 =>
-            return To_Address (16#20#);
-         when PIC2 =>
-            return To_Address (16#A0#);
+      case Register is
+         when Channel_0_Data =>
+            return Channel_0_Address;
+         when Channel_1_Data =>
+            return Channel_1_Address;
+         when Channel_2_Data =>
+            return Channel_2_Address;
+         when Command =>
+            return Command_Address;
       end case;
    exception
       when Constraint_Error =>
          return System.Null_Address;
-   end Get_Controller_Base_Address;
+   end Get_Register_Address;
 
-end x86.PIC;
+end x86.PIT;

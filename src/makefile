@@ -27,15 +27,12 @@ ISO             := ${ISO_DIR}/build/cxos.img
 
 SERIAL_FILENAME := serial.log
 
-TEST_DISK_DIR   := "util/test_disk"
-TEST_DISK_IMG   := "${TEST_DISK_DIR}/test_fat16.img"
 
 QEMU_FLAGS :=                                  \
 	-accel tcg,thread=single                     \
 	-boot order=dc                               \
 	-cpu core2duo                                \
 	-drive format=raw,media=cdrom,file=${ISO}    \
-	-drive format=raw,media=disk,file=${TEST_DISK_IMG} \
 	-m 128                                       \
 	-machine pc                                  \
 	-no-reboot                                   \
@@ -43,7 +40,7 @@ QEMU_FLAGS :=                                  \
 	-usb                                         \
 	-vga std
 
-all: ${ISO} ${TEST_DISK_IMG}
+all: ${ISO}
 
 ${ISO}: ${KERNEL_BINARY} ${BUILD_DIR}
 	make -C "${ISO_DIR}"
@@ -54,7 +51,6 @@ clean:
 	make clean -C "${ISO_DIR}"
 	make clean -C "${KERNEL_DIR}"
 	make clean -C "${RUNTIME_DIR}"
-	make clean -C "${TEST_DISK_DIR}"
 
 debug: ${ISO}
 	qemu-system-i386                               \
@@ -87,6 +83,3 @@ ${KERNEL_BINARY}: ${RUNTIME_BINARY}
 
 ${BUILD_DIR}:
 	mkdir -p ${BUILD_DIR}
-
-${TEST_DISK_IMG}:
-	make -C ${TEST_DISK_DIR}

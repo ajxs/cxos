@@ -11,15 +11,19 @@
 
 with Ada.Characters.Latin_1; use Ada.Characters.Latin_1;
 with Cxos.Debug;
+with Cxos.Error_Handling;
 
 package body Cxos.Filesystems.FAT.Print is
    package Chars renames Ada.Characters.Latin_1;
    procedure Debug_Print (Data : String) renames Cxos.Debug.Put_String;
+   --  Error logging function shorthand.
+   procedure Log_Error (Message : String)
+     renames Cxos.Error_Handling.Log_Kernel_Error;
 
    ----------------------------------------------------------------------------
    --  Print_Filesystem_Info
    ----------------------------------------------------------------------------
-   procedure Print_Filesystem_Info (Boot_Sec : Boot_Sector) is
+   procedure Print_Filesystem_Info (Boot_Sec : Boot_Sector_T) is
       --  The extended BIOS parameter block, if the filesystem is FAT12/16.
       EBPB : Extended_BIOS_Parameter_Block
       with Import,
@@ -33,7 +37,7 @@ package body Cxos.Filesystems.FAT.Print is
    begin
       Get_Filesystem_Type (Boot_Sec, Filesystem_Type, Status);
       if Status /= Success then
-         Debug_Print ("Error getting FAT device filesystem type" & Chars.LF);
+         Log_Error ("Error getting FAT device filesystem type" & Chars.LF);
          return;
       end if;
 

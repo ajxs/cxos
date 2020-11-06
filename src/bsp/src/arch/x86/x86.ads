@@ -13,9 +13,7 @@
 --  SYSTEM.X86
 --
 --  Purpose:
---    This package contains initialisation code for the x86 system.
---    The initialisation procedure here will perform all the required
---    initialisation code for the platform.
+--    Base package for all x86 BSP packages.
 -------------------------------------------------------------------------------
 package x86 is
    pragma Preelaborate;

@@ -12,12 +12,16 @@
 with Ada.Characters.Latin_1;
 with System.Storage_Elements; use System.Storage_Elements;
 with Cxos.Debug;
+with Cxos.Error_Handling;
 with Cxos.Devices.PCI.Print; use Cxos.Devices.PCI.Print;
 with x86.Port_IO;
 
 package body Cxos.Devices.PCI is
    package Chars renames Ada.Characters.Latin_1;
    procedure Debug_Print (Data : String) renames Cxos.Debug.Put_String;
+   --  Error logging function shorthand.
+   procedure Log_Error (Message : String)
+     renames Cxos.Error_Handling.Log_Kernel_Error;
 
    ----------------------------------------------------------------------------
    --  Image_Status
@@ -69,7 +73,7 @@ package body Cxos.Devices.PCI is
                   --  Test the individual PCI address.
                   Test_PCI_Device (Test_Result, Bus, Device, Func, Status);
                   if Status /= Success then
-                     Debug_Print ("Error testing PCI device: " &
+                     Log_Error ("Error testing PCI device: " &
                        Image_Status (Status) & Chars.LF);
 
                      return;
@@ -78,7 +82,7 @@ package body Cxos.Devices.PCI is
                   if Test_Result then
                      Read_PCI_Device (Device_Info, Bus, Device, Func, Status);
                      if Status /= Success then
-                        Debug_Print ("Error reading PCI device: " &
+                        Log_Error ("Error reading PCI device: " &
                           Image_Status (Status) & Chars.LF);
 
                         return;

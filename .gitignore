@@ -1,4 +1,5 @@
 build
+dev
 *.log
 *.out
 *.swp

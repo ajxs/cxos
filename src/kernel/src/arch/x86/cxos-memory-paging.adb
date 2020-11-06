@@ -9,6 +9,7 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
+with System.Machine_Code;
 with Cxos.Memory.Map;
 
 package body Cxos.Memory.Paging is
@@ -298,6 +299,23 @@ package body Cxos.Memory.Paging is
       when Constraint_Error =>
          return Unhandled_Exception;
    end Create_Page_Table;
+
+   ----------------------------------------------------------------------------
+   --  Current_Page_Dir_Ptr
+   ----------------------------------------------------------------------------
+   function Current_Page_Dir_Ptr return System.Address is
+      CR3 : System.Address;
+   begin
+      System.Machine_Code.Asm (
+        Template => "movl %%cr3, %0",
+        Outputs => (
+          System.Address'Asm_Output ("=a", CR3)
+        ),
+        Volatile => True);
+
+      --  Return the final entry in the currently loaded page directory.
+      return CR3;
+   end Current_Page_Dir_Ptr;
 
    ----------------------------------------------------------------------------
    --  Find_Free_Kernel_Page

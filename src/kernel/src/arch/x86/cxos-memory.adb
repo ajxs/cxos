@@ -9,24 +9,21 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with System.Machine_Code;
-
 package body Cxos.Memory is
    ----------------------------------------------------------------------------
-   --  Current_Page_Dir_Ptr
+   --  Allocate_Kernel_Memory
    ----------------------------------------------------------------------------
-   function Current_Page_Dir_Ptr return System.Address is
-      CR3 : System.Address;
+   procedure Allocate_Kernel_Memory (
+     Size   :     Positive;
+     Addr   : out System.Address;
+     Status : out Process_Result
+   ) is
    begin
-      System.Machine_Code.Asm (
-        Template => "movl %%cr3, %0",
-        Outputs => (
-          System.Address'Asm_Output ("=a", CR3)
-        ),
-        Volatile => True);
+      Addr := System.Null_Address;
 
-      --  Return the final entry in the currently loaded page directory.
-      return CR3;
-   end Current_Page_Dir_Ptr;
+      pragma Unreferenced (Size);
+
+      Status := Success;
+   end Allocate_Kernel_Memory;
 
 end Cxos.Memory;

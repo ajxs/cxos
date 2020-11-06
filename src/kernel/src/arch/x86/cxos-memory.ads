@@ -43,15 +43,6 @@ package Cxos.Memory is
    );
 
    ----------------------------------------------------------------------------
-   --  Current_Page_Dir_Ptr
-   --
-   --  Purpose:
-   --    Returns the address of the currently loaded page directory address.
-   ----------------------------------------------------------------------------
-   function Current_Page_Dir_Ptr return System.Address
-   with Volatile_Function;
-
-   ----------------------------------------------------------------------------
    --  Get_Stack_Top
    --
    --  Purpose:
@@ -62,6 +53,15 @@ package Cxos.Memory is
    with Import,
      Convention    => Assembler,
      External_Name => "cxos_memory_get_stack_top";
+
+   ----------------------------------------------------------------------------
+   --  Allocate_Kernel_Memory
+   ----------------------------------------------------------------------------
+   procedure Allocate_Kernel_Memory (
+     Size   :     Positive;
+     Addr   : out System.Address;
+     Status : out Process_Result
+   );
 
 private
    ----------------------------------------------------------------------------

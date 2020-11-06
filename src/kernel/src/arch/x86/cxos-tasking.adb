@@ -31,7 +31,7 @@ package body Cxos.Tasking is
       --  Set the page directory pointer to the currently loaded page
       --  directory pointer.
       Process_Block.Id  := Process_Count;
-      Process_Block.CR3 := Cxos.Memory.Current_Page_Dir_Ptr;
+      Process_Block.CR3 := Cxos.Memory.Paging.Current_Page_Dir_Ptr;
       Process_Block.ESP := Cxos.Memory.Get_Stack_Top;
 
       --  Increment the process count.

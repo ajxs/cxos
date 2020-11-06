@@ -23,19 +23,19 @@ package body Cxos.Filesystems.FAT.Print is
    ----------------------------------------------------------------------------
    --  Print_Filesystem_Info
    ----------------------------------------------------------------------------
-   procedure Print_Filesystem_Info (Boot_Sec : Boot_Sector_T) is
+   procedure Print_Filesystem_Info (Boot_Sector : Boot_Sector_T) is
       --  The extended BIOS parameter block, if the filesystem is FAT12/16.
       EBPB : Extended_BIOS_Parameter_Block
       with Import,
         Convention => Ada,
-        Address    => Boot_Sec.BPB_Buffer'Address;
+        Address    => Boot_Sector.BPB_Buffer'Address;
 
       --  The type of this FAT filesystem.
       Filesystem_Type : FAT_Type_T := FAT12;
       --  The status of internal operations.
       Status          : Program_Status;
    begin
-      Get_Filesystem_Type (Boot_Sec, Filesystem_Type, Status);
+      Get_Filesystem_Type (Boot_Sector, Filesystem_Type, Status);
       if Status /= Success then
          Log_Error ("Error getting FAT device filesystem type" & Chars.LF);
          return;
@@ -58,13 +58,13 @@ package body Cxos.Filesystems.FAT.Print is
 
       Debug_Print ("  Boot Jump Bytes:       ");
       for I in Natural range 1 .. 3 loop
-         Debug_Print ("" & Boot_Sec.Boot_Jump (I)'Image);
+         Debug_Print ("" & Boot_Sector.Boot_Jump (I)'Image);
       end loop;
       Debug_Print ("" & Chars.LF);
 
       Debug_Print ("  OEM name:              ");
       for I in Natural range 1 .. 8 loop
-         Debug_Print ("" & Boot_Sec.OEM_Name (I));
+         Debug_Print ("" & Boot_Sector.OEM_Name (I));
       end loop;
       Debug_Print ("" & Chars.LF);
 

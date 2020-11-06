@@ -9,9 +9,7 @@
 --     Anthony <ajxs [at] panoptic.online>
 -------------------------------------------------------------------------------
 
-with Ada.Unchecked_Conversion;
 with Interfaces; use Interfaces;
-with System;
 
 -------------------------------------------------------------------------------
 --  CXOS.FILESYSTEMS.FAT
@@ -28,8 +26,10 @@ package Cxos.Filesystems.FAT is
    --  Used to track the results of functions.
    ----------------------------------------------------------------------------
    type Program_Status is (
+     Invalid_Argument,
      Failure,
-     Success
+     Success,
+     Unhandled_Exception
    );
 
    ----------------------------------------------------------------------------
@@ -212,32 +212,38 @@ package Cxos.Filesystems.FAT is
    ----------------------------------------------------------------------------
    --  File name entry attributes type.
    ----------------------------------------------------------------------------
-   type Directory_Entry_Attributes is (
-     Read_Only,
-     Hidden,
-     System_Entry,
-     Volume_Id,
-     Long_File_Name_Entry,
-     Directory,
-     Archive
-   )
+   type Directory_Entry_Attributes_T is
+      record
+         Read_Only            : Boolean;
+         Hidden               : Boolean;
+         System_Entry         : Boolean;
+         Volume_Label         : Boolean;
+         Directory            : Boolean;
+         Archive              : Boolean;
+         Device               : Boolean;
+         Reserved             : Boolean;
+      end record
    with Size => 8;
-   for Directory_Entry_Attributes use (
-     Read_Only            => 1,
-     Hidden               => 2,
-     System_Entry         => 4,
-     Volume_Id            => 8,
-     Long_File_Name_Entry => 15,
-     Directory            => 16,
-     Archive              => 32
-   );
+   for Directory_Entry_Attributes_T use
+      record
+         Read_Only            at 0 range 0 .. 0;
+         Hidden               at 0 range 1 .. 1;
+         System_Entry         at 0 range 2 .. 2;
+         Volume_Label         at 0 range 3 .. 3;
+         Directory            at 0 range 4 .. 4;
+         Archive              at 0 range 5 .. 5;
+         Device               at 0 range 6 .. 6;
+         Reserved             at 0 range 7 .. 7;
+      end record;
 
    ----------------------------------------------------------------------------
+   --  DOS 8.3 Directory Entry
    ----------------------------------------------------------------------------
    type Directory_Entry is
       record
-         File_Name          : String (1 .. 11);
-         Attributes         : Directory_Entry_Attributes;
+         File_Name          : String (1 .. 8);
+         File_Ext           : String (1 .. 3);
+         Attributes         : Directory_Entry_Attributes_T;
          Reserved           : Unsigned_8;
          Creation_Seconds   : Unsigned_8;
          Creation_Time      : Unsigned_16;
@@ -252,7 +258,8 @@ package Cxos.Filesystems.FAT is
    with Size => 256;
    for Directory_Entry use
       record
-         File_Name          at 0 range 0   .. 87;
+         File_Name          at 0 range 0   .. 63;
+         File_Ext           at 0 range 64  .. 87;
          Attributes         at 0 range 88  .. 95;
          Reserved           at 0 range 96  .. 103;
          Creation_Seconds   at 0 range 104 .. 111;
@@ -267,13 +274,14 @@ package Cxos.Filesystems.FAT is
       end record;
 
    ----------------------------------------------------------------------------
+   --  Directory Index array type.
    ----------------------------------------------------------------------------
    type Directory_Index is array (Natural range <>) of Directory_Entry;
 
    ----------------------------------------------------------------------------
+   --  LFN Directory Entry sequence type.
+   --  Stores the sequence number and attributes for a LFN directory entry.
    ----------------------------------------------------------------------------
-   type Long_File_Name_String is array (Natural range <>) of Wide_Character;
-
    type Long_File_Name_Sequence is
       record
          Number     : Unsigned_5;
@@ -290,12 +298,13 @@ package Cxos.Filesystems.FAT is
       end record;
 
    ----------------------------------------------------------------------------
+   --  LFN Directory Entry type.
    ----------------------------------------------------------------------------
    type Long_File_Name_Directory_Entry is
       record
          Sequence      : Long_File_Name_Sequence;
          Name_1        : Wide_String (1 .. 5);
-         Attributes    : Directory_Entry_Attributes;
+         Attributes    : Directory_Entry_Attributes_T;
          Entry_Type    : Unsigned_8;
          Checksum      : Unsigned_8;
          Name_2        : Wide_String (1 .. 6);
@@ -334,25 +343,87 @@ package Cxos.Filesystems.FAT is
    --    Gets the type of a FAT filesystem.
    ----------------------------------------------------------------------------
    procedure Get_Filesystem_Type (
-     Boot_Sec :     Boot_Sector_T;
-     FAT_Type : out FAT_Type_T;
-     Status   : out Program_Status
+     Boot_Sector :     Boot_Sector_T;
+     FAT_Type    : out FAT_Type_T;
+     Status      : out Program_Status
    );
 
    ----------------------------------------------------------------------------
-   --  Parse_Directory
+   --  Read_Directory
    ----------------------------------------------------------------------------
-   procedure Parse_Directory (
-     Directory_Buffer_Addr :     System.Address;
-     Directory_Size        :     Natural;
+   procedure Read_Directory (
+     Directory :     Directory_Index;
+     Status    : out Program_Status
+   );
+
+   ----------------------------------------------------------------------------
+   --  Get_Root_Directory_Sector
+   ----------------------------------------------------------------------------
+   procedure Get_Root_Directory_Sector (
+     Boot_Sector           :     Boot_Sector_T;
+     Root_Directory_Sector : out Natural;
      Status                : out Program_Status
    );
 
+private
    ----------------------------------------------------------------------------
+   --  Is_Last_Directory_Entry
+   --
+   --  Purpose:
+   --    Checks whether a particular directory entry is the last in a
+   --    directory.
    ----------------------------------------------------------------------------
-   function Dir_Entry_To_LFN_Dir_Entry is
-      new Ada.Unchecked_Conversion (
-        Source => Directory_Entry,
-        Target => Long_File_Name_Directory_Entry
-      );
+   function Is_Last_Directory_Entry (
+     Dir_Entry : Directory_Entry
+   ) return Boolean
+   with Pure_Function,
+     Inline;
+
+   ----------------------------------------------------------------------------
+   --  Is_Unused_Entry
+   --
+   --  Purpose:
+   --    Checks whether a particular directory entry is unused.
+   ----------------------------------------------------------------------------
+   function Is_Unused_Entry (
+     Dir_Entry : Directory_Entry
+   ) return Boolean
+   with Pure_Function,
+     Inline;
+
+   ----------------------------------------------------------------------------
+   --  Is_LFN_Entry
+   --
+   --  Purpose:
+   --    Checks whether a particular directory entry is a long filename entry.
+   ----------------------------------------------------------------------------
+   function Is_LFN_Entry (
+     Dir_Entry : Directory_Entry
+   ) return Boolean
+   with Pure_Function,
+     Inline;
+
+   ----------------------------------------------------------------------------
+   --  Get_DOS_Filename
+   --
+   --  Purpose:
+   --    Reads a DOS filename from an 8.3 directory entry.
+   ----------------------------------------------------------------------------
+   procedure Get_DOS_Filename (
+     Dir_Entry :     Directory_Entry;
+     Filename  : out Wide_String;
+     Status    : out Program_Status
+   );
+
+   ----------------------------------------------------------------------------
+   --  Read_LFN_Entry_Name
+   --
+   --  Purpose:
+   --    Reads the portion of a file name from a long filename entry.
+   ----------------------------------------------------------------------------
+   procedure Read_LFN_Entry_Name (
+     Dir_Entry :        Directory_Entry;
+     Filename  : in out Wide_String;
+     Status    :    out Program_Status
+   );
 end Cxos.Filesystems.FAT;

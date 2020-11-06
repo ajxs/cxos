@@ -24,6 +24,26 @@ package Cxos.Devices.Storage.ATA is
    pragma Preelaborate;
 
    ----------------------------------------------------------------------------
+   --  Program status type.
+   --  Denotes the result of running an individual process.
+   ----------------------------------------------------------------------------
+   type Program_Status is (
+     Bus_Read_Error,
+     Command_Aborted,
+     Device_Busy,
+     Device_In_Error_State,
+     Device_Non_ATA,
+     Device_Not_Found,
+     Device_Not_Present,
+     Device_Read_Buffer_Overflow,
+     Drive_Fault,
+     Invalid_Command,
+     Packet_Interface_Not_Supported,
+     Success,
+     Unhandled_Exception
+   );
+
+   ----------------------------------------------------------------------------
    --  ATA read buffer type.
    --  This type is used as a destination buffer for reading from an ATA
    --  device. The actual theoretical maximum size is 16776960 words. This
@@ -63,7 +83,9 @@ package Cxos.Devices.Storage.ATA is
    --  Purpose:
    --    Populates the list of ATA devices supported by the system.
    ----------------------------------------------------------------------------
-   procedure Find_ATA_Devices;
+   procedure Find_ATA_Devices (
+     Status : out Program_Status
+   );
 
    ----------------------------------------------------------------------------
    --  Print_Identification_Record
@@ -81,7 +103,7 @@ package Cxos.Devices.Storage.ATA is
      Sector_Cnt :     x86.ATA.ATA_Sector_Count;
      LBA        :     x86.ATA.ATA_LBA;
      Buffer     : out ATA_Read_Buffer;
-     Status     : out Process_Result;
+     Status     : out Program_Status;
      Mode       :     x86.ATA.LBA_Mode := LBA28
    );
 
@@ -93,7 +115,7 @@ private
      Device   : out ATA_Device;
      Bus      :     ATA_Bus;
      Position :     ATA_Device_Position;
-     Status   : out Process_Result
+     Status   : out Program_Status
    );
 
    ----------------------------------------------------------------------------
@@ -102,12 +124,12 @@ private
    --  Purpose:
    --    Reads the identification buffer from a specific ATA device.
    ----------------------------------------------------------------------------
-   function Identify (
+   procedure Identify (
      Id_Record : out x86.ATA.Device_Identification_Record;
      Bus       :     x86.ATA.ATA_Bus;
-     Position  :     x86.ATA.ATA_Device_Position
-   ) return Process_Result
-   with Volatile_Function;
+     Position  :     x86.ATA.ATA_Device_Position;
+     Status    : out Program_Status
+   );
 
    ----------------------------------------------------------------------------
    --  Identify_Packet_Device
@@ -115,12 +137,12 @@ private
    --  Purpose:
    --    Reads the identification buffer from a specific ATAPI device.
    ----------------------------------------------------------------------------
-   function Identify_Packet_Device (
+   procedure Identify_Packet_Device (
      Id_Record : out x86.ATA.Device_Identification_Record;
      Bus       :     x86.ATA.ATA_Bus;
-     Position  :     x86.ATA.ATA_Device_Position
-   ) return Process_Result
-   with Volatile_Function;
+     Position  :     x86.ATA.ATA_Device_Position;
+     Status    : out Program_Status
+   );
 
    ----------------------------------------------------------------------------
    --  Get_Device_Type
@@ -132,7 +154,7 @@ private
      Device_Type : out x86.ATA.ATA_Device_Type;
      Bus         :     x86.ATA.ATA_Bus;
      Position    :     x86.ATA.ATA_Device_Position;
-     Status      : out Process_Result
+     Status      : out Program_Status
    );
 
    ----------------------------------------------------------------------------
@@ -143,7 +165,7 @@ private
    ----------------------------------------------------------------------------
    procedure Reset_Bus (
      Bus    :     x86.ATA.ATA_Bus;
-     Status : out Process_Result
+     Status : out Program_Status
    );
 
    ----------------------------------------------------------------------------
@@ -164,7 +186,7 @@ private
    procedure Select_Device_Position (
      Bus      :     x86.ATA.ATA_Bus;
      Position :     x86.ATA.ATA_Device_Position;
-     Status   : out Process_Result
+     Status   : out Program_Status
    );
 
    ----------------------------------------------------------------------------
@@ -176,7 +198,7 @@ private
    procedure Send_Command (
      Bus          :     x86.ATA.ATA_Bus;
      Command_Type :     x86.ATA.ATA_Command;
-     Status       : out Process_Result
+     Status       : out Program_Status
    );
 
    ----------------------------------------------------------------------------
@@ -191,7 +213,7 @@ private
    ----------------------------------------------------------------------------
    procedure Wait_For_Device_Ready (
      Bus           :     x86.ATA.ATA_Bus;
-     Status        : out Process_Result;
+     Status        : out Program_Status;
      Timeout       :     Cxos.Time_Keeping.Time := 2000;
      Wait_For_Data :     Boolean := False
    );
@@ -201,7 +223,7 @@ private
    ----------------------------------------------------------------------------
    procedure Flush_Bus_Write_Cache (
      Bus    : x86.ATA.ATA_Bus;
-     Status : out Process_Result
+     Status : out Program_Status
    );
 
    ----------------------------------------------------------------------------
@@ -211,7 +233,7 @@ private
    --    Returns a string representing a process result object.
    ----------------------------------------------------------------------------
    function Print_Program_Status (
-     Result : Process_Result
+     Status : Program_Status
    ) return String;
 
 end Cxos.Devices.Storage.ATA;
